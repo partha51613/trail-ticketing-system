@@ -1,5 +1,36 @@
 # Team Ticket Tracker — Project Specification & Architecture Guide
 
+---
+## 🚀 Live Project Status & Progress Tracker
+> **Current Status:** Milestone 1 in progress (Database & Models)
+> **Completed:** 
+>   - Updated `users` migration (added `role` enum, `softDeletes`)
+>   - Created `projects` migration (name, desc, timestamps, softDeletes, deleted_by_id)
+> **Next Immediate Task:** 
+>   - Task 1.3: Create `project_manager` pivot migration (compound PK `['user_id', 'project_id']`, cascade on delete)
+>   - Then `tickets`, `comments`, `ticket_watchers`, `ticket_activity_logs`
+> **Last Updated:** October 2026
+
+- [ ] **Milestone 1:** Database, Migrations & Models
+  - [ ] Migrations created & run (7 tables)
+  - [ ] Eloquent models & relationships defined
+  - [ ] Seeders created (Admin, Manager, Users)
+- [ ] **Milestone 2:** Authentication & Policies
+  - [ ] Laravel Breeze installed
+  - [ ] TicketPolicy, CommentPolicy, ProjectPolicy implemented
+- [ ] **Milestone 3:** Controllers & Business Logic
+  - [ ] Form requests & validation
+  - [ ] Ticket CRUD & Atomic Blocked rule
+  - [ ] Comment controller & 5-min window checks
+- [ ] **Milestone 4:** Notifications & Queues (Deferred for MVP)
+  - [ ] Queue configuration & Mailables
+- [ ] **Milestone 5:** Blade UI & Timezone Formatting
+  - [ ] Dashboard & filters
+  - [ ] Ticket detail & comment thread UI
+  - [ ] Asia/Kolkata timezone helpers
+---
+
+
 > **Developer & AI Agent Note:** This document is the single source of truth for the Team Ticket Tracker application. Any code generation, refactoring, or feature development must strictly adhere to the standards, permission models, and business logic detailed below.
 
 ## 1. Executive Summary & Core Constraints
