@@ -2,19 +2,20 @@
 
 ---
 ## 🚀 Live Project Status & Progress Tracker
-> **Current Status:** Milestone 1 in progress (Database & Models)
-> **Completed:** 
->   - Updated `users` migration (added `role` enum, `softDeletes`)
->   - Created `projects` migration (name, desc, timestamps, softDeletes, deleted_by_id)
-> **Next Immediate Task:** 
->   - Task 1.3: Create `project_manager` pivot migration (compound PK `['user_id', 'project_id']`, cascade on delete)
->   - Then `tickets`, `comments`, `ticket_watchers`, `ticket_activity_logs`
-> **Last Updated:** October 2026
 
 - [ ] **Milestone 1:** Database, Migrations & Models
-  - [ ] Migrations created & run (7 tables)
-  - [ ] Eloquent models & relationships defined
-  - [ ] Seeders created (Admin, Manager, Users)
+  - [x] Subtask 1.1: Update `users` migration (added `role` enum, `softDeletes`)
+  - [x] Subtask 1.2: Create `projects` migration (name, desc, timestamps, softDeletes, deleted_by_id)
+  - [x] Subtask 1.3: Create `project_manager` pivot migration (compound PK `['user_id', 'project_id']`, cascade on delete)
+  - [ ] Subtask 1.4: Create `tickets` migration (FKs, status/priority enums, softDeletes, deleted_by_id)
+  - [ ] Subtask 1.5: Create `comments` migration (FKs, edited_at, softDeletes, deleted_by_id)
+  - [ ] Subtask 1.6: Create `ticket_watchers` pivot migration (compound unique `['ticket_id', 'user_id']`)
+  - [ ] Subtask 1.7: Create `ticket_activity_logs` migration (FKs, field_changed, old/new values)
+  - [ ] Subtask 1.8: Run migrations and verify schema (`php artisan migrate`)
+  - [ ] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
+  - [ ] Subtask 1.10: Create Database Seeders (`RoleSeeder`, `SampleDataSeeder`)
+
+
 - [ ] **Milestone 2:** Authentication & Policies
   - [ ] Laravel Breeze installed
   - [ ] TicketPolicy, CommentPolicy, ProjectPolicy implemented
@@ -297,12 +298,16 @@ There are strictly **three permission levels**: `User`, `Manager`, and `Admin`.
 ## 5. Implementation Roadmap & Milestones
 
 ### Milestone 1: Database & Models
-
-* \[ \] Run migrations for all 7 tables with compound keys, foreign key constraints, indexes, and soft deletes.
-
-* \[ \] Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
-
-* \[ \] Create Model Seeders (`DatabaseSeeder`, `RoleSeeder`, `SampleDataSeeder`).
+- [x] **Subtask 1.1:** Update `users` migration (added `role` enum, `softDeletes`)
+- [x] **Subtask 1.2:** Create `projects` migration (`name`, `description`, `timestamps`, `softDeletes`, `deleted_by_id`)
+- [x] **Subtask 1.3:** Create `project_manager` pivot migration (compound PK `['user_id', 'project_id']`, cascade on delete)
+- [ ] **Subtask 1.4:** Create `tickets` migration (FKs, status/priority enums, softDeletes, `deleted_by_id`)
+- [ ] **Subtask 1.5:** Create `comments` migration (FKs, `edited_at`, softDeletes, `deleted_by_id`)
+- [ ] **Subtask 1.6:** Create `ticket_watchers` pivot migration (compound unique `['ticket_id', 'user_id']`)
+- [ ] **Subtask 1.7:** Create `ticket_activity_logs` migration (FKs, `field_changed`, old/new values)
+- [ ] **Subtask 1.8:** Run migrations and verify table schema (`php artisan migrate`)
+- [ ] **Subtask 1.9:** Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
+- [ ] **Subtask 1.10:** Create Model Seeders (`RoleSeeder`, `SampleDataSeeder`).
 
 ### Milestone 2: Authentication & Authorization Policies
 
