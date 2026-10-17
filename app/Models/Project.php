@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+use App\Models\User;
+class Project extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = ['name', 'description'];
+
+    public function managers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_manager')->withTimestamps();
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by_id')->withTrashed();
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Project $project) {
+            if (! $project->isForceDeleting()) {
+                $project->deleted_by_id = auth()->id();
+                $project->saveQuietly();
+            }
+        });
+    }
+}
