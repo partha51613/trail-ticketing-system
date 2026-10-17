@@ -15,7 +15,7 @@
   * [x] Subtask 1.6: Create `ticket_watchers` migration (surrogate `id`, compound unique `['ticket_id', 'user_id']`, Eloquent Model)
   * [x] Subtask 1.7: Create `ticket_activity_logs` migration (FKs, `field_changed`, old/new text values, restrict delete on user)
   * [x] Subtask 1.8: Run migrations and verify schema (`php artisan migrate`)
-  * [ ] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
+  * [x] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
   * [ ] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
 * [ ] **Milestone 2:** Authentication & Policies
   * [ ] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
@@ -250,7 +250,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] **Subtask 1.6:** Create `ticket_watchers` migration (surrogate `id`, compound unique `['ticket_id', 'user_id']`)
 * [x] **Subtask 1.7:** Create `ticket_activity_logs` migration (FKs, `field_changed`, old/new text values, restrict delete on user)
 * [x] **Subtask 1.8:** Run migrations and verify table schema (`php artisan migrate`)
-* [ ] **Subtask 1.9:** Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
+* [x] **Subtask 1.9:** Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
 * [ ] **Subtask 1.10:** Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`).
 
 ### Milestone 2: Authentication & Authorization Policies
