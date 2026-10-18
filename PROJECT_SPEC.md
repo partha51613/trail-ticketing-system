@@ -6,7 +6,7 @@
 
 ## 🚀 Live Project Status & Progress Tracker
 
-* [ ] **Milestone 1:** Database, Migrations & Models *(Current)*
+* [x] **Milestone 1:** Database, Migrations & Models *(Completed)*
   * [x] Subtask 1.1: Update `users` migration (added `role` enum, `softDeletes`)
   * [x] Subtask 1.2: Create `projects` migration (`name`, `description`, `timestamps`, `softDeletes`, `deleted_by_id`)
   * [x] Subtask 1.3: Create `project_manager` pivot migration (compound PK `['user_id', 'project_id']`, cascade on delete)
@@ -16,7 +16,7 @@
   * [x] Subtask 1.7: Create `ticket_activity_logs` migration (FKs, `field_changed`, old/new text values, restrict delete on user)
   * [x] Subtask 1.8: Run migrations and verify schema (`php artisan migrate`)
   * [x] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
-  * [ ] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
+  * [x] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
 * [ ] **Milestone 2:** Authentication & Policies
   * [ ] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
   * [ ] `TicketPolicy`, `CommentPolicy`, `ProjectPolicy` implemented
@@ -251,7 +251,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] **Subtask 1.7:** Create `ticket_activity_logs` migration (FKs, `field_changed`, old/new text values, restrict delete on user)
 * [x] **Subtask 1.8:** Run migrations and verify table schema (`php artisan migrate`)
 * [x] **Subtask 1.9:** Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
-* [ ] **Subtask 1.10:** Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`).
+* [x] **Subtask 1.10:** Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`).
 
 ### Milestone 2: Authentication & Authorization Policies
 * [ ] Install Laravel Breeze (Blade stack) with hardening:
