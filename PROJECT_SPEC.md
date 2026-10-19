@@ -19,12 +19,15 @@
   * [x] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
 * [x] **Milestone 2:** Authentication & Policies *(Completed)*
   * [x] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
-  * [x] `TicketPolicy`, `CommentPolicy`, `ProjectPolicy` implemented
-* [ ] **Milestone 3:** Controllers & Business Logic
-  * [ ] Form requests & validation
-  * [ ] Ticket CRUD, assignment hand-offs, & Atomic Blocked rule
-  * [ ] Comment controller & 5-min server-side window checks
-* [ ] **Milestone 4:** Notifications & Queues *(Phase 2 / Post-MVP)*
+* [ ] **Milestone 3:** Controllers & Business Logic *(Current)*
+  * [ ] Subtask 3.1: Create Form Requests (`StoreTicketRequest`, `UpdateTicketRequest`, `TransitionTicketStatusRequest`, `StoreCommentRequest`, `UpdateCommentRequest`)
+  * [ ] Subtask 3.2: Implement `TicketObserver` (auto-record field changes into `ticket_activity_logs` with raw foreign keys)
+  * [ ] Subtask 3.3: Implement `TicketController` (index, show, store, update, destroy, and auto-watch creator/assignee)
+  * [ ] Subtask 3.4: Implement ticket status transition & reassignment actions (atomic `blocked` rule + comment in `DB::transaction()`)
+  * [ ] Subtask 3.5: Implement `CommentController` (store comment, 5-minute server-side policy check for update/delete)
+  * [ ] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
+  * [ ] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
+  * [ ] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
   * [ ] Queue configuration & Mailables (`$afterCommit = true`, actor ID exclusion)
 * [ ] **Milestone 5:** Blade UI & Timezone Formatting
   * [ ] Dashboard & filters (Status, Project, Priority, Assignee, Workload view)
@@ -253,28 +256,45 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] **Subtask 1.9:** Implement Eloquent models and relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`) with `withTrashed()` scopes for audit trails.
 * [x] **Subtask 1.10:** Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`).
 
-### Milestone 2: Authentication & Authorization Policies
+### Milestone 2: Authentication & Authorization Policies *(Completed)*
 * [x] Install Laravel Breeze (Blade stack) with hardening:
   * Disable public user registration routes (internal tool; admins create users).
   * Remove user self-delete account capability.
   * Ensure `role` attribute is not mass-assignable in `User` model.
   * Verify frontend asset pipeline uses Tailwind CSS v4.
-* [ ] Implement `TicketPolicy`:
+* [x] Implement `TicketPolicy`:
   * `update`: Creator, assigned PM, Admin (only when ticket is not closed).
   * `reassign`: Creator, assigned PM, Admin, or currently assigned user.
   * `transferProject`: Admin, or Manager managing both source and target projects.
   * `transition`: Evaluates `$targetStatus`; any user for active/close; assigned user, creator, assigned PM, Admin for reopen.
   * `delete`: Assigned PM, Admin.
-* [ ] Implement `CommentPolicy`:
+* [x] Implement `CommentPolicy`:
   * `update`: Admin anytime; author or assigned PM if `$comment->created_at->gt(now()->subMinutes(5))`.
   * `delete`: Author if within 5 min; assigned PM or Admin anytime.
-* [ ] Implement `ProjectPolicy`: Admin only for CRUD.
+* [x] Implement `ProjectPolicy`: Admin only for CRUD.
 
 ### Milestone 3: Controllers & Validation Logic
-* [ ] Create Form Requests (`StoreTicketRequest`, `UpdateTicketRequest`, `TransitionTicketStatusRequest`, `StoreCommentRequest`, `UpdateCommentRequest`).
-* [ ] Implement `TicketController` (CRUD, status transitions, atomic blocked rule + comment in `DB::transaction()`).
-* [ ] Implement `CommentController` (with 5-minute server-side policy check) and `WatcherController`.
-* [ ] Attach `TicketActivityLog` observers/events on ticket modifications with raw foreign key capture.
+* [ ] **Subtask 3.1:** Create Form Requests:
+  * `StoreTicketRequest` (validates title, description, project_id, priority, due_date, optional assigned_to_id)
+  * `UpdateTicketRequest` (validates title, description, priority, due_date, project_id, assigned_to_id)
+  * `TransitionTicketStatusRequest` (validates status in enum; requires comment if status is `blocked`)
+  * `StoreCommentRequest` (validates body)
+  * `UpdateCommentRequest` (validates body)
+* [ ] **Subtask 3.2:** Implement `TicketObserver`:
+  * Auto-record changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id` into `ticket_activity_logs`.
+  * Auto-add creator and initial/new assignee to `ticket_watchers`.
+* [ ] **Subtask 3.3:** Implement `TicketController`:
+  * `index` (with project/status/priority/assignee filters), `create`, `store`, `show`, `edit`, `update`, `destroy`.
+* [ ] **Subtask 3.4:** Implement Status Transitions & Reassignment:
+  * Atomic `blocked` transition with comment in `DB::transaction()`.
+  * Reopen authorization checks with target status selection.
+* [ ] **Subtask 3.5:** Implement `CommentController`:
+  * `store`, `update`, `destroy` with 5-minute server-side policy gate.
+* [ ] **Subtask 3.6:** Implement `WatcherController`:
+  * Toggle watcher subscription for authenticated user.
+* [ ] **Subtask 3.7:** Implement `ProjectController`:
+  * Admin-only CRUD + manager assignment sync.
+* [ ] **Subtask 3.8:** Register routes in `routes/web.php` with auth and policy middleware.
 
 ### Milestone 4: Notifications & Queues *(Phase 2 / Post-MVP)*
 * [ ] Configure queue worker (`QUEUE_CONNECTION=database` or `redis`).
