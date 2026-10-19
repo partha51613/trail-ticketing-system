@@ -18,7 +18,7 @@
   * [x] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
   * [x] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
 * [ ] **Milestone 2:** Authentication & Policies
-  * [ ] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
+  * [x] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
   * [ ] `TicketPolicy`, `CommentPolicy`, `ProjectPolicy` implemented
 * [ ] **Milestone 3:** Controllers & Business Logic
   * [ ] Form requests & validation
@@ -254,7 +254,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] **Subtask 1.10:** Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`).
 
 ### Milestone 2: Authentication & Authorization Policies
-* [ ] Install Laravel Breeze (Blade stack) with hardening:
+* [x] Install Laravel Breeze (Blade stack) with hardening:
   * Disable public user registration routes (internal tool; admins create users).
   * Remove user self-delete account capability.
   * Ensure `role` attribute is not mass-assignable in `User` model.
