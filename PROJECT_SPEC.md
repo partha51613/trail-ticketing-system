@@ -17,9 +17,9 @@
   * [x] Subtask 1.8: Run migrations and verify schema (`php artisan migrate`)
   * [x] Subtask 1.9: Implement Eloquent models & relationships (`User`, `Project`, `Ticket`, `Comment`, `TicketWatcher`, `TicketActivityLog`)
   * [x] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
-* [ ] **Milestone 2:** Authentication & Policies
+* [x] **Milestone 2:** Authentication & Policies *(Completed)*
   * [x] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
-  * [ ] `TicketPolicy`, `CommentPolicy`, `ProjectPolicy` implemented
+  * [x] `TicketPolicy`, `CommentPolicy`, `ProjectPolicy` implemented
 * [ ] **Milestone 3:** Controllers & Business Logic
   * [ ] Form requests & validation
   * [ ] Ticket CRUD, assignment hand-offs, & Atomic Blocked rule
