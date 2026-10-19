@@ -28,6 +28,7 @@
   * [ ] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
   * [ ] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
   * [ ] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
+* [ ] **Milestone 4:** Notifications & Queues *(Phase 2 / Post-MVP)*
   * [ ] Queue configuration & Mailables (`$afterCommit = true`, actor ID exclusion)
 * [ ] **Milestone 5:** Blade UI & Timezone Formatting
   * [ ] Dashboard & filters (Status, Project, Priority, Assignee, Workload view)
