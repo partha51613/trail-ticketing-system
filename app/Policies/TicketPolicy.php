@@ -81,6 +81,11 @@ class TicketPolicy
 
     public function transition(User $user, Ticket $ticket, string $targetStatus): bool
     {
+        // Disallow transitioning to the same status
+        if ($ticket->status === $targetStatus) {
+            return false;
+        }
+
         if ($ticket->status === 'closed') {
             if ($user->role === 'admin') {
                 return true;
@@ -95,7 +100,6 @@ class TicketPolicy
 
         // Active tickets can be transitioned or closed by any authenticated user
         return true;
-
     }
 
     /**

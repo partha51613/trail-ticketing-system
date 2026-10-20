@@ -47,7 +47,7 @@ class CommentPolicy
         }
 
         $isAuthor = $user->id === $comment->user_id;
-        $isManager = $user->managesProject($comment->ticket->project_id);
+        $isManager = $comment->ticket ? $user->managesProject($comment->ticket->project_id) : false;
 
         return $isAuthor || $isManager;
     }
@@ -61,7 +61,7 @@ class CommentPolicy
             return true;
         }
 
-        if ($user->managesProject($comment->ticket->project_id)) {
+        if ($comment->ticket && $user->managesProject($comment->ticket->project_id)) {
             return true;
         }
 

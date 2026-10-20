@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
-use App\Models\Ticket;
-use App\Models\User;
 class Comment extends Model
 {
     use HasFactory, SoftDeletes;
@@ -29,7 +28,7 @@ class Comment extends Model
 
     public function ticket(): BelongsTo
     {
-        return $this->belongsTo(Ticket::class);
+        return $this->belongsTo(Ticket::class)->withTrashed();
     }
 
     public function user(): BelongsTo
@@ -46,7 +45,7 @@ class Comment extends Model
     {
         static::deleting(function (Comment $comment) {
             if (! $comment->isForceDeleting()) {
-                $comment->deleted_by_id = auth()->id();
+                $comment->deleted_by_id = Auth::id();
                 $comment->saveQuietly();
             }
         });

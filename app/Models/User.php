@@ -33,13 +33,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function managesProject(int|Project $project): bool
+    public function managesProject(int|string|Project $project): bool
     {
         if ($this->role !== 'manager') {
             return false;
         }
 
-        $projectId = $project instanceof Project ? $project->id : $project;
+        $projectId = $project instanceof Project ? $project->id : (int) $project;
 
         return $this->managedProjects()->where('projects.id', $projectId)->exists();
     }
