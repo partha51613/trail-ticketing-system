@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
+use App\Models\Ticket;
+use Illuminate\Support\Facades\Auth;
 class Project extends Model
 {
     use HasFactory, SoftDeletes;
@@ -35,7 +37,7 @@ class Project extends Model
     {
         static::deleting(function (Project $project) {
             if (! $project->isForceDeleting()) {
-                $project->deleted_by_id = auth()->id();
+                $project->deleted_by_id = Auth::id();
                 $project->saveQuietly();
             }
         });

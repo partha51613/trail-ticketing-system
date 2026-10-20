@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Comment;
+use App\Models\TicketActivityLog;
+use Illuminate\Support\Facades\Auth;
 class Ticket extends Model
 {
     use HasFactory, SoftDeletes;
@@ -70,7 +73,7 @@ class Ticket extends Model
     {
         static::deleting(function (Ticket $ticket) {
             if (! $ticket->isForceDeleting()) {
-                $ticket->deleted_by_id = auth()->id();
+                $ticket->deleted_by_id = Auth::id();
                 $ticket->saveQuietly();
             }
         });
