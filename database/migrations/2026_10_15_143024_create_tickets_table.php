@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects')->restrictOnDelete();
             $table->foreignId('created_by_id')->constrained('users')->restrictOnDelete();
             $table->foreignId('assigned_to_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->enum('status',['new','in_progress','blocked','waiting','closed'])->default('new');
-            $table->enum('priority',['low','medium','high','urgent'])->default('medium');
+            $table->enum('status', ['new', 'in_progress', 'blocked', 'waiting', 'closed'])->default('new');
+            $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
             $table->date('due_date')->nullable();
             $table->timestamps();
             $table->softDeletes();

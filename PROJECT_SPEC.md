@@ -20,7 +20,7 @@
 * [x] **Milestone 2:** Authentication & Policies *(Completed)*
   * [x] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
 * [ ] **Milestone 3:** Controllers & Business Logic *(Current)*
-  * [ ] Subtask 3.1: Create Form Requests (`StoreTicketRequest`, `UpdateTicketRequest`, `TransitionTicketStatusRequest`, `StoreCommentRequest`, `UpdateCommentRequest`)
+  * [x] Subtask 3.1: Create Form Requests (`StoreTicketRequest`, `UpdateTicketRequest`, `TransitionTicketStatusRequest`, `StoreCommentRequest`, `UpdateCommentRequest`)
   * [ ] Subtask 3.2: Implement `TicketObserver` (auto-record field changes into `ticket_activity_logs` with raw foreign keys)
   * [ ] Subtask 3.3: Implement `TicketController` (index, show, store, update, destroy, and auto-watch creator/assignee)
   * [ ] Subtask 3.4: Implement ticket status transition & reassignment actions (atomic `blocked` rule + comment in `DB::transaction()`)
@@ -275,12 +275,12 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] Implement `ProjectPolicy`: Admin only for CRUD.
 
 ### Milestone 3: Controllers & Validation Logic
-* [ ] **Subtask 3.1:** Create Form Requests:
-  * `StoreTicketRequest` (validates title, description, project_id, priority, due_date, optional assigned_to_id)
-  * `UpdateTicketRequest` (validates title, description, priority, due_date, project_id, assigned_to_id)
-  * `TransitionTicketStatusRequest` (validates status in enum; requires comment if status is `blocked`)
-  * `StoreCommentRequest` (validates body)
-  * `UpdateCommentRequest` (validates body)
+* [x] **Subtask 3.1:** Create Form Requests:
+  * [x] `StoreTicketRequest` (validates title, description, project_id, priority, due_date, optional assigned_to_id)
+  * [x] `UpdateTicketRequest` (validates title, description, priority, due_date, project_id, assigned_to_id)
+  * [x] `TransitionTicketStatusRequest` (validates status in enum; requires comment if status is `blocked`)
+  * [x] `StoreCommentRequest` (validates body)
+  * [x] `UpdateCommentRequest` (validates body)
 * [ ] **Subtask 3.2:** Implement `TicketObserver`:
   * Auto-record changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id` into `ticket_activity_logs`.
   * Auto-add creator and initial/new assignee to `ticket_watchers`.

@@ -8,12 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-use App\Models\Project;
-use App\Models\User;
-use App\Models\Comment;
-use App\Models\TicketActivityLog;
 use Illuminate\Support\Facades\Auth;
+
 class Ticket extends Model
 {
     use HasFactory, SoftDeletes;

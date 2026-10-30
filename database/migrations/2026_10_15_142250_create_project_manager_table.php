@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('project_manager', function (Blueprint $table) {
 
-        // cascadeOnDelete works only when an actual DELETE statement is run on the actual table i.e 'users' or 'projects'
+            // cascadeOnDelete works only when an actual DELETE statement is run on the actual table i.e 'users' or 'projects'
 
-        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-        $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
-        $table->timestamps();
-        $table->primary(['user_id','project_id']);
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
+            $table->timestamps();
+            $table->primary(['user_id', 'project_id']);
         });
     }
 

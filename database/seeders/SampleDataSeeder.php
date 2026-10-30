@@ -67,7 +67,5 @@ class SampleDataSeeder extends Seeder
             ]
         );
 
-        
-
     }
 }
