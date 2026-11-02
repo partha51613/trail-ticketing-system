@@ -26,7 +26,12 @@
     * [x] Subtask 3.2.2: Implement `created` event (auto-add creator & initial assignee to `ticket_watchers`)
     * [x] Subtask 3.2.3: Implement `updating` / `updated` event (audit-log changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id`)
     * [x] Subtask 3.2.4: Handle reassignment watcher sync (auto-add new assignee to `ticket_watchers`)
-  * [ ] Subtask 3.3: Implement `TicketController` (index, show, store, update, destroy)
+  * [ ] Subtask 3.3: Implement `TicketController`
+    * [x] Subtask 3.3.1: Controller generation & `index()` (filtering & eager loading)
+    * [x] Subtask 3.3.2: `create()` and `store()` (using StoreTicketRequest & creator assignment)
+    * [ ] Subtask 3.3.3: `show()` (loading comments, watchers, and activity logs)
+    * [ ] Subtask 3.3.4: `edit()` and `update()` (policy authorization & UpdateTicketRequest)
+    * [ ] Subtask 3.3.5: `destroy()` (policy authorization & soft delete)
   * [ ] Subtask 3.4: Implement ticket status transition & reassignment actions (atomic `blocked` rule + comment in `DB::transaction()`)
   * [ ] Subtask 3.5: Implement `CommentController` (store comment, 5-minute server-side policy check for update/delete)
   * [ ] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
@@ -291,7 +296,11 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
   * [x] Subtask 3.2.3: Implement `updating`/`updated` event (audit-log changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id` into `ticket_activity_logs`)
   * [x] Subtask 3.2.4: Handle reassignment watcher sync (auto-add new assignee to `ticket_watchers` when `assigned_to_id` changes)
 * [ ] **Subtask 3.3:** Implement `TicketController`:
-  * `index` (with project/status/priority/assignee filters), `create`, `store`, `show`, `edit`, `update`, `destroy`.
+  * [x] Subtask 3.3.1: Controller generation & `index()` (filtering by project, status, priority, assignee, with eager loading)
+  * [x] Subtask 3.3.2: `create()` and `store()` (using `StoreTicketRequest`, sets `created_by_id = auth()->id()`)
+  * [ ] Subtask 3.3.3: `show()` (eager-loads comments, author, watchers, and activity logs)
+  * [ ] Subtask 3.3.4: `edit()` and `update()` (checks `update` policy, uses `UpdateTicketRequest`)
+  * [ ] Subtask 3.3.5: `destroy()` (checks `delete` policy, soft-deletes ticket)
 * [ ] **Subtask 3.4:** Implement Status Transitions & Reassignment:
   * Atomic `blocked` transition with comment in `DB::transaction()`.
   * Reopen authorization checks with target status selection.
