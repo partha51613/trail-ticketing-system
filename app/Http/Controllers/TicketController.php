@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\TransitionTicketStatusRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TicketController extends Controller
@@ -25,6 +29,7 @@ class TicketController extends Controller
 
         // If user selected a priority filter
         if ($request->filled('priority')) {
+
             $query->where('priority', $request->priority);
         }
 
@@ -79,30 +84,72 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        $query = Ticket::with(['project', 'creator', 'assignedTo', ])->latest();
+        $ticket->load([
+            'project',
+            'creator',
+            'assignedTo',
+            'watchers',
+            'activityLogs.user',
+            'comments.user',
+        ]);
+
+        return view('tickets.show', compact('ticket'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Ticket $ticket)
+    public function edit(Ticket $ticket): View
     {
-        //
+        $this->authorize('update', $ticket);
+
+        return view('tickets.edit', [
+            'ticket' => $ticket,
+            'projects' => Project::orderBy('name')->get(),
+            'users' => User::orderBy('name')->get(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
-        //
+        $this->authorize('update', $ticket);
+
+        $ticket->update($request->validated());
+
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ticket $ticket)
+    public function destroy(Ticket $ticket): RedirectResponse
     {
-        //
+        $this->authorize('delete', $ticket);
+        $ticket->delete();
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully');
+    }
+
+    public function transitionStatus(TransitionTicketStatusRequest $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('transition', [$ticket, $request->status]);
+
+        DB::transaction(function () use ($ticket, $request) {
+            $ticket->update([
+                'status' => $request->status,
+            ]);
+
+            if ($request->filled('comment')) {
+                $ticket->comments()->create([
+                    'user_id' => $request->user()->id,
+                    'body' => $request->comment,
+                ]);
+            }
+        });
+
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket status updated successfully');
     }
 }
