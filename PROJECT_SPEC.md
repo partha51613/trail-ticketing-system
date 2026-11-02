@@ -285,11 +285,11 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
   * [x] `TransitionTicketStatusRequest` (validates status in enum; requires comment if status is `blocked`)
   * [x] `StoreCommentRequest` (validates body)
   * [x] `UpdateCommentRequest` (validates body)
-* [ ] **Subtask 3.2:** Implement `TicketObserver`:
+* [x] **Subtask 3.2:** Implement `TicketObserver`:
   * [x] Subtask 3.2.1: Generate `TicketObserver` and register it with `Ticket` model (via attribute `#[ObservedBy]` or `EventServiceProvider`)
   * [x] Subtask 3.2.2: Implement `created` event (auto-add creator and initial assignee to `ticket_watchers`)
-  * [ ] Subtask 3.2.3: Implement `updating`/`updated` event (audit-log changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id` into `ticket_activity_logs`)
-  * [ ] Subtask 3.2.4: Handle reassignment watcher sync (auto-add new assignee to `ticket_watchers` when `assigned_to_id` changes)
+  * [x] Subtask 3.2.3: Implement `updating`/`updated` event (audit-log changes on `status`, `assigned_to_id`, `priority`, `due_date`, `project_id` into `ticket_activity_logs`)
+  * [x] Subtask 3.2.4: Handle reassignment watcher sync (auto-add new assignee to `ticket_watchers` when `assigned_to_id` changes)
 * [ ] **Subtask 3.3:** Implement `TicketController`:
   * `index` (with project/status/priority/assignee filters), `create`, `store`, `show`, `edit`, `update`, `destroy`.
 * [ ] **Subtask 3.4:** Implement Status Transitions & Reassignment:
