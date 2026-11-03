@@ -152,4 +152,18 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket status updated successfully');
     }
+
+
+    public function reassign(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('reassign', $ticket);
+
+        $validated = $request->validate([
+            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $ticket->update($validated);
+
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket reassigned successfully');
+    }
 }
