@@ -34,8 +34,8 @@
     * [x] Subtask 3.3.5: `destroy()` (policy authorization & soft delete)
   * [x] Subtask 3.4: Implement ticket status transition & reassignment actions (atomic `blocked` rule + comment in `DB::transaction()`)
   * [x] Subtask 3.5: Implement `CommentController` (store comment, 5-minute server-side policy check for update/delete)
-  * [ ] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
-  * [ ] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
+  * [x] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
+  * [x] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
   * [ ] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
 * [ ] **Milestone 4:** Notifications & Queues *(Phase 2 / Post-MVP)*
   * [ ] Queue configuration & Mailables (`$afterCommit = true`, actor ID exclusion)
@@ -306,9 +306,9 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
   * Reopen authorization checks with target status selection.
 * [x] **Subtask 3.5:** Implement `CommentController`:
   * `store`, `update`, `destroy` with 5-minute server-side policy gate.
-* [ ] **Subtask 3.6:** Implement `WatcherController`:
+* [x] **Subtask 3.6:** Implement `WatcherController`:
   * Toggle watcher subscription for authenticated user.
-* [ ] **Subtask 3.7:** Implement `ProjectController`:
+* [x] **Subtask 3.7:** Implement `ProjectController`:
   * Admin-only CRUD + manager assignment sync.
 * [ ] **Subtask 3.8:** Register routes in `routes/web.php` with auth and policy middleware.
 
