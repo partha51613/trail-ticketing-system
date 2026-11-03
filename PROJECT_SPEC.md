@@ -19,7 +19,7 @@
   * [x] Subtask 1.10: Create Database Seeders (`AdminUserSeeder`, `SampleDataSeeder`)
 * [x] **Milestone 2:** Authentication & Policies *(Completed)*
   * [x] Laravel Breeze installed (disable public registration, disable self-delete, guard `role` from mass assignment, verify Tailwind v4)
-* [ ] **Milestone 3:** Controllers & Business Logic *(Current)*
+* [x] **Milestone 3:** Controllers & Business Logic *(Completed)*
   * [x] Subtask 3.1: Create Form Requests (`StoreTicketRequest`, `UpdateTicketRequest`, `TransitionTicketStatusRequest`, `StoreCommentRequest`, `UpdateCommentRequest`)
   * [x] Subtask 3.2: Implement `TicketObserver`
     * [x] Subtask 3.2.1: Generate `TicketObserver` and register it with `Ticket` model
@@ -36,7 +36,7 @@
   * [x] Subtask 3.5: Implement `CommentController` (store comment, 5-minute server-side policy check for update/delete)
   * [x] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
   * [x] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
-  * [ ] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
+  * [x] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
 * [ ] **Milestone 4:** Notifications & Queues *(Phase 2 / Post-MVP)*
   * [ ] Queue configuration & Mailables (`$afterCommit = true`, actor ID exclusion)
 * [ ] **Milestone 5:** Blade UI & Timezone Formatting
@@ -310,7 +310,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
   * Toggle watcher subscription for authenticated user.
 * [x] **Subtask 3.7:** Implement `ProjectController`:
   * Admin-only CRUD + manager assignment sync.
-* [ ] **Subtask 3.8:** Register routes in `routes/web.php` with auth and policy middleware.
+* [x] **Subtask 3.8:** Register routes in `routes/web.php` with auth and policy middleware.
 
 ### Milestone 4: Notifications & Queues *(Phase 2 / Post-MVP)*
 * [ ] Configure queue worker (`QUEUE_CONNECTION=database` or `redis`).
