@@ -43,7 +43,7 @@
   * [x] Subtask 4.3: Implement Projects Views (Spacious modular row listing with Total/Assigned/Unassigned metrics & warm palette)
   * [ ] Subtask 4.4: Implement Tickets Index & Filter Dashboard (status, priority, project, assignee filters & workload view)
   * [ ] Subtask 4.5: Implement Ticket Create & Edit Forms (with validation and project/assignee selectors)
-  * [ ] Subtask 4.6: Implement Ticket Detail Page (header, watch/unwatch toggle, status transition modal with atomic blocked prompt, comments thread with 5-min window gate, and activity log timeline)
+  * [x] Subtask 4.6: Implement Ticket Detail Page (header, watch/unwatch toggle, status transition modal with atomic blocked prompt, comments thread with 5-min window gate, and activity log timeline)
 
 ---
 

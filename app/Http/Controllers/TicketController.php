@@ -101,11 +101,14 @@ class TicketController extends Controller
             'creator',
             'assignedTo',
             'watchers',
-            'activityLogs.user',
-            'comments.user',
+            'activityLogs' => fn ($query) => $query->with('user')->latest(),
+            'comments' => fn ($query) => $query->with('user')->latest(),
         ]);
 
-        return view('tickets.show', compact('ticket'));
+        $users = User::orderBy('name')->get();
+        $isWatching = $ticket->watchers->contains(auth()->id());
+
+        return view('tickets.show', compact('ticket', 'users', 'isWatching'));
     }
 
     /**
