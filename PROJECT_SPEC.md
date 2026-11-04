@@ -37,12 +37,18 @@
   * [x] Subtask 3.6: Implement `WatcherController` (toggle watch/unwatch subscriptions)
   * [x] Subtask 3.7: Implement `ProjectController` (Admin-only CRUD for project management)
   * [x] Subtask 3.8: Define application routes in `routes/web.php` with authorization middleware
-* [ ] **Milestone 4:** Notifications & Queues *(Phase 2 / Post-MVP)*
-  * [ ] Queue configuration & Mailables (`$afterCommit = true`, actor ID exclusion)
-* [ ] **Milestone 5:** Blade UI & Timezone Formatting
-  * [ ] Dashboard & filters (Status, Project, Priority, Assignee, Workload view)
-  * [ ] Ticket detail & comment thread UI
-  * [ ] `Asia/Kolkata` display formatting helpers
+* [ ] **Milestone 4:** Blade UI & Timezone Formatting *(Current)*
+  * [x] Subtask 4.1: Implement `Asia/Kolkata` timezone & overdue helpers / accessors
+  * [x] Subtask 4.2: Update Navigation & Layout (nav links for Tickets and Projects, flash message banner)
+  * [ ] Subtask 4.3: Implement Projects Views (index, create, edit, show with manager assignment)
+  * [ ] Subtask 4.4: Implement Tickets Index & Filter Dashboard (status, priority, project, assignee filters & workload view)
+  * [ ] Subtask 4.5: Implement Ticket Create & Edit Forms (with validation and project/assignee selectors)
+  * [ ] Subtask 4.6: Implement Ticket Detail Page (header, watch/unwatch toggle, status transition modal with atomic blocked prompt, comments thread with 5-min window gate, and activity log timeline)
+* [ ] **Milestone 5:** Notifications & Queues *(Post-UI / Phase 2)*
+  * [ ] Subtask 5.1: Queue configuration & environment setup (`QUEUE_CONNECTION=database`)
+  * [ ] Subtask 5.2: Create Mailables/Notifications (TicketCreated, TicketAssigned, TicketStatusUpdated, CommentPosted)
+  * [ ] Subtask 5.3: Implement Queued Listeners / Dispatchers (`$afterCommit = true`, self-notification exclusion by `$actorId`)
+  * [ ] Subtask 5.4: Wire notification dispatches to `TicketObserver` and `CommentController`
 
 ---
 
@@ -312,16 +318,41 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
   * Admin-only CRUD + manager assignment sync.
 * [x] **Subtask 3.8:** Register routes in `routes/web.php` with auth and policy middleware.
 
-### Milestone 4: Notifications & Queues *(Phase 2 / Post-MVP)*
-* [ ] Configure queue worker (`QUEUE_CONNECTION=database` or `redis`).
-* [ ] Implement Mailables and Queued Jobs (`$afterCommit = true`) with constructor `$actorId` self-notification exclusion.
-* [ ] Automatic creator & assignee watcher subscription listeners.
+### Milestone 4: Blade UI & Timezone Formatting *(Current)*
+* [x] **Subtask 4.1:** Implement `Asia/Kolkata` timezone & overdue helpers / accessors:
+  * Helper or model method to format timestamps into `DD MMM YYYY, hh:mm A IST`.
+  * Overdue check: `due_date < today_in_kolkata` and `status !== 'closed'`.
+* [x] **Subtask 4.2:** Update Navigation & Layout:
+  * Add navigation tabs for "Tickets" and "Projects" (with Admin/PM role checks) in `navigation.blade.php`.
+  * Create flash message component for success/error alert banners.
+* [ ] **Subtask 4.3:** Implement Projects Views (`resources/views/projects/`):
+  * `index.blade.php`: List projects with ticket count badges and assigned managers.
+  * `create.blade.php` & `edit.blade.php`: Project form with manager assignment checkboxes.
+  * `show.blade.php`: Project detail with associated tickets.
+* [ ] **Subtask 4.4:** Implement Tickets Index & Filter Dashboard (`resources/views/tickets/index.blade.php`):
+  * Filter bar (status, priority, project, assignee/unassigned).
+  * Tickets table with status/priority badges, overdue indicators, and pagination.
+* [ ] **Subtask 4.5:** Implement Ticket Create & Edit Forms (`resources/views/tickets/create.blade.php` & `edit.blade.php`):
+  * Form inputs for title, description, project, priority, due date, assignee with validation error states.
+* [ ] **Subtask 4.6:** Implement Ticket Detail View (`resources/views/tickets/show.blade.php`):
+  * Ticket overview with badges, creator/assignee metadata, and watch/unwatch button.
+  * Status transition modal/dropdown (with mandatory comment prompt for `blocked` and reopen guard for `closed`).
+  * Reassign dropdown modal for assignee/PM/Admin.
+  * Comments thread with 5-minute inline edit gate / countdown.
+  * Activity history timeline with resolved user/project names.
 
-### Milestone 5: Blade UI & Timezone Formatting
-* [ ] Create layout and navigation with Tailwind CSS v4.
-* [ ] Implement Ticket Dashboard with filtering: Status, Project, Priority, Assignee, and Assignee Workload view (active open ticket counts).
-* [ ] Implement Ticket Detail view with Activity History, Watcher toggle, and Comments thread (with 5-min gate and null-safe user attributes).
-* [ ] Implement `Asia/Kolkata` display formatting accessors/helpers.
+### Milestone 5: Notifications & Queues *(Post-UI / Phase 2)*
+* [ ] **Subtask 5.1:** Queue configuration & environment setup:
+  * Configure `QUEUE_CONNECTION=database` and verify `jobs` / `failed_jobs` tables.
+* [ ] **Subtask 5.2:** Create Mailables / Notifications:
+  * `TicketCreatedNotification` (for initial watchers).
+  * `TicketAssignedNotification` (for new assignee).
+  * `TicketStatusUpdatedNotification` (for watchers when status changes).
+  * `CommentPostedNotification` (for watchers when a comment is added).
+* [ ] **Subtask 5.3:** Implement Asynchronous Queued Jobs / Notification delivery:
+  * Set `$afterCommit = true` so emails are never sent if DB transaction rolls back.
+  * Enforce **Self-Notification Exclusion Rule**: exclude the actor (`where('users.id', '!=', $actorId)`).
+* [ ] **Subtask 5.4:** Wire dispatches to `TicketObserver` and `CommentController`.
 
 ---
 
@@ -344,7 +375,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 
 | Date | Topic | Decision | Rationale |
 | :--- | :--- | :--- | :--- |
-| Oct 2026 | Milestone 4 Priority | Phase 2 / Post-MVP (Option 1) | Allows core ticket workflows and UI to be tested and deployed quickly without waiting for SMTP setup. |
+| Nov 2026 | Milestone Reordering | Blade UI First (Milestone 4), Notifications Later (Milestone 5) | Enables full UI and user experience testing before wiring background queues and email delivery. |
 | Oct 2026 | Admin Comment Editing | Unrestricted (Option 1) | Aligns with Admin role definition; Admins can fix errors or moderate content at any time. |
 | Oct 2026 | Reopened Target Status | User Choice (Option 1) | Allows flexibility to reopen directly into `new`, `in_progress`, or `blocked` (with atomic comment). |
 | Oct 2026 | Ticket Reassignment | Permitted for Assignee (Option 1) | Enables direct task hand-offs without requiring creator or manager bottlenecks. |

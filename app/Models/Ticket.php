@@ -78,4 +78,15 @@ class Ticket extends Model
             }
         });
     }
+
+    public function isOverdue(): bool
+    {
+        if (! $this->due_date || $this->status === 'closed') {
+            return false;
+        }
+
+        $todayInKolkata = now('Asia/Kolkata')->startOfDay();
+
+        return $this->due_date->copy()->startOfday()->lt($todayInKolkata);
+    }
 }
