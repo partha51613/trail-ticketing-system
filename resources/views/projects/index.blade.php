@@ -156,37 +156,54 @@
                                     </div>
                                 </div>
 
-                                <!-- Center/Right: Big Numbers Ticket Distribution -->
-                                <div class="flex items-center justify-between sm:justify-start gap-8 lg:gap-12 shrink-0 py-3 lg:py-0 border-y lg:border-y-0 border-gray-100">
-                                    <!-- Total Tickets -->
-                                    <div class="text-center sm:text-left">
-                                        <div class="text-xs uppercase tracking-wider font-semibold text-gray-400">
-                                            {{ __('Total') }}
+                                <!-- Center/Right: Big Numbers Segmented Container & Mini Progress Bar -->
+                                <div class="bg-gray-50/70 border border-gray-100 rounded-xl px-5 py-2.5 sm:px-6 shrink-0 flex flex-col justify-center gap-2">
+                                    <div class="flex items-center justify-between sm:justify-start gap-5 sm:gap-7 divide-x divide-gray-200/70">
+                                        <!-- Total Tickets -->
+                                        <div class="text-center sm:text-left pr-1 sm:pr-0">
+                                            <div class="text-[11px] uppercase tracking-wider font-semibold text-gray-400">
+                                                {{ __('Total') }}
+                                            </div>
+                                            <div class="text-center text-lg sm:text-xl font-bold text-gray-900 mt-0.5 leading-none">
+                                                {{ $project->total_tickets_count }}
+                                            </div>
                                         </div>
-                                        <div class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-0.5">
-                                            {{ $project->total_tickets_count }}
+
+                                        <!-- Assigned Tickets -->
+                                        <div class="text-center sm:text-left pl-5 sm:pl-7">
+                                            <div class="text-[11px] uppercase tracking-wider font-semibold text-brand-600">
+                                                {{ __('Assigned') }}
+                                            </div>
+                                            <div class="text-center text-lg sm:text-xl font-bold text-brand-600 mt-0.5 leading-none">
+                                                {{ $project->assigned_tickets_count }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Unassigned Tickets -->
+                                        <div class="text-center sm:text-left pl-5 sm:pl-7">
+                                            <div class="text-[11px] uppercase tracking-wider font-semibold {{ $project->unassigned_tickets_count > 0 ? 'text-rose-600' : 'text-gray-400' }}">
+                                                {{ __('Unassigned') }}
+                                            </div>
+                                            <div class="text-center text-lg sm:text-xl font-bold {{ $project->unassigned_tickets_count > 0 ? 'text-rose-600' : 'text-gray-400' }} mt-0.5 leading-none">
+                                                {{ $project->unassigned_tickets_count }}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <!-- Assigned Tickets -->
-                                    <div class="text-center sm:text-left">
-                                        <div class="text-xs uppercase tracking-wider font-semibold text-brand-600">
-                                            {{ __('Assigned') }}
-                                        </div>
-                                        <div class="text-2xl sm:text-3xl font-extrabold text-brand-600 mt-0.5">
-                                            {{ $project->assigned_tickets_count }}
-                                        </div>
-                                    </div>
-
-                                    <!-- Unassigned Tickets -->
-                                    <div class="text-center sm:text-left">
-                                        <div class="text-xs uppercase tracking-wider font-semibold {{ $project->unassigned_tickets_count > 0 ? 'text-rose-600' : 'text-gray-400' }}">
-                                            {{ __('Unassigned') }}
-                                        </div>
-                                        <div class="text-2xl sm:text-3xl font-extrabold {{ $project->unassigned_tickets_count > 0 ? 'text-rose-600' : 'text-gray-400' }} mt-0.5">
-                                            {{ $project->unassigned_tickets_count }}
-                                        </div>
-                                    </div>
+                                    {{-- <!-- Mini Dual-Tone Ratio Bar -->
+                                    @php
+                                        $total = $project->total_tickets_count;
+                                        $assignedPct = $total > 0 ? round(($project->assigned_tickets_count / $total) * 100) : 0;
+                                        $unassignedPct = $total > 0 ? 100 - $assignedPct : 0;
+                                    @endphp
+                                    <div class="w-full bg-gray-200/70 h-1.5 rounded-full overflow-hidden flex">
+                                        @if ($total > 0)
+                                            <div class="bg-brand-500 h-full rounded-l-full transition-all duration-300" style="width: {{ $assignedPct }}%" title="{{ $assignedPct }}% Assigned"></div>
+                                            <div class="bg-rose-500 h-full rounded-r-full transition-all duration-300" style="width: {{ $unassignedPct }}%" title="{{ $unassignedPct }}% Unassigned"></div>
+                                        @else
+                                            <div class="bg-gray-300 h-full w-full rounded-full"></div>
+                                        @endif
+                                    </div> --}}
                                 </div>
 
                                 <!-- Far Right: Quick Actions -->
