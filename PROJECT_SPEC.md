@@ -40,10 +40,37 @@
 * [ ] **Milestone 4:** Blade UI & Timezone Formatting *(Current)*
   * [x] Subtask 4.1: Implement `Asia/Kolkata` timezone & overdue helpers / accessors
   * [x] Subtask 4.2: Update Navigation & Layout (nav links for Tickets and Projects, flash message banner)
-  * [ ] Subtask 4.3: Implement Projects Views (index, create, edit, show with manager assignment)
+  * [x] Subtask 4.3: Implement Projects Views (Spacious modular row listing with Total/Assigned/Unassigned metrics & warm palette)
   * [ ] Subtask 4.4: Implement Tickets Index & Filter Dashboard (status, priority, project, assignee filters & workload view)
   * [ ] Subtask 4.5: Implement Ticket Create & Edit Forms (with validation and project/assignee selectors)
   * [ ] Subtask 4.6: Implement Ticket Detail Page (header, watch/unwatch toggle, status transition modal with atomic blocked prompt, comments thread with 5-min window gate, and activity log timeline)
+
+---
+
+## 🎨 UI & Design System Specifications
+
+### 1. Aesthetic Principles
+- **Airy, Spacious & Modular:** Ample padding (`p-6` to `p-8`), rounded corners (`rounded-2xl` to `rounded-3xl`), soft border tones (`border-gray-100` / `border-gray-200/70`), avoiding cramped cells or claustrophobic cards.
+- **Micro-interactions:** Smooth hover transitions (`transition-all duration-200 hover:shadow-md hover:border-brand-200`).
+- **Typography & Metric Emphasis:** High visual contrast for key numbers (`text-2xl` / `text-3xl font-bold tracking-tight`) paired with refined, muted micro-labels (`text-xs uppercase tracking-wider font-medium text-gray-400`).
+
+### 2. Warm Brand Color Palette (`brand`)
+Configured in `tailwind.config.js` to provide a consistent modern, warm orange/amber identity across all modules:
+- `brand-50`: `#fff7ed` (Subtle warm background cards & highlights)
+- `brand-100`: `#ffedd5` (Badges, tag backgrounds)
+- `brand-200`: `#fed7aa` (Soft border highlights on hover)
+- `brand-300`: `#fdba74`
+- `brand-400`: `#fb923c`
+- `brand-500`: `#f97316` (Primary buttons, key accents)
+- `brand-600`: `#ea580c` (Primary button hover states)
+- `brand-700`: `#c2410c`
+- `brand-800`: `#9a3412`
+- `brand-900`: `#7c2d12`
+
+### 3. Metric Badging Standards
+- **Total Tickets / Neutral Metrics:** Neutral dark text (`text-gray-900`).
+- **Assigned Tickets / Workload:** Brand warm accent (`text-brand-600` / `bg-brand-50 text-brand-600`).
+- **Unassigned Tickets / Attention Needed:** Rose / Red when unassigned tickets exist > 0 (`text-rose-600` / `bg-rose-50 text-rose-600`), neutral gray when 0 (`text-gray-400`).
 * [ ] **Milestone 5:** Notifications & Queues *(Post-UI / Phase 2)*
   * [ ] Subtask 5.1: Queue configuration & environment setup (`QUEUE_CONNECTION=database`)
   * [ ] Subtask 5.2: Create Mailables/Notifications (TicketCreated, TicketAssigned, TicketStatusUpdated, CommentPosted)
@@ -325,7 +352,7 @@ There are strictly **three permission levels**: `user`, `manager`, and `admin`.
 * [x] **Subtask 4.2:** Update Navigation & Layout:
   * Add navigation tabs for "Tickets" and "Projects" (with Admin/PM role checks) in `navigation.blade.php`.
   * Create flash message component for success/error alert banners.
-* [ ] **Subtask 4.3:** Implement Projects Views (`resources/views/projects/`):
+* [x] **Subtask 4.3:** Implement Projects Views (`resources/views/projects/`):
   * `index.blade.php`: List projects with ticket count badges and assigned managers.
   * `create.blade.php` & `edit.blade.php`: Project form with manager assignment checkboxes.
   * `show.blade.php`: Project detail with associated tickets.

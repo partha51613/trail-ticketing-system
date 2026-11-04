@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,9 +13,23 @@ class ProjectController extends Controller
 {
     public function index(): View
     {
-        $projects = Project::with('managers')->withCount('tickets')->latest()->paginate(15);
+        $projects = Project::with('managers')
+            ->withCount([
+                'tickets as total_tickets_count',
+                'tickets as assigned_tickets_count' => fn ($query) => $query->whereNotNull('assigned_to_id'),
+                'tickets as unassigned_tickets_count' => fn ($query) => $query->whereNull('assigned_to_id'),
+            ])
+            ->latest()
+            ->paginate(10);
 
-        return view('projects.index', compact('projects'));
+        $stats = [
+            'total_projects' => Project::count(),
+            'total_tickets' => Ticket::count(),
+            'assigned_tickets' => Ticket::whereNotNull('assigned_to_id')->count(),
+            'unassigned_tickets' => Ticket::whereNull('assigned_to_id')->count(),
+        ];
+
+        return view('projects.index', compact('projects', 'stats'));
     }
 
     public function create(): View
