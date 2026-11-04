@@ -175,6 +175,14 @@
                                 class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                         </div>
 
+                        @if (request()->hasAny(['search', 'status', 'priority', 'sort']))
+                            <a href="{{ route('projects.show', $project) }}"
+                            class="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-xl bg-red-600 border border-transparent text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all font-medium">
+                                <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-white" />
+                                <span>{{ __('Reset') }}</span>
+                            </a>
+                        @endif
+
                         <!-- Status Filter -->
                         <select x-model="status" @change="applyFilters()"
                             class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
@@ -196,13 +204,7 @@
                             <option value="low">{{ __('Low') }}</option>
                         </select>
 
-                        @if (request()->hasAny(['search', 'status', 'priority', 'sort']))
-                            <a href="{{ route('projects.show', $project) }}"
-                                class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-brand-600 transition-colors font-medium px-2 py-1">
-                                <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
-                                <span>{{ __('Reset') }}</span>
-                            </a>
-                        @endif
+
                     </div>
                 </div>
 

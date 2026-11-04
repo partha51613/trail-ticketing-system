@@ -25,8 +25,22 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <!-- Global Search & Settings Dropdown -->
+            <div class="hidden sm:flex sm:items-center sm:gap-4 sm:ms-6">
+                <!-- Global Search Form (Option B) -->
+                <form action="{{ route('tickets.index') }}" method="GET" class="relative">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <x-heroicon-m-magnifying-glass class="w-4 h-4" />
+                        </div>
+                        <input type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="{{ __('Search tickets (e.g. #12, auth)...') }}"
+                            class="w-64 lg:w-72 pl-9 pr-4 py-1.5 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                    </div>
+                </form>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
