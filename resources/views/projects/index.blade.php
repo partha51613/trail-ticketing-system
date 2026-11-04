@@ -190,19 +190,19 @@
                                 </div>
 
                                 <!-- Far Right: Quick Actions -->
-                                <div class="flex items-center justify-end gap-2 shrink-0">
+                                <div class="flex items-center justify-end gap-2.5 shrink-0">
                                     @can('update', $project)
                                         <a href="{{ route('projects.edit', $project) }}"
-                                            class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                            class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all"
                                             title="{{ __('Edit Project') }}">
                                             <x-heroicon-m-pencil-square class="w-5 h-5" />
                                         </a>
                                     @endcan
 
                                     <a href="{{ route('projects.show', $project) }}"
-                                        class="inline-flex items-center justify-center gap-x-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-brand-50 hover:text-brand-600 border border-gray-200/80 hover:border-brand-200 transition-all">
-                                        <span>{{ __('View') }}</span>
-                                        <x-heroicon-m-arrow-up-right class="w-4 h-4" />
+                                        class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-600 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
+                                        title="{{ __('View Project') }}">
+                                        <x-heroicon-m-arrow-up-right class="w-5 h-5" />
                                     </a>
                                 </div>
 
