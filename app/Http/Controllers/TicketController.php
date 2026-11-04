@@ -22,6 +22,18 @@ class TicketController extends Controller
     {
         $query = Ticket::with(['project', 'creator', 'assignedTo'])->latest();
 
+        // If user submitted a text search (searches title, description, and ticket id)
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                if (is_numeric($search)) {
+                    $q->orWhere('id', (int) $search);
+                }
+                $q->orWhere('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
         // if user selected a status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -152,7 +164,6 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket status updated successfully');
     }
-
 
     public function reassign(Request $request, Ticket $ticket): RedirectResponse
     {

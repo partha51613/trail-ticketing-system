@@ -62,11 +62,61 @@ class ProjectController extends Controller
         return redirect()->route('projects.index')->with('success', 'Project created successfully');
     }
 
-    public function show(Project $project): View
+    public function show(Request $request, Project $project): View
     {
-        $project->load(['managers', 'tickets.creator', 'tickets.assignedTo']);
+        $project->load('managers');
 
-        return view('projects.show', compact('project'));
+        $ticketsQuery = $project->tickets()
+            ->with(['creator', 'assignedTo']);
+
+        // Search within project tickets
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $ticketsQuery->where(function ($q) use ($search) {
+                if (is_numeric($search)) {
+                    $q->orWhere('id', (int) $search);
+                }
+                $q->orWhere('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $ticketsQuery->where('status', $request->status);
+        }
+
+        // Priority filter
+        if ($request->filled('priority')) {
+            $ticketsQuery->where('priority', $request->priority);
+        }
+
+        // Assignee filter
+        if ($request->filled('assigned_to_id')) {
+            if ($request->assigned_to_id === 'unassigned') {
+                $ticketsQuery->whereNull('assigned_to_id');
+            } else {
+                $ticketsQuery->where('assigned_to_id', $request->assigned_to_id);
+            }
+        }
+
+        // Server-side Sorting
+        $allowedSorts = ['id', 'title', 'status', 'priority', 'due_date', 'created_at'];
+        $sort = in_array($request->query('sort'), $allowedSorts, true) ? $request->query('sort') : 'created_at';
+        $direction = strtolower($request->query('direction')) === 'asc' ? 'asc' : 'desc';
+
+        $tickets = $ticketsQuery->orderBy($sort, $direction)->paginate(10)->withQueryString();
+
+        // Project ticket stats
+        $projectStats = [
+            'total' => $project->tickets()->count(),
+            'assigned' => $project->tickets()->whereNotNull('assigned_to_id')->count(),
+            'unassigned' => $project->tickets()->whereNull('assigned_to_id')->count(),
+            'blocked' => $project->tickets()->where('status', 'blocked')->count(),
+            'closed' => $project->tickets()->where('status', 'closed')->count(),
+        ];
+
+        return view('projects.show', compact('project', 'tickets', 'projectStats', 'sort', 'direction'));
     }
 
     public function edit(Project $project): View
