@@ -20,6 +20,7 @@ class Ticket extends Model
 
     protected $fillable = [
         'title',
+        'number',
         'description',
         'project_id',
         'created_by_id',
@@ -88,5 +89,12 @@ class Ticket extends Model
         $todayInKolkata = now('Asia/Kolkata')->startOfDay();
 
         return $this->due_date->copy()->startOfday()->lt($todayInKolkata);
+    }
+    public function getReferenceCodeAttribute(): string
+    {
+        $prefix = $this->project?->code ?? "TCK";
+        $num = $this->number ?? $this->id;
+
+        return sprintf('%s-%03d', $prefix, $num);
     }
 }

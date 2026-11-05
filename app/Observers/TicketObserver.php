@@ -7,6 +7,15 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketObserver
 {
+    // Handle the ticket creating event
+
+    public function creating(Ticket $ticket): void
+    {
+        if (! $ticket->number && $ticket->project_id) {
+            $maxNumber = Ticket::where('project_id', $ticket->project_id)->max('number') ?? 0;
+            $ticket->number = $maxNumber + 1;
+        }
+    }
     /**
      * Handle the Ticket "created" event.
      */
@@ -35,7 +44,11 @@ class TicketObserver
         // 2. Audit-log track field changes
 
         $trackedFields = [
-            'status', 'assigned_to_id', 'priority', 'due_date', 'project_id',
+            'status',
+            'assigned_to_id',
+            'priority',
+            'due_date',
+            'project_id',
         ];
 
         foreach ($trackedFields as $field) {
@@ -48,7 +61,6 @@ class TicketObserver
                 ]);
             }
         }
-
     }
 
     /**

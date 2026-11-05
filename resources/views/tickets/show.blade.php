@@ -9,7 +9,7 @@
                 </a>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <span class="text-xs font-bold text-gray-400">#{{ $ticket->id }}</span>
+                        <span class="text-xs font-bold text-gray-400">#{{ $ticket->reference_code }}</span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 truncate">
                             {{ $ticket->title }}
                         </h1>
@@ -429,9 +429,14 @@
                         <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">
                             {{ __('Ticket Details') }}
                         </span>
+                        {{-- TicketID --}}
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+                            <span class="text-gray-500 font-medium">{{ __('Ticket No: ') }}</span>
+                            {{ $ticket->reference_code }}
+                        </div>
 
                         <!-- Priority -->
-                        <div class="flex items-center justify-between">
+                        <div class=" flex items-center justify-between border-t  border-gray-100 pt-3 ">
                             <span class="text-gray-500 font-medium">{{ __('Priority') }}</span>
                             @php
                                 $priorityClasses = match ($ticket->priority) {

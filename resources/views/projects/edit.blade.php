@@ -6,7 +6,8 @@
                 <span>{{ __('Projects') }}</span>
             </a>
             <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
-            <a href="{{ route('projects.show', $project) }}" class="hover:text-gray-900 transition-colors truncate max-w-xs">
+            <a href="{{ route('projects.show', $project) }}"
+                class="hover:text-gray-900 transition-colors truncate max-w-xs">
                 {{ $project->name }}
             </a>
             <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
@@ -40,26 +41,37 @@
                         @csrf
                         @method('PUT')
 
-                        <!-- Project Name -->
-                        <div>
-                            <x-input-label for="name" :value="__('Project Name')" class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
-                            <x-text-input id="name" name="name" type="text"
-                                class="mt-1.5 block w-full text-sm rounded-lg border-gray-300 shadow-2xs focus:border-gray-900 focus:ring-gray-900"
-                                :value="old('name', $project->name)" required autofocus />
-                            <x-input-error class="mt-1.5" :messages="$errors->get('name')" />
-                        </div>
+                        <!-- Project Name & Project Code in a 2-Column Responsive Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                            <!-- Project Name (Takes 2/3 width) -->
+                            <div class="sm:col-span-2">
+                                <x-input-label for="name" :value="__('Project Name')"
+                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                <x-text-input id="name" name="name" type="text"
+                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500"
+                                    :value="old('name', $project->name)" required autofocus />
+                                <x-input-error class="mt-1.5" :messages="$errors->get('name')" />
+                            </div>
 
-                        <!-- Description -->
-                        <div>
-                            <x-input-label for="description" :value="__('Description')" class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
-                            <textarea id="description" name="description" rows="3"
-                                class="mt-1.5 block w-full rounded-lg border-gray-300 shadow-2xs focus:border-gray-900 focus:ring-gray-900 text-sm">{{ old('description', $project->description) }}</textarea>
-                            <x-input-error class="mt-1.5" :messages="$errors->get('description')" />
+                            <!-- Project Code (Takes 1/3 width) -->
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <x-input-label for="code" :value="__('Code / Key')"
+                                        class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                    <span
+                                        class="text-[10px] text-gray-400 uppercase font-medium">{{ __('2-6 chars') }}</span>
+                                </div>
+                                <x-text-input id="code" name="code" type="text" maxlength="6"
+                                    class="mt-1.5 block w-full text-sm font-mono uppercase tracking-wider rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 placeholder:normal-case placeholder:tracking-normal"
+                                    :value="old('code', $project->code)" required placeholder="e.g. WEB" />
+                                <x-input-error class="mt-1.5" :messages="$errors->get('code')" />
+                            </div>
                         </div>
 
                         <!-- Project Managers Selection -->
                         <div class="pt-2">
-                            <x-input-label :value="__('Assign Project Managers')" class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                            <x-input-label :value="__('Assign Project Managers')"
+                                class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
                             <p class="text-xs text-gray-400 mt-0.5 mb-3">
                                 {{ __('Managers assigned here receive management permissions for tickets within this project.') }}
                             </p>
@@ -74,14 +86,17 @@
                                 @php
                                     $assignedManagerIds = old('manager_ids', $project->managers->pluck('id')->all());
                                 @endphp
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto border border-gray-200 rounded-lg p-2.5 bg-gray-50/50">
+                                <div
+                                    class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto border border-gray-200 rounded-lg p-2.5 bg-gray-50/50">
                                     @foreach ($managers as $manager)
-                                        <label class="flex items-center gap-3 p-2.5 rounded-md bg-white border border-gray-200/60 hover:border-gray-300 cursor-pointer transition-colors shadow-2xs">
+                                        <label
+                                            class="flex items-center gap-3 p-2.5 rounded-md bg-white border border-gray-200/60 hover:border-gray-300 cursor-pointer transition-colors shadow-2xs">
                                             <input type="checkbox" name="manager_ids[]" value="{{ $manager->id }}"
                                                 class="rounded border-gray-300 text-gray-900 shadow-2xs focus:ring-gray-900"
                                                 @checked(is_array($assignedManagerIds) && in_array($manager->id, $assignedManagerIds))>
                                             <div class="min-w-0 flex-1">
-                                                <div class="text-sm font-medium text-gray-900 truncate">{{ $manager->name }}</div>
+                                                <div class="text-sm font-medium text-gray-900 truncate">
+                                                    {{ $manager->name }}</div>
                                                 <div class="text-xs text-gray-400 truncate">{{ $manager->email }}</div>
                                             </div>
                                         </label>
@@ -106,7 +121,8 @@
                     </form>
 
                     @can('delete', $project)
-                        <form id="delete-project-form" method="POST" action="{{ route('projects.destroy', $project) }}" class="hidden">
+                        <form id="delete-project-form" method="POST" action="{{ route('projects.destroy', $project) }}"
+                            class="hidden">
                             @csrf
                             @method('DELETE')
                         </form>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,12 @@ class Project extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = [
+        'name',
+        'code',
+        'description',
+        'deleted_by_id'
+    ];
 
     public function managers(): BelongsToMany
     {
@@ -39,5 +45,12 @@ class Project extends Model
                 $project->saveQuietly();
             }
         });
+    }
+
+    public function code(): Attribute
+    {
+        return Attribute::make(
+            set: fn(?string $value) => $value ? strtoupper(trim($value)) : null,
+        );
     }
 }
