@@ -10,8 +10,10 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+
 
 class TicketController extends Controller
 {
@@ -59,6 +61,16 @@ class TicketController extends Controller
             }
         }
 
+        if ($request->boolean('watched')) {
+            $query->whereHas('watchers', function ($q) {
+                $q->where('users.id', Auth::id());
+            });
+        }
+
+        if ($request->filled('created_by_id')) {
+            $query->where('created_by_id', $request->created_by_id);
+        }
+
         $tickets = $query->paginate(15)->withQueryString();
 
         return view('tickets.index', [
@@ -101,8 +113,8 @@ class TicketController extends Controller
             'creator',
             'assignedTo',
             'watchers',
-            'activityLogs' => fn ($query) => $query->with('user')->latest(),
-            'comments' => fn ($query) => $query->with('user')->latest(),
+            'activityLogs' => fn($query) => $query->with('user')->latest(),
+            'comments' => fn($query) => $query->with('user')->latest(),
         ]);
 
         $users = User::orderBy('name')->get();
