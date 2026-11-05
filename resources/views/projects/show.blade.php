@@ -88,52 +88,71 @@
                 </div>
             </div>
 
-            <!-- Mini KPI Stat Row for This Project -->
+            <!-- Mini KPI Stat Row for This Project (Polished with Modern Icons & Accents) -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3.5 sm:gap-4">
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span
-                        class="text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('Total Tickets') }}</span>
-                    <div class="text-2xl font-bold tracking-tight text-gray-900 mt-1">
-                        {{ $projectStats['total'] }}
+                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 block">{{ __('Total Tickets') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-gray-900 mt-1">
+                            {{ $projectStats['total'] }}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                        <x-heroicon-o-ticket class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span
-                        class="text-xs font-medium uppercase tracking-wider text-brand-600">{{ __('Assigned') }}</span>
-                    <div class="text-2xl font-bold tracking-tight text-brand-600 mt-1">
-                        {{ $projectStats['assigned'] }}
+                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-brand-600 block">{{ __('Assigned') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-brand-600 mt-1">
+                            {{ $projectStats['assigned'] }}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
+                        <x-heroicon-o-user-group class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span
-                        class="text-xs font-medium uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-400' }}">{{ __('Unassigned') }}</span>
-                    <div
-                        class="text-2xl font-bold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-900' }} mt-1">
-                        {{ $projectStats['unassigned'] }}
+                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-400' }} block">{{ __('Unassigned') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-900' }} mt-1">
+                            {{ $projectStats['unassigned'] }}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl {{ $projectStats['unassigned'] > 0 ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-400' }} flex items-center justify-center shrink-0">
+                        <x-heroicon-o-exclamation-circle class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span class="text-xs font-medium uppercase tracking-wider text-red-500">{{ __('Blocked') }}</span>
-                    <div
-                        class="text-2xl font-bold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600' : 'text-gray-900' }} mt-1">
-                        {{ $projectStats['blocked'] }}
+                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-red-500 block">{{ __('Blocked') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600' : 'text-gray-900' }} mt-1">
+                            {{ $projectStats['blocked'] }}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl {{ $projectStats['blocked'] > 0 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400' }} flex items-center justify-center shrink-0">
+                        <x-heroicon-o-no-symbol class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs col-span-2 sm:col-span-1">
-                    <span
-                        class="text-xs font-medium uppercase tracking-wider text-emerald-600">{{ __('Closed') }}</span>
-                    <div class="text-2xl font-bold tracking-tight text-emerald-600 mt-1">
-                        {{ $projectStats['closed'] }}
+                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs col-span-2 sm:col-span-1 flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 block">{{ __('Closed') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-emerald-600 mt-1">
+                            {{ $projectStats['closed'] }}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <x-heroicon-o-check-badge class="w-5 h-5" />
                     </div>
                 </div>
             </div>
 
             <!-- Server-Side Search, Filter & Sort Table -->
-            <div x-data="{
+            <div id="tickets-table" x-data="{
                 search: '{{ request('search') }}',
                 status: '{{ request('status') }}',
                 priority: '{{ request('priority') }}',
@@ -147,7 +166,7 @@
                     params.set('sort', this.sort);
                     params.set('direction', this.direction);
                     params.delete('page');
-                    window.location.href = `${window.location.pathname}?${params.toString()}`;
+                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
                 },
                 sortBy(column) {
                     if (this.sort === column) {
@@ -309,11 +328,10 @@
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @foreach ($tickets as $ticket)
                                     <tr class="hover:bg-gray-50/70 transition-colors group">
-                                        <!-- Ticket ID -->
-                                        <!-- Ticket Key / Reference Code -->
+                                        <!-- Ticket Key / Reference Code (Clean Neutral Badge) -->
                                         <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                                             <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors">
+                                                class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-mono font-semibold bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200/80 hover:text-gray-900 transition-colors shadow-2xs">
                                                 {{ $ticket->reference_code }}
                                             </a>
                                         </td>
@@ -322,7 +340,7 @@
                                         <td class="py-4 px-3 max-w-md">
                                             <a href="{{ route('tickets.show', $ticket) }}"
                                                 class="font-semibold text-gray-900 group-hover:text-brand-600 transition-colors line-clamp-1 block">
-                                                {{ $ticket->title }}
+                                                {{ preg_replace('/\s*#\d+$/', '', $ticket->title) }}
                                             </a>
                                             <span class="text-xs text-gray-400">
                                                 {{ __('by') }} {{ $ticket->creator?->name ?? __('Unknown') }}
@@ -397,12 +415,11 @@
                                         <td class="py-4 px-3 whitespace-nowrap text-xs">
                                             @if ($ticket->due_date)
                                                 <div class="flex items-center gap-1.5">
-                                                    <span class="text-gray-600 font-medium">
+                                                    <span class="font-medium {{ $ticket->is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-600' }}">
                                                         {{ $ticket->due_date->format('M d, Y') }}
                                                     </span>
                                                     @if ($ticket->is_overdue)
-                                                        <span
-                                                            class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200/60 uppercase tracking-tight">
                                                             {{ __('OVERDUE') }}
                                                         </span>
                                                     @endif
@@ -412,12 +429,12 @@
                                             @endif
                                         </td>
 
-                                        <!-- Action Link -->
+                                        <!-- Action Link (Refined Bordered Icon Button) -->
                                         <td class="py-4 pl-3 pr-6 text-right whitespace-nowrap">
                                             <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-gray-200/80 hover:border-brand-200 transition-all">
-                                                <span>{{ __('View') }}</span>
-                                                <x-heroicon-m-arrow-up-right class="w-3.5 h-3.5" />
+                                                class="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
+                                                title="{{ __('View Ticket') }}">
+                                                <x-heroicon-m-arrow-up-right class="w-4 h-4" />
                                             </a>
                                         </td>
                                     </tr>

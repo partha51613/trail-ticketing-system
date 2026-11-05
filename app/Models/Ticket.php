@@ -90,6 +90,12 @@ class Ticket extends Model
 
         return $this->due_date->copy()->startOfday()->lt($todayInKolkata);
     }
+
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->isOverdue();
+    }
+
     public function getReferenceCodeAttribute(): string
     {
         $prefix = $this->project?->code ?? "TCK";

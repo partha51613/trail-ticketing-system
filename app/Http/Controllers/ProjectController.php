@@ -107,7 +107,10 @@ class ProjectController extends Controller
         $sort = in_array($request->query('sort'), $allowedSorts, true) ? $request->query('sort') : 'created_at';
         $direction = strtolower($request->query('direction')) === 'asc' ? 'asc' : 'desc';
 
-        $tickets = $ticketsQuery->orderBy($sort, $direction)->paginate(10)->withQueryString();
+        $tickets = $ticketsQuery->orderBy($sort, $direction)
+            ->paginate(10)
+            ->withQueryString()
+            ->fragment('tickets-table');
 
         // Project ticket stats
         $projectStats = [
