@@ -12,12 +12,14 @@
                         <h1 class="text-2xl font-bold tracking-tight text-gray-900">
                             {{ $project->name }}
                         </h1>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
                             {{ __('Workspace') }}
                         </span>
                     </div>
                     <p class="text-xs text-gray-400 mt-0.5 font-medium">
-                        {{ __('Created') }} {{ $project->created_at->format('M d, Y') }} &bull; {{ $project->created_at->diffForHumans() }}
+                        {{ __('Created') }} {{ $project->created_at->format('M d, Y') }} &bull;
+                        {{ $project->created_at->diffForHumans() }}
                     </p>
                 </div>
             </div>
@@ -57,7 +59,8 @@
                         </p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
                         <div class="space-y-1">
                             <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">
                                 {{ __('Assigned Managers') }}
@@ -68,7 +71,8 @@
                                 <div class="flex items-center gap-2">
                                     <div class="flex items-center -space-x-1.5 overflow-hidden">
                                         @foreach ($project->managers->take(5) as $manager)
-                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 text-brand-700 ring-2 ring-white text-xs font-bold border border-brand-100"
+                                            <span
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 text-brand-700 ring-2 ring-white text-xs font-bold border border-brand-100"
                                                 title="{{ $manager->name }} ({{ $manager->email }})">
                                                 {{ strtoupper(substr($manager->name, 0, 1)) }}
                                             </span>
@@ -87,35 +91,41 @@
             <!-- Mini KPI Stat Row for This Project -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3.5 sm:gap-4">
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span class="text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('Total Tickets') }}</span>
+                    <span
+                        class="text-xs font-medium uppercase tracking-wider text-gray-400">{{ __('Total Tickets') }}</span>
                     <div class="text-2xl font-bold tracking-tight text-gray-900 mt-1">
                         {{ $projectStats['total'] }}
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span class="text-xs font-medium uppercase tracking-wider text-brand-600">{{ __('Assigned') }}</span>
+                    <span
+                        class="text-xs font-medium uppercase tracking-wider text-brand-600">{{ __('Assigned') }}</span>
                     <div class="text-2xl font-bold tracking-tight text-brand-600 mt-1">
                         {{ $projectStats['assigned'] }}
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
-                    <span class="text-xs font-medium uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-400' }}">{{ __('Unassigned') }}</span>
-                    <div class="text-2xl font-bold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-900' }} mt-1">
+                    <span
+                        class="text-xs font-medium uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-400' }}">{{ __('Unassigned') }}</span>
+                    <div
+                        class="text-2xl font-bold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-900' }} mt-1">
                         {{ $projectStats['unassigned'] }}
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs">
                     <span class="text-xs font-medium uppercase tracking-wider text-red-500">{{ __('Blocked') }}</span>
-                    <div class="text-2xl font-bold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600' : 'text-gray-900' }} mt-1">
+                    <div
+                        class="text-2xl font-bold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600' : 'text-gray-900' }} mt-1">
                         {{ $projectStats['blocked'] }}
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs col-span-2 sm:col-span-1">
-                    <span class="text-xs font-medium uppercase tracking-wider text-emerald-600">{{ __('Closed') }}</span>
+                    <span
+                        class="text-xs font-medium uppercase tracking-wider text-emerald-600">{{ __('Closed') }}</span>
                     <div class="text-2xl font-bold tracking-tight text-emerald-600 mt-1">
                         {{ $projectStats['closed'] }}
                     </div>
@@ -151,12 +161,14 @@
             }" class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
 
                 <!-- Table Header Toolbar -->
-                <div class="p-5 sm:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div
+                    class="p-5 sm:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <h2 class="text-lg font-bold text-gray-900 tracking-tight">
                             {{ __('Project Tickets') }}
                         </h2>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-600">
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-600">
                             {{ $tickets->total() }}
                         </span>
                     </div>
@@ -165,19 +177,18 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <!-- Search Bar -->
                         <div class="relative min-w-[220px]">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                 <x-heroicon-m-magnifying-glass class="w-4 h-4" />
                             </div>
-                            <input type="text"
-                                x-model="search"
-                                @keydown.enter="applyFilters()"
+                            <input type="text" x-model="search" @keydown.enter="applyFilters()"
                                 placeholder="{{ __('Search tickets...') }}"
                                 class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                         </div>
 
                         @if (request()->hasAny(['search', 'status', 'priority', 'sort']))
                             <a href="{{ route('projects.show', $project) }}"
-                            class="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-xl bg-red-600 border border-transparent text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all font-medium">
+                                class="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-xl bg-red-600 border border-transparent text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all font-medium">
                                 <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-white" />
                                 <span>{{ __('Reset') }}</span>
                             </a>
@@ -211,7 +222,8 @@
                 <!-- Tickets Table -->
                 @if ($tickets->isEmpty())
                     <div class="p-12 text-center">
-                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 text-gray-400 mb-3">
+                        <div
+                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 text-gray-400 mb-3">
                             <x-heroicon-o-ticket class="w-6 h-6" />
                         </div>
                         <h4 class="text-sm font-semibold text-gray-900">{{ __('No tickets found') }}</h4>
@@ -223,39 +235,52 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-100 bg-gray-50/50 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    <th scope="col" class="py-3.5 pl-6 pr-3 cursor-pointer hover:text-gray-700 transition-colors" @click="sortBy('id')">
+                                <tr
+                                    class="border-b border-gray-100 bg-gray-50/50 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    <th scope="col"
+                                        class="py-3.5 pl-6 pr-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        @click="sortBy('id')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('ID') }}</span>
                                             <template x-if="sort === 'id'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600" x-bind:class="{ 'rotate-180': direction === 'desc' }" />
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                    x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
-                                    <th scope="col" class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors" @click="sortBy('title')">
+                                    <th scope="col"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        @click="sortBy('title')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Title') }}</span>
                                             <template x-if="sort === 'title'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600" x-bind:class="{ 'rotate-180': direction === 'desc' }" />
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                    x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
-                                    <th scope="col" class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors" @click="sortBy('status')">
+                                    <th scope="col"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        @click="sortBy('status')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Status') }}</span>
                                             <template x-if="sort === 'status'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600" x-bind:class="{ 'rotate-180': direction === 'desc' }" />
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                    x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
-                                    <th scope="col" class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors" @click="sortBy('priority')">
+                                    <th scope="col"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        @click="sortBy('priority')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Priority') }}</span>
                                             <template x-if="sort === 'priority'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600" x-bind:class="{ 'rotate-180': direction === 'desc' }" />
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                    x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
@@ -264,11 +289,14 @@
                                         {{ __('Assignee') }}
                                     </th>
 
-                                    <th scope="col" class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors" @click="sortBy('due_date')">
+                                    <th scope="col"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        @click="sortBy('due_date')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Due Date') }}</span>
                                             <template x-if="sort === 'due_date'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600" x-bind:class="{ 'rotate-180': direction === 'desc' }" />
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                    x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
@@ -282,8 +310,12 @@
                                 @foreach ($tickets as $ticket)
                                     <tr class="hover:bg-gray-50/70 transition-colors group">
                                         <!-- Ticket ID -->
-                                        <td class="py-4 pl-6 pr-3 font-semibold text-gray-400 text-xs whitespace-nowrap">
-                                            #{{ $ticket->id }}
+                                        <!-- Ticket Key / Reference Code -->
+                                        <td class="py-4 pl-6 pr-3 whitespace-nowrap">
+                                            <a href="{{ route('tickets.show', $ticket) }}"
+                                                class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors">
+                                                {{ $ticket->reference_code }}
+                                            </a>
                                         </td>
 
                                         <!-- Title & Meta -->
@@ -293,7 +325,8 @@
                                                 {{ $ticket->title }}
                                             </a>
                                             <span class="text-xs text-gray-400">
-                                                {{ __('by') }} {{ $ticket->creator?->name ?? __('Unknown') }} &bull; {{ $ticket->created_at->diffForHumans() }}
+                                                {{ __('by') }} {{ $ticket->creator?->name ?? __('Unknown') }}
+                                                &bull; {{ $ticket->created_at->diffForHumans() }}
                                             </span>
                                         </td>
 
@@ -317,7 +350,8 @@
                                                     default => 'bg-gray-400',
                                                 };
                                             @endphp
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $statusClasses }}">
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $statusClasses }}">
                                                 <span class="w-1.5 h-1.5 rounded-full {{ $statusDot }}"></span>
                                                 <span>{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
                                             </span>
@@ -334,7 +368,8 @@
                                                     default => 'text-gray-600 bg-gray-50 border-gray-200',
                                                 };
                                             @endphp
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border {{ $priorityClasses }}">
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border {{ $priorityClasses }}">
                                                 {{ ucfirst($ticket->priority) }}
                                             </span>
                                         </td>
@@ -343,7 +378,8 @@
                                         <td class="py-4 px-3 whitespace-nowrap">
                                             @if ($ticket->assignedTo)
                                                 <div class="flex items-center gap-2">
-                                                    <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">
+                                                    <span
+                                                        class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">
                                                         {{ strtoupper(substr($ticket->assignedTo->name, 0, 1)) }}
                                                     </span>
                                                     <span class="text-xs text-gray-700 font-medium">
@@ -365,7 +401,8 @@
                                                         {{ $ticket->due_date->format('M d, Y') }}
                                                     </span>
                                                     @if ($ticket->is_overdue)
-                                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                                        <span
+                                                            class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                                                             {{ __('OVERDUE') }}
                                                         </span>
                                                     @endif
