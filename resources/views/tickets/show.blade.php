@@ -1,3 +1,8 @@
+use App\Models\Ticket;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -289,7 +294,7 @@
                                                         <strong class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
                                                         {{ __('changed') }} <span class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
                                                     </p>
-                                                    
+
                                                     <!-- Old vs New Value Badges (Polished) -->
                                                     <div class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
@@ -503,21 +508,60 @@
                             <span class="font-bold text-gray-900 font-mono">{{ $ticket->reference_code }}</span>
                         </div>
 
-                        <!-- Priority -->
-                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
-                            <span class="text-gray-500 font-medium">{{ __('Priority') }}</span>
-                            @php
-                                $priorityClasses = match ($ticket->priority) {
-                                    'urgent' => 'text-red-700 bg-red-50 border-red-200',
-                                    'high' => 'text-rose-700 bg-rose-50 border-rose-200',
-                                    'medium' => 'text-amber-700 bg-amber-50 border-amber-200',
-                                    'low' => 'text-slate-600 bg-slate-50 border-slate-200',
-                                    default => 'text-gray-600 bg-gray-50 border-gray-200',
-                                };
-                            @endphp
-                            <span class="px-2.5 py-0.5 rounded-md font-semibold border {{ $priorityClasses }}">
-                                {{ ucfirst($ticket->priority) }}
-                            </span>
+                        <!-- Priority with Inline Change Action -->
+                        <div x-data="{ priorityOpen: false, selectedPriority: '{{ $ticket->priority }}' }" class="border-t border-gray-100 pt-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500 font-medium">{{ __('Priority') }}</span>
+                                <div class="flex items-center gap-2">
+                                    @php
+                                        $priorityClasses = match ($ticket->priority) {
+                                            'urgent' => 'text-red-700 bg-red-50 border-red-200',
+                                            'high' => 'text-rose-700 bg-rose-50 border-rose-200',
+                                            'medium' => 'text-amber-700 bg-amber-50 border-amber-200',
+                                            'low' => 'text-slate-600 bg-slate-50 border-slate-200',
+                                            default => 'text-gray-600 bg-gray-50 border-gray-200',
+                                        };
+                                    @endphp
+                                    <span class="px-2.5 py-0.5 rounded-md font-semibold border {{ $priorityClasses }}">
+                                        {{ ucfirst($ticket->priority) }}
+                                    </span>
+
+                                    @can('update', $ticket)
+                                        <button type="button" @click="priorityOpen = !priorityOpen"
+                                            class="inline-flex items-center p-1 rounded-md text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                                            title="{{ __('Change Priority') }}">
+                                            <x-heroicon-m-pencil-square class="w-3.5 h-3.5" />
+                                        </button>
+                                    @endcan
+                                </div>
+                            </div>
+
+                            <!-- Inline Priority Change Form -->
+                            @can('update', $ticket)
+                                <div x-show="priorityOpen" x-cloak class="pt-2">
+                                    <form action="{{ route('tickets.priority', $ticket) }}" method="POST" class="space-y-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="flex items-center gap-2">
+                                            <select name="priority" x-model="selectedPriority"
+                                                class="flex-1 text-xs rounded-xl border border-gray-200 bg-gray-50/70 p-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-medium">
+                                                <option value="low">{{ __('Low') }}</option>
+                                                <option value="medium">{{ __('Medium') }}</option>
+                                                <option value="high">{{ __('High') }}</option>
+                                                <option value="urgent">{{ __('Urgent') }}</option>
+                                            </select>
+                                            <button type="button" @click="priorityOpen = false"
+                                                class="px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700">
+                                                {{ __('Cancel') }}
+                                            </button>
+                                            <button type="submit"
+                                                class="px-3 py-1.5 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-xs transition-all">
+                                                {{ __('Save') }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            @endcan
                         </div>
 
                         <!-- Due Date (with 11:59 PM deadline) -->

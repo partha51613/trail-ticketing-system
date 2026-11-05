@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tickets', TicketController::class);
     Route::patch('/tickets/{ticket}/transition', [TicketController::class, 'transitionStatus'])->name('tickets.transition');
     Route::patch('/tickets/{ticket}/reassign', [TicketController::class, 'reassign'])->name('tickets.reassign');
+    Route::patch('/tickets/{ticket}/priority', [TicketController::class, 'changePriority'])->name('tickets.priority');
     Route::post('/tickets/{ticket}/watch', [WatcherController::class, 'toggle'])->name('tickets.watch');
     Route::post('/tickets/{ticket}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');

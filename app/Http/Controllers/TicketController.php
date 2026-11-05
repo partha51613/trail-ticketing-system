@@ -210,4 +210,19 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket reassigned successfully');
     }
+
+    public function changePriority(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('update', $ticket);
+
+        $validated = $request->validate([
+            'priority' => ['required', 'string', 'in:low,medium,high,urgent'],
+        ]);
+
+        $ticket->update([
+            'priority' => $validated['priority'],
+        ]);
+
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket priority updated successfully');
+    }
 }

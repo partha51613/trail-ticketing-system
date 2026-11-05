@@ -45,9 +45,10 @@ class TicketPolicy
         }
 
         $isCreator = $user->id === $ticket->created_by_id;
+        $isAssignee = $user->id === $ticket->assigned_to_id;
         $isManager = $user->managesProject($ticket->project_id);
 
-        return $isCreator || $isManager;
+        return $isCreator || $isAssignee || $isManager;
     }
 
     /**
