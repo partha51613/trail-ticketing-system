@@ -16,8 +16,8 @@ class ProjectController extends Controller
         $projects = Project::with('managers')
             ->withCount([
                 'tickets as total_tickets_count',
-                'tickets as assigned_tickets_count' => fn($query) => $query->whereNotNull('assigned_to_id'),
-                'tickets as unassigned_tickets_count' => fn($query) => $query->whereNull('assigned_to_id'),
+                'tickets as assigned_tickets_count' => fn ($query) => $query->whereNotNull('assigned_to_id'),
+                'tickets as unassigned_tickets_count' => fn ($query) => $query->whereNull('assigned_to_id'),
             ])
             ->latest()
             ->paginate(10);
@@ -138,7 +138,7 @@ class ProjectController extends Controller
         $this->authorize('update', $project);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'min:2', 'max:6', 'alpha_num', 'unique:projects,code,' . $project->id],
+            'code' => ['required', 'string', 'min:2', 'max:6', 'alpha_num', 'unique:projects,code,'.$project->id],
             'description' => ['nullable', 'string'],
             'manager_ids' => ['nullable', 'array'],
             'manager_ids.*' => ['integer', 'exists:users,id'],

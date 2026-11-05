@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\TicketObserver;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -87,8 +88,9 @@ class Ticket extends Model
         }
 
         $todayInKolkata = now('Asia/Kolkata')->startOfDay();
+        $dueDateInKolkata = Carbon::parse($this->due_date->format('Y-m-d'), 'Asia/Kolkata')->startOfDay();
 
-        return $this->due_date->copy()->startOfday()->lt($todayInKolkata);
+        return $dueDateInKolkata->lt($todayInKolkata);
     }
 
     public function getIsOverdueAttribute(): bool
@@ -98,7 +100,7 @@ class Ticket extends Model
 
     public function getReferenceCodeAttribute(): string
     {
-        $prefix = $this->project?->code ?? "TCK";
+        $prefix = $this->project?->code ?? 'TCK';
         $num = $this->number ?? $this->id;
 
         return sprintf('%s-%03d', $prefix, $num);

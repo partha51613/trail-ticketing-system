@@ -24,14 +24,14 @@ class StoreTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        
+
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'project_id' => ['required', 'integer', 'exists:projects,id'],
             'priority' => ['required', 'string', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id']
+            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +53,14 @@ class TicketActivityLog extends Model
 
         if ($this->field_changed === 'project_id') {
             return Project::withTrashed()->find($value)?->name ?? "Project #{$value}";
+        }
+
+        if ($this->field_changed === 'due_date') {
+            try {
+                return Carbon::parse($value)->timezone('Asia/Kolkata')->format('d M Y');
+            } catch (\Throwable) {
+                return $value;
+            }
         }
 
         if ($this->field_changed === 'status' || $this->field_changed === 'priority') {

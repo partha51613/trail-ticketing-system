@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Ticket;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Ticket;
 
 class UpdateTicketRequest extends FormRequest
 {
@@ -30,14 +30,13 @@ class UpdateTicketRequest extends FormRequest
             'project_id' => ['required', 'integer', 'exists:projects,id'],
             'priority' => ['required', 'string', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id']
+            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 
     /**
      * Configure the validator instance
      */
-
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
@@ -49,7 +48,7 @@ class UpdateTicketRequest extends FormRequest
                 // If project_id is being changed, verify transfer permission
 
                 if ($newProjectId && $newProjectId !== $ticket->project_id) {
-                    if (!$this->user()?->can('transferProject', [$ticket, $newProjectId])) {
+                    if (! $this->user()?->can('transferProject', [$ticket, $newProjectId])) {
                         $validator->errors()->add(
                             'project_id',
                             'You are not authorized to transfer this ticket to another project'

@@ -19,7 +19,7 @@ class Project extends Model
         'name',
         'code',
         'description',
-        'deleted_by_id'
+        'deleted_by_id',
     ];
 
     public function managers(): BelongsToMany
@@ -50,7 +50,7 @@ class Project extends Model
     public function code(): Attribute
     {
         return Attribute::make(
-            set: fn(?string $value) => $value ? strtoupper(trim($value)) : null,
+            set: fn (?string $value) => $value ? strtoupper(trim($value)) : null,
         );
     }
 }

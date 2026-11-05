@@ -21,15 +21,12 @@ class TransitionTicketStatusRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-
-
     public function messages(): array
     {
         return [
             'comment.required_if' => 'A comment explaining the reason is required when marking a ticket as blocked.',
         ];
     }
-
 
     public function rules(): array
     {

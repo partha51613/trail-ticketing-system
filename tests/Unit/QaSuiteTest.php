@@ -115,6 +115,23 @@ test('TicketPolicy: creator can edit open ticket details but not closed tickets'
     expect($policy->update($creator, $ticket))->toBeFalse();
 });
 
+test('TicketPolicy: assigned user cannot edit open ticket details (spec section 2.2)', function () {
+    $policy = new TicketPolicy;
+
+    $assignee = new User;
+    $assignee->id = 20;
+    $assignee->role = 'user';
+
+    $ticket = new Ticket([
+        'created_by_id' => 10,
+        'assigned_to_id' => 20,
+        'status' => 'new',
+        'project_id' => 1,
+    ]);
+
+    expect($policy->update($assignee, $ticket))->toBeFalse();
+});
+
 test('TicketPolicy: admin cannot edit details of closed tickets without reopening', function () {
     $policy = new TicketPolicy;
 

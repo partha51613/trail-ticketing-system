@@ -12,10 +12,11 @@ class TicketObserver
     public function creating(Ticket $ticket): void
     {
         if (! $ticket->number && $ticket->project_id) {
-            $maxNumber = Ticket::where('project_id', $ticket->project_id)->max('number') ?? 0;
+            $maxNumber = Ticket::withTrashed()->where('project_id', $ticket->project_id)->lockForUpdate()->max('number') ?? 0;
             $ticket->number = $maxNumber + 1;
         }
     }
+
     /**
      * Handle the Ticket "created" event.
      */
