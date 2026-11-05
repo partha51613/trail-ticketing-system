@@ -144,18 +144,34 @@
                                         <div x-data="{ editing: false, body: '{{ addslashes($comment->body) }}' }"
                                             class="bg-gray-50/60 rounded-xl border border-gray-100 p-4 space-y-2">
                                             <div class="flex items-center justify-between gap-3">
-                                                <div class="flex items-center gap-2.5">
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <!-- User Avatar -->
                                                     <span
-                                                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold ring-2 ring-white">
+                                                        class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold ring-1 ring-gray-200 shrink-0">
                                                         {{ strtoupper(substr($comment->user?->name ?? 'U', 0, 1)) }}
                                                     </span>
-                                                    <span
-                                                        class="text-xs font-semibold text-gray-900">{{ $comment->user?->name ?? __('Unknown') }}</span>
-                                                    <span class="text-[11px] text-gray-400">&bull;
-                                                        {{ $comment->created_at->diffForHumans() }}</span>
+
+                                                    <!-- Commenter Name -->
+                                                    <span class="text-xs font-semibold text-gray-900 truncate">
+                                                        {{ $comment->user?->name ?? __('Unknown') }}
+                                                    </span>
+
+                                                    <!-- Dot Separator -->
+                                                    <span class="text-gray-300 text-xs shrink-0">&bull;</span>
+
+                                                    <!-- Exact IST Timestamp (Hover reveals relative time) -->
+                                                    <span title="{{ $comment->created_at->diffForHumans() }}"
+                                                        class="text-xs text-gray-500 hover:text-amber-500  font-bold cursor-help transition-colors whitespace-nowrap">
+                                                        @ist($comment->created_at)
+                                                    </span>
+
+                                                    <!-- Edited Pill -->
                                                     @if ($comment->edited_at)
                                                         <span
-                                                            class="text-[10px] text-gray-400 italic">({{ __('edited') }})</span>
+                                                            title="{{ __('Edited') }} {{ $comment->edited_at->diffForHumans() }} (@ist($comment->edited_at))"
+                                                            class="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded cursor-help shrink-0">
+                                                            {{ __('edited') }}
+                                                        </span>
                                                     @endif
                                                 </div>
 
@@ -455,18 +471,23 @@
                             </span>
                         </div>
 
-                        <!-- Created Date (Full Timestamp) -->
+                        <!-- Created Date (Full Timestamp with Hover Relative Time) -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Created') }}</span>
-                            <span class="font-semibold text-gray-800">@ist($ticket->created_at)</span>
+                            <span title="{{ $ticket->created_at->diffForHumans() }}"
+                                class="font-semibold text-gray-800 cursor-help hover:text-brand-600 transition-colors">
+                                @ist($ticket->created_at)
+                            </span>
                         </div>
 
-                        <!-- Due Date -->
+
+                        <!-- Due Date (with Hover Relative Time: e.g. "due in 3 days" or "3 days ago") -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Due Date') }}</span>
                             @if ($ticket->due_date)
                                 <div class="flex items-center gap-1.5">
-                                    <span class="font-semibold text-gray-800">
+                                    <span title="{{ $ticket->due_date->endOfDay()->diffForHumans() }}"
+                                        class="font-semibold text-gray-800 cursor-help hover:text-brand-600 transition-colors">
                                         {{ $ticket->due_date->format('d M Y') }} <span
                                             class="text-gray-400 font-normal text-[11px]">(11:59 PM IST)</span>
                                     </span>
