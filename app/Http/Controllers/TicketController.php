@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-
 class TicketController extends Controller
 {
     /**
@@ -113,14 +112,33 @@ class TicketController extends Controller
             'creator',
             'assignedTo',
             'watchers',
-            'activityLogs' => fn($query) => $query->with('user')->latest(),
-            'comments' => fn($query) => $query->with('user')->latest(),
+            'activityLogs.user',
+            'comments.user',
         ]);
+
+        // Merge comments and activity logs into a unified chronological stream
+        $commentsStream = $ticket->comments->map(fn ($comment) => [
+            'type' => 'comment',
+            'id' => $comment->id,
+            'timestamp' => $comment->created_at,
+            'data' => $comment,
+        ]);
+
+        $activityStream = $ticket->activityLogs->map(fn ($log) => [
+            'type' => 'activity',
+            'id' => $log->id,
+            'timestamp' => $log->created_at,
+            'data' => $log,
+        ]);
+
+        $timeline = $commentsStream->concat($activityStream)
+            ->sortByDesc('timestamp')
+            ->values();
 
         $users = User::orderBy('name')->get();
         $isWatching = $ticket->watchers->contains(auth()->id());
 
-        return view('tickets.show', compact('ticket', 'users', 'isWatching'));
+        return view('tickets.show', compact('ticket', 'timeline', 'users', 'isWatching'));
     }
 
     /**

@@ -9,8 +9,7 @@
                 </a>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <span
-                            class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-amber-300/30 text-amber-800 border border-amber-200/80 shadow-2xs">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200/80 font-mono shadow-2xs">
                             {{ $ticket->reference_code }}
                         </span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 truncate">
@@ -64,7 +63,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
 
-                <!-- Left Column (Main Ticket Body & Tabs - 2/3) -->
+                <!-- Left Column (Main Ticket Body & Unified Timeline - 2/3) -->
                 <div class="lg:col-span-2 space-y-6">
 
                     <!-- Description Card -->
@@ -77,47 +76,62 @@
                         </div>
                     </div>
 
-                    <!-- Tabs: Comments vs Activity Log -->
-                    <div x-data="{ tab: 'comments' }"
+                    <!-- Unified Timeline with Filter Pills -->
+                    <div x-data="{ filter: 'all' }"
                         class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-                        <!-- Tab Bar -->
-                        <div class="border-b border-gray-100 px-6 pt-4 flex items-center justify-between gap-4">
-                            <div class="flex items-center gap-6">
-                                <button type="button" @click="tab = 'comments'"
-                                    :class="tab === 'comments' ? 'border-brand-500 text-brand-600 font-bold' :
-                                        'border-transparent text-gray-500 hover:text-gray-700 font-medium'"
-                                    class="pb-3.5 border-b-2 text-sm transition-all flex items-center gap-2">
-                                    <span>{{ __('Comments') }}</span>
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                                        :class="tab === 'comments' ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-600'">
-                                        {{ $ticket->comments->count() }}
-                                    </span>
+
+                        <!-- Timeline Header & Filter Pills -->
+                        <div
+                            class="border-b border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-bold text-gray-900 tracking-tight">
+                                    {{ __('Timeline') }}
+                                </h3>
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                                    {{ $timeline->count() }}
+                                </span>
+                            </div>
+
+                            <!-- Filter Pills (All / Comments / History) -->
+                            <div class="inline-flex items-center p-1 bg-gray-100/80 rounded-xl text-xs font-semibold">
+                                <button type="button" @click="filter = 'all'"
+                                    :class="filter === 'all' ? 'bg-white text-gray-900 shadow-xs' :
+                                        'text-gray-500 hover:text-gray-900'"
+                                    class="px-3 py-1 rounded-lg transition-all flex items-center gap-1.5">
+                                    <span>{{ __('All') }}</span>
+                                    <span class="text-[10px] opacity-75">({{ $timeline->count() }})</span>
                                 </button>
 
-                                <button type="button" @click="tab = 'activity'"
-                                    :class="tab === 'activity' ? 'border-brand-500 text-brand-600 font-bold' :
-                                        'border-transparent text-gray-500 hover:text-gray-700 font-medium'"
-                                    class="pb-3.5 border-b-2 text-sm transition-all flex items-center gap-2">
-                                    <span>{{ __('Activity History') }}</span>
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                                        :class="tab === 'activity' ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-600'">
-                                        {{ $ticket->activityLogs->count() }}
-                                    </span>
+                                <button type="button" @click="filter = 'comment'"
+                                    :class="filter === 'comment' ? 'bg-white text-brand-600 shadow-xs' :
+                                        'text-gray-500 hover:text-gray-900'"
+                                    class="px-3 py-1 rounded-lg transition-all flex items-center gap-1.5">
+                                    <x-heroicon-m-chat-bubble-left-ellipsis class="w-3.5 h-3.5" />
+                                    <span>{{ __('Comments') }}</span>
+                                    <span class="text-[10px] opacity-75">({{ $ticket->comments->count() }})</span>
+                                </button>
+
+                                <button type="button" @click="filter = 'activity'"
+                                    :class="filter === 'activity' ? 'bg-white text-gray-900 shadow-xs' :
+                                        'text-gray-500 hover:text-gray-900'"
+                                    class="px-3 py-1 rounded-lg transition-all flex items-center gap-1.5">
+                                    <x-heroicon-m-clock class="w-3.5 h-3.5" />
+                                    <span>{{ __('History') }}</span>
+                                    <span class="text-[10px] opacity-75">({{ $ticket->activityLogs->count() }})</span>
                                 </button>
                             </div>
+
+
                         </div>
 
-                        <!-- Tab 1: Comments Thread -->
-                        <div x-show="tab === 'comments'" class="p-6 space-y-6">
-
-                            <!-- New Comment Box -->
+                        <!-- Post New Comment Input Form (Always visible at top of timeline) -->
+                        <div class="p-6 border-b border-gray-100 bg-gray-50/30">
                             <form action="{{ route('comments.store', $ticket) }}" method="POST" class="space-y-3">
                                 @csrf
                                 <div class="relative">
-                                    <textarea name="body" rows="3" required placeholder="{{ __('Add a comment or update on this ticket...') }}"
-                                        class="w-full text-sm rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 placeholder-gray-400 transition-all"></textarea>
+                                    <textarea name="body" rows="3" required placeholder="{{ __('Write a comment or status update...') }}"
+                                        class="w-full text-sm rounded-xl border border-gray-200 bg-white p-3.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 placeholder-gray-400 transition-all"></textarea>
                                 </div>
                                 <div class="flex justify-end">
                                     <button type="submit"
@@ -127,155 +141,189 @@
                                     </button>
                                 </div>
                             </form>
+                        </div>
 
-                            <!-- Comments List -->
-                            @if ($ticket->comments->isEmpty())
-                                <div class="py-8 text-center border-t border-gray-100">
+                        <!-- Unified Chronological Stream -->
+                        <div class="p-6">
+                            @if ($timeline->isEmpty())
+                                <div class="py-10 text-center">
                                     <div
                                         class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-2">
                                         <x-heroicon-o-chat-bubble-left-ellipsis class="w-5 h-5" />
                                     </div>
                                     <p class="text-xs text-gray-500 font-medium">
-                                        {{ __('No comments yet. Start the discussion above.') }}</p>
-                                </div>
-                            @else
-                                <div class="space-y-4 pt-2 border-t border-gray-100">
-                                    @foreach ($ticket->comments as $comment)
-                                        <div x-data="{ editing: false, body: '{{ addslashes($comment->body) }}' }"
-                                            class="bg-gray-50/60 rounded-xl border border-gray-100 p-4 space-y-2">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <div class="flex items-center gap-2 min-w-0">
-                                                    <!-- User Avatar -->
-                                                    <span
-                                                        class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold ring-1 ring-gray-200 shrink-0">
-                                                        {{ strtoupper(substr($comment->user?->name ?? 'U', 0, 1)) }}
-                                                    </span>
-
-                                                    <!-- Commenter Name -->
-                                                    <span class="text-xs font-semibold text-gray-900 truncate">
-                                                        {{ $comment->user?->name ?? __('Unknown') }}
-                                                    </span>
-
-                                                    <!-- Dot Separator -->
-                                                    <span class="text-gray-300 text-xs shrink-0">&bull;</span>
-
-                                                    <!-- Exact IST Timestamp (Hover reveals relative time) -->
-                                                    <span title="{{ $comment->created_at->diffForHumans() }}"
-                                                        class="text-xs text-gray-500 hover:text-amber-500  font-bold cursor-help transition-colors whitespace-nowrap">
-                                                        @ist($comment->created_at)
-                                                    </span>
-
-                                                    <!-- Edited Pill -->
-                                                    @if ($comment->edited_at)
-                                                        <span
-                                                            title="{{ __('Edited') }} {{ $comment->edited_at->diffForHumans() }} (@ist($comment->edited_at))"
-                                                            class="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded cursor-help shrink-0">
-                                                            {{ __('edited') }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-
-                                                <!-- 5-Minute Window Actions (Policy Guarded) -->
-                                                <div class="flex items-center gap-1.5">
-                                                    @can('update', $comment)
-                                                        <button type="button" @click="editing = !editing"
-                                                            class="p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors"
-                                                            title="{{ __('Edit Comment (5m window)') }}">
-                                                            <x-heroicon-m-pencil class="w-3.5 h-3.5" />
-                                                        </button>
-                                                    @endcan
-
-                                                    @can('delete', $comment)
-                                                        <form action="{{ route('comments.destroy', $comment) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('{{ __('Are you sure you want to delete this comment?') }}');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="p-1 rounded-md text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                                                                title="{{ __('Delete Comment') }}">
-                                                                <x-heroicon-m-trash class="w-3.5 h-3.5" />
-                                                            </button>
-                                                        </form>
-                                                    @endcan
-                                                </div>
-                                            </div>
-
-                                            <!-- Comment Body / Inline Edit -->
-                                            <div x-show="!editing"
-                                                class="text-sm text-gray-700 whitespace-pre-line pl-9">
-                                                {{ $comment->body }}
-                                            </div>
-
-                                            <div x-show="editing" x-cloak class="pl-9 pt-1">
-                                                <form action="{{ route('comments.update', $comment) }}" method="POST"
-                                                    class="space-y-2">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <textarea name="body" rows="2" required x-model="body"
-                                                        class="w-full text-xs rounded-xl border border-gray-200 bg-white p-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></textarea>
-                                                    <div class="flex items-center gap-2 justify-end">
-                                                        <button type="button" @click="editing = false"
-                                                            class="px-2.5 py-1 text-xs text-gray-500 hover:text-gray-700">
-                                                            {{ __('Cancel') }}
-                                                        </button>
-                                                        <button type="submit"
-                                                            class="px-3 py-1 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-xs">
-                                                            {{ __('Save') }}
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-
-                        </div>
-
-                        <!-- Tab 2: Activity Audit Timeline -->
-                        <div x-show="tab === 'activity'" x-cloak class="p-6">
-                            @if ($ticket->activityLogs->isEmpty())
-                                <div class="py-8 text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-2">
-                                        <x-heroicon-o-clock class="w-5 h-5" />
-                                    </div>
-                                    <p class="text-xs text-gray-500 font-medium">{{ __('No activity recorded yet.') }}
+                                        {{ __('No timeline activity or comments yet.') }}
                                     </p>
                                 </div>
                             @else
                                 <div
                                     class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200/80">
-                                    @foreach ($ticket->activityLogs as $log)
-                                        <div class="relative flex items-start gap-3">
-                                            <div
-                                                class="absolute -left-6 top-1 w-4 h-4 rounded-full bg-white border-2 border-brand-500 ring-2 ring-white">
-                                            </div>
-                                            <div class="min-w-0 flex-1">
-                                                <p class="text-xs text-gray-800">
-                                                    <strong
-                                                        class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
-                                                    {{ __('changed') }} <span
-                                                        class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
-                                                </p>
-                                                <div class="flex items-center gap-1.5 mt-1 text-xs font-mono">
-                                                    <span
-                                                        class="px-2 py-0.5 rounded bg-rose-50 text-rose-700 line-through">
-                                                        {{ $log->formatValue($log->old_value) ?: __('empty') }}
-                                                    </span>
-                                                    <x-heroicon-m-arrow-right class="w-3.5 h-3.5 text-gray-400" />
-                                                    <span
-                                                        class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">
-                                                        {{ $log->formatValue($log->new_value) }}
-                                                    </span>
+                                    @foreach ($timeline as $item)
+                                        @if ($item['type'] === 'comment')
+                                            <!-- Comment Node -->
+                                            @php $comment = $item['data']; @endphp
+                                            <div x-show="filter === 'all' || filter === 'comment'"
+                                                x-data="{ editing: false, body: '{{ addslashes($comment->body) }}' }" class="relative flex items-start gap-3">
+
+                                                <!-- Node Marker on Timeline -->
+                                                <div
+                                                    class="absolute -left-6 top-3 w-4 h-4 rounded-full bg-white border-2 border-brand-500 ring-2 ring-white">
                                                 </div>
-                                                <span class="text-[10px] text-gray-400 mt-1 block">
-                                                    {{ $log->created_at->format('M d, Y h:i A') }} &bull;
-                                                    {{ $log->created_at->diffForHumans() }}
-                                                </span>
+
+                                                <!-- Comment Card Content -->
+                                                <div
+                                                    class="min-w-0 flex-1 bg-gray-50/70 rounded-2xl border border-gray-100 p-4 space-y-2">
+                                                    <div class="flex items-center justify-between gap-3">
+                                                        <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                                                            <!-- User Avatar -->
+                                                            <span
+                                                                class="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[10px] font-bold ring-1 ring-white shrink-0">
+                                                                {{ strtoupper(substr($comment->user?->name ?? 'U', 0, 1)) }}
+                                                            </span>
+
+                                                            <!-- Commenter Name -->
+                                                            <span class="text-xs font-semibold text-gray-900 truncate">
+                                                                {{ $comment->user?->name ?? __('Unknown') }}
+                                                            </span>
+
+                                                            <!-- Dot Separator -->
+                                                            <span class="text-gray-300 text-xs shrink-0">&bull;</span>
+
+                                                            <!-- Exact IST Timestamp (Always visible inline) with Tooltip on Hover -->
+                                                            <div class="relative group inline-flex items-center cursor-default">
+                                                                <span class="text-xs text-gray-500 group-hover:text-brand-600 font-medium whitespace-nowrap transition-colors">
+                                                                    @ist($comment->created_at)
+                                                                </span>
+                                                                <!-- Floating Tooltip showing Relative Time on Hover -->
+                                                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
+                                                                    <span>{{ $comment->created_at->diffForHumans() }}</span>
+                                                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- For comments less than 24 hours old, also display relative time inline -->
+                                                            @if ($comment->created_at->diffInHours() < 24)
+                                                                <span class="text-gray-300 text-xs shrink-0">&bull;</span>
+                                                                <span class="text-xs text-gray-400 font-normal whitespace-nowrap">
+                                                                    {{ $comment->created_at->diffForHumans() }}
+                                                                </span>
+                                                            @endif
+
+                                                            <!-- Edited Pill -->
+                                                            @if ($comment->edited_at)
+                                                                <span
+                                                                    title="{{ __('Edited') }} {{ $comment->edited_at->diffForHumans() }} (@ist($comment->edited_at))"
+                                                                    class="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0 cursor-default">
+                                                                    {{ __('edited') }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+
+                                                        <!-- 5-Minute Window Actions (Policy Guarded) -->
+                                                        <div class="flex items-center gap-1.5 shrink-0">
+                                                            @can('update', $comment)
+                                                                <button type="button" @click="editing = !editing"
+                                                                    class="p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors"
+                                                                    title="{{ __('Edit Comment (5m window)') }}">
+                                                                    <x-heroicon-m-pencil class="w-3.5 h-3.5" />
+                                                                </button>
+                                                            @endcan
+
+                                                            @can('delete', $comment)
+                                                                <form action="{{ route('comments.destroy', $comment) }}"
+                                                                    method="POST"
+                                                                    onsubmit="return confirm('{{ __('Are you sure you want to delete this comment?') }}');">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="p-1 rounded-md text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                                                        title="{{ __('Delete Comment') }}">
+                                                                        <x-heroicon-m-trash class="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                </form>
+                                                            @endcan
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Comment Body / Inline Edit -->
+                                                    <div x-show="!editing"
+                                                        class="text-sm text-gray-700 whitespace-pre-line pl-8">
+                                                        {{ $comment->body }}
+                                                    </div>
+
+                                                    <div x-show="editing" x-cloak class="pl-8 pt-1">
+                                                        <form action="{{ route('comments.update', $comment) }}"
+                                                            method="POST" class="space-y-2">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <textarea name="body" rows="2" required x-model="body"
+                                                                class="w-full text-xs rounded-xl border border-gray-200 bg-white p-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"></textarea>
+                                                            <div class="flex items-center gap-2 justify-end">
+                                                                <button type="button" @click="editing = false"
+                                                                    class="px-2.5 py-1 text-xs text-gray-500 hover:text-gray-700">
+                                                                    {{ __('Cancel') }}
+                                                                </button>
+                                                                <button type="submit"
+                                                                    class="px-3 py-1 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-xs">
+                                                                    {{ __('Save') }}
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @elseif ($item['type'] === 'activity')
+                                            <!-- Audit Log Node -->
+                                            @php $log = $item['data']; @endphp
+                                            <div x-show="filter === 'all' || filter === 'activity'"
+                                                class="relative flex items-start gap-3">
+
+                                                <!-- Node Marker on Timeline -->
+                                                <div
+                                                    class="absolute -left-6 top-1 w-4 h-4 rounded-full bg-white border-2 border-gray-400 ring-2 ring-white">
+                                                </div>
+
+                                                <!-- Audit Log Content -->
+                                                <div class="min-w-0 flex-1 py-0.5">
+                                                    <p class="text-xs text-gray-800">
+                                                        <strong class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
+                                                        {{ __('changed') }} <span class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
+                                                    </p>
+                                                    
+                                                    <!-- Old vs New Value Badges (Polished) -->
+                                                    <div class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
+                                                            {{ $log->formatValue($log->old_value) ?: __('empty') }}
+                                                        </span>
+                                                        <x-heroicon-m-arrow-right class="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold text-[11px]">
+                                                            {{ $log->formatValue($log->new_value) }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Timestamp & Conditional Relative Time Suffix -->
+                                                    <div class="text-[11px] text-gray-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                                        <div class="relative group inline-flex items-center cursor-default">
+                                                            <span class="group-hover:text-brand-600 transition-colors font-medium">
+                                                                @ist($log->created_at)
+                                                            </span>
+                                                            <!-- Floating Relative Time Tooltip -->
+                                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
+                                                                <span>{{ $log->created_at->diffForHumans() }}</span>
+                                                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                            </div>
+                                                        </div>
+
+                                                        @if ($log->created_at->diffInHours() < 24)
+                                                            <span>&bull;</span>
+                                                            <span class="text-gray-400 font-normal">
+                                                                {{ $log->created_at->diffForHumans() }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     @endforeach
                                 </div>
                             @endif
@@ -448,14 +496,15 @@
                         <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">
                             {{ __('Ticket Details') }}
                         </span>
-                        {{-- TicketID --}}
-                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
-                            <span class="text-gray-500 font-medium">{{ __('Ticket No: ') }}</span>
-                            {{ $ticket->reference_code }}
+
+                        <!-- Ticket Reference & Number -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">{{ __('Ticket Number') }}</span>
+                            <span class="font-bold text-gray-900 font-mono">{{ $ticket->reference_code }}</span>
                         </div>
 
                         <!-- Priority -->
-                        <div class=" flex items-center justify-between border-t  border-gray-100 pt-3 ">
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Priority') }}</span>
                             @php
                                 $priorityClasses = match ($ticket->priority) {
@@ -471,29 +520,16 @@
                             </span>
                         </div>
 
-                        <!-- Created Date (Full Timestamp with Hover Relative Time) -->
-                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
-                            <span class="text-gray-500 font-medium">{{ __('Created') }}</span>
-                            <span title="{{ $ticket->created_at->diffForHumans() }}"
-                                class="font-semibold text-gray-800 cursor-help hover:text-brand-600 transition-colors">
-                                @ist($ticket->created_at)
-                            </span>
-                        </div>
-
-
-                        <!-- Due Date (with Hover Relative Time: e.g. "due in 3 days" or "3 days ago") -->
+                        <!-- Due Date (with 11:59 PM deadline) -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Due Date') }}</span>
                             @if ($ticket->due_date)
-                                <div class="flex items-center gap-1.5">
-                                    <span title="{{ $ticket->due_date->endOfDay()->diffForHumans() }}"
-                                        class="font-semibold text-gray-800 cursor-help hover:text-brand-600 transition-colors">
-                                        {{ $ticket->due_date->format('d M Y') }} <span
-                                            class="text-gray-400 font-normal text-[11px]">(11:59 PM IST)</span>
+                                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                    <span class="font-semibold text-gray-800">
+                                        {{ $ticket->due_date->format('M d, Y') }}, 11:59 PM
                                     </span>
                                     @if ($ticket->is_overdue)
-                                        <span
-                                            class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                                             {{ __('OVERDUE') }}
                                         </span>
                                     @endif
@@ -503,7 +539,13 @@
                             @endif
                         </div>
 
-
+                        <!-- Created On (matching 'M d, Y, h:i A' format) -->
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+                            <span class="text-gray-500 font-medium">{{ __('Created On') }}</span>
+                            <span title="{{ $ticket->created_at->diffForHumans() }}" class="font-semibold text-gray-800 cursor-help">
+                                {{ $ticket->created_at->setTimezone('Asia/Kolkata')->format('M d, Y, h:i A') }}
+                            </span>
+                        </div>
 
                         <!-- Workspace -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
