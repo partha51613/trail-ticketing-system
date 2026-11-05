@@ -1,14 +1,15 @@
 <aside class="flex flex-col h-full bg-white border-r border-gray-200/80 w-64 select-none">
     <!-- Brand / Workspace Header -->
+    <!-- Brand / Workspace Header with Collapse Button -->
     <div class="h-16 flex items-center justify-between px-5 border-b border-gray-100 shrink-0">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group min-w-0">
             <div
-                class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-brand-500/30 group-hover:bg-brand-600 transition-all">
+                class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-brand-500/30 group-hover:bg-brand-600 transition-all shrink-0">
                 T
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col min-w-0">
                 <span
-                    class="text-sm font-bold tracking-tight text-gray-900 group-hover:text-brand-600 transition-colors">
+                    class="text-sm font-bold tracking-tight text-gray-900 group-hover:text-brand-600 transition-colors truncate">
                     {{ config('app.name', 'Ticket Tracker') }}
                 </span>
                 <span class="text-[10px] font-medium text-gray-400 -mt-0.5">
@@ -16,6 +17,13 @@
                 </span>
             </div>
         </a>
+
+        <!-- Collapse Sidebar Button (Visible when sidebar is open) -->
+        <button type="button" @click="toggleSidebar()"
+            class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            title="{{ __('Collapse Sidebar') }}">
+            <x-heroicon-m-chevron-double-left class="w-4 h-4" />
+        </button>
     </div>
 
     <!-- Quick Action: + New Ticket -->
