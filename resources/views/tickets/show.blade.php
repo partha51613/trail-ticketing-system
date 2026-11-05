@@ -9,7 +9,10 @@
                 </a>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <span class="text-xs font-bold text-gray-400">#{{ $ticket->reference_code }}</span>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-amber-300/30 text-amber-800 border border-amber-200/80 shadow-2xs">
+                            {{ $ticket->reference_code }}
+                        </span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 truncate">
                             {{ $ticket->title }}
                         </h1>
@@ -452,13 +455,21 @@
                             </span>
                         </div>
 
+                        <!-- Created Date (Full Timestamp) -->
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+                            <span class="text-gray-500 font-medium">{{ __('Created') }}</span>
+                            <span class="font-semibold text-gray-800">@ist($ticket->created_at)</span>
+                        </div>
+
                         <!-- Due Date -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Due Date') }}</span>
                             @if ($ticket->due_date)
                                 <div class="flex items-center gap-1.5">
-                                    <span
-                                        class="font-semibold text-gray-800">{{ $ticket->due_date->format('M d, Y') }}</span>
+                                    <span class="font-semibold text-gray-800">
+                                        {{ $ticket->due_date->format('d M Y') }} <span
+                                            class="text-gray-400 font-normal text-[11px]">(11:59 PM IST)</span>
+                                    </span>
                                     @if ($ticket->is_overdue)
                                         <span
                                             class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
@@ -470,6 +481,8 @@
                                 <span class="text-gray-400 italic">{{ __('None set') }}</span>
                             @endif
                         </div>
+
+
 
                         <!-- Workspace -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
