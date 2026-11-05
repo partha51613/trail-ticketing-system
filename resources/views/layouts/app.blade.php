@@ -26,29 +26,19 @@
 
     <div class="min-h-screen flex">
 
-        <!-- Persistent Push-Sidebar (Zero backdrop, non-modal, non-blocking) -->
-        <div x-show="sidebarOpen" x-transition:enter="transition-all ease-out duration-200"
-            x-transition:enter-start="w-0 opacity-0 -ml-64" x-transition:enter-end="w-64 opacity-100 ml-0"
-            x-transition:leave="transition-all ease-in duration-200" x-transition:leave-start="w-64 opacity-100 ml-0"
-            x-transition:leave-end="w-0 opacity-0 -ml-64"
-            class="shrink-0 w-64 h-screen sticky top-0 z-40 bg-white border-r border-gray-200/80 shadow-xs flex flex-col overflow-hidden">
+        <!-- Persistent Push-Sidebar (Expands to 64 (256px) or collapses to slim 16 (64px) icon rail) -->
+        <div class="shrink-0 h-screen sticky top-0 z-40 bg-white border-r border-gray-200/80 shadow-xs flex flex-col transition-all duration-200"
+            :class="sidebarOpen ? 'w-64' : 'w-16'">
             @include('layouts.sidebar')
         </div>
 
-        <!-- Main Content Area (Expands smoothly when sidebar collapses) -->
+        <!-- Main Content Area -->
         <div class="flex flex-col flex-1 min-w-0 transition-all duration-200">
 
-            <!-- Top Header with Toggle Button & Search -->
+            <!-- Top Header with Search & User Status -->
             <header class="h-16 bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-30">
                 <div class="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
-                        <!-- Manual Sidebar Toggle Button (Click to Open / Close anytime) -->
-                        <button type="button" @click="toggleSidebar()"
-                            class="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                            title="{{ __('Toggle Sidebar') }}">
-                            <x-heroicon-m-bars-3 class="w-5 h-5" />
-                        </button>
-
                         <!-- Global Search -->
                         <form action="{{ route('tickets.index') }}" method="GET" class="relative">
                             <div class="relative">
