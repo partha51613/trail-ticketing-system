@@ -1,14 +1,9 @@
-use App\Models\Ticket;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Project;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3 min-w-0">
+            <div class="flex items-start sm:items-center gap-3 min-w-0">
                 <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('projects.show', $ticket->project_id) }}"
-                    class="p-2 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all shrink-0"
+                    class="p-2 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all shrink-0 mt-0.5 sm:mt-0"
                     title="{{ __('Go Back') }}">
                     <x-heroicon-m-arrow-left class="w-5 h-5" />
                 </a>
