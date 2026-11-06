@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +49,13 @@ class Comment extends Model
                 $comment->deleted_by_id = Auth::id();
                 $comment->saveQuietly();
             }
+
+            $comment->attachments->each->delete();
         });
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->MorphMany(Attachment::class, 'attachable');
     }
 }

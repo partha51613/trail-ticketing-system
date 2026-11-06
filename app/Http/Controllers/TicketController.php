@@ -109,14 +109,8 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        $ticket->load([
-            'project',
-            'creator',
-            'assignedTo',
-            'watchers',
-            'activityLogs.user',
-            'comments.user',
-        ]);
+
+        $ticket->load(['creator', 'assignedTo', 'project', 'comments.user', 'comments.attachments', 'watchers', 'activityLogs.user', 'attachments']);
 
         // Merge comments and activity logs into a unified chronological stream
         $commentsStream = $ticket->comments->map(fn($comment) => [

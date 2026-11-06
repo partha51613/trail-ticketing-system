@@ -9,7 +9,8 @@
                 </a>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200/80 font-mono shadow-2xs">
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200/80 font-mono shadow-2xs">
                             {{ $ticket->reference_code }}
                         </span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 truncate">
@@ -190,21 +191,28 @@
                                                             <span class="text-gray-300 text-xs shrink-0">&bull;</span>
 
                                                             <!-- Exact IST Timestamp (Always visible inline) with Tooltip on Hover -->
-                                                            <div class="relative group inline-flex items-center cursor-default">
-                                                                <span class="text-xs text-gray-500 group-hover:text-brand-600 font-medium whitespace-nowrap transition-colors">
+                                                            <div
+                                                                class="relative group inline-flex items-center cursor-default">
+                                                                <span
+                                                                    class="text-xs text-gray-500 group-hover:text-brand-600 font-medium whitespace-nowrap transition-colors">
                                                                     @ist($comment->created_at)
                                                                 </span>
                                                                 <!-- Floating Tooltip showing Relative Time on Hover -->
-                                                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
+                                                                <div
+                                                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
                                                                     <span>{{ $comment->created_at->diffForHumans() }}</span>
-                                                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                                    <div
+                                                                        class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
                                                             <!-- For comments less than 24 hours old, also display relative time inline -->
                                                             @if ($comment->created_at->diffInHours() < 24)
-                                                                <span class="text-gray-300 text-xs shrink-0">&bull;</span>
-                                                                <span class="text-xs text-gray-400 font-normal whitespace-nowrap">
+                                                                <span
+                                                                    class="text-gray-300 text-xs shrink-0">&bull;</span>
+                                                                <span
+                                                                    class="text-xs text-gray-400 font-normal whitespace-nowrap">
                                                                     {{ $comment->created_at->diffForHumans() }}
                                                                 </span>
                                                             @endif
@@ -231,7 +239,7 @@
 
                                                             @can('delete', $comment)
                                                                 <form action="{{ route('comments.destroy', $comment) }}"
-                                                                    method="POST"
+                                                                    method="POST" enctype="multipart/form-data"
                                                                     onsubmit="return confirm('{{ __('Are you sure you want to delete this comment?') }}');">
                                                                     @csrf
                                                                     @method('DELETE')
@@ -286,31 +294,43 @@
                                                 <!-- Audit Log Content -->
                                                 <div class="min-w-0 flex-1 py-0.5">
                                                     <p class="text-xs text-gray-800">
-                                                        <strong class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
-                                                        {{ __('changed') }} <span class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
+                                                        <strong
+                                                            class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
+                                                        {{ __('changed') }} <span
+                                                            class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
                                                     </p>
 
                                                     <!-- Old vs New Value Badges (Polished) -->
-                                                    <div class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
+                                                    <div
+                                                        class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
                                                             {{ $log->formatValue($log->old_value) ?: __('empty') }}
                                                         </span>
-                                                        <x-heroicon-m-arrow-right class="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold text-[11px]">
+                                                        <x-heroicon-m-arrow-right
+                                                            class="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold text-[11px]">
                                                             {{ $log->formatValue($log->new_value) }}
                                                         </span>
                                                     </div>
 
                                                     <!-- Timestamp & Conditional Relative Time Suffix -->
-                                                    <div class="text-[11px] text-gray-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
-                                                        <div class="relative group inline-flex items-center cursor-default">
-                                                            <span class="group-hover:text-brand-600 transition-colors font-medium">
+                                                    <div
+                                                        class="text-[11px] text-gray-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                                        <div
+                                                            class="relative group inline-flex items-center cursor-default">
+                                                            <span
+                                                                class="group-hover:text-brand-600 transition-colors font-medium">
                                                                 @ist($log->created_at)
                                                             </span>
                                                             <!-- Floating Relative Time Tooltip -->
-                                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
+                                                            <div
+                                                                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-900 text-white shadow-md whitespace-nowrap z-30 pointer-events-none">
                                                                 <span>{{ $log->created_at->diffForHumans() }}</span>
-                                                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                                <div
+                                                                    class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -517,7 +537,8 @@
                                             default => 'text-gray-600 bg-gray-50 border-gray-200',
                                         };
                                     @endphp
-                                    <span class="px-2.5 py-0.5 rounded-md font-semibold border {{ $priorityClasses }}">
+                                    <span
+                                        class="px-2.5 py-0.5 rounded-md font-semibold border {{ $priorityClasses }}">
                                         {{ ucfirst($ticket->priority) }}
                                     </span>
 
@@ -534,7 +555,8 @@
                             <!-- Inline Priority Change Form -->
                             @can('update', $ticket)
                                 <div x-show="priorityOpen" x-cloak class="pt-2">
-                                    <form action="{{ route('tickets.priority', $ticket) }}" method="POST" class="space-y-2">
+                                    <form action="{{ route('tickets.priority', $ticket) }}" method="POST"
+                                        class="space-y-2">
                                         @csrf
                                         @method('PATCH')
                                         <div class="flex items-center gap-2">
@@ -568,7 +590,8 @@
                                         {{ $ticket->due_date->format('M d, Y') }}, 11:59 PM
                                     </span>
                                     @if ($ticket->is_overdue)
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                        <span
+                                            class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                                             {{ __('OVERDUE') }}
                                         </span>
                                     @endif
@@ -581,7 +604,8 @@
                         <!-- Created On (matching 'M d, Y, h:i A' format) -->
                         <div class="flex items-center justify-between border-t border-gray-100 pt-3">
                             <span class="text-gray-500 font-medium">{{ __('Created On') }}</span>
-                            <span title="{{ $ticket->created_at->diffForHumans() }}" class="font-semibold text-gray-800 cursor-help">
+                            <span title="{{ $ticket->created_at->diffForHumans() }}"
+                                class="font-semibold text-gray-800 cursor-help">
                                 {{ $ticket->created_at->setTimezone('Asia/Kolkata')->format('M d, Y, h:i A') }}
                             </span>
                         </div>

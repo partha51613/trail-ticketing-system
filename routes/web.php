@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -29,6 +30,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/tickets/{ticket}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+
+    // Attachments (Secure streaming & thumbnailing)
+    Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
+    Route::get('/attachments/{attachment}/thumb', [AttachmentController::class, 'thumbnail'])->name('attachments.thumb');
+    Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
