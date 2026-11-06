@@ -117,14 +117,14 @@ class TicketController extends Controller
         ]);
 
         // Merge comments and activity logs into a unified chronological stream
-        $commentsStream = $ticket->comments->map(fn ($comment) => [
+        $commentsStream = $ticket->comments->map(fn($comment) => [
             'type' => 'comment',
             'id' => $comment->id,
             'timestamp' => $comment->created_at,
             'data' => $comment,
         ]);
 
-        $activityStream = $ticket->activityLogs->map(fn ($log) => [
+        $activityStream = $ticket->activityLogs->map(fn($log) => [
             'type' => 'activity',
             'id' => $log->id,
             'timestamp' => $log->created_at,
@@ -188,9 +188,13 @@ class TicketController extends Controller
             ]);
 
             if ($request->filled('comment')) {
+                $commentBody = $request->comment;
+                if ($request->status === 'blocked') {
+                    $commentBody  = 'Blocked: ' . ltrim($commentBody);
+                }
                 $ticket->comments()->create([
                     'user_id' => $request->user()->id,
-                    'body' => $request->comment,
+                    'body' => $commentBody,
                 ]);
             }
         });
