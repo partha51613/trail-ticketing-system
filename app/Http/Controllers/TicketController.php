@@ -21,7 +21,9 @@ class TicketController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ticket::with(['project', 'creator', 'assignedTo'])->latest();
+        $query = Ticket::whereHas('project', function ($q) {
+            $q->withoutTrashed();
+        })->with(['project', 'creator', 'assignedTo'])->latest();
 
         // If user submitted a text search (searches title, description, and ticket id)
         if ($request->filled('search')) {
