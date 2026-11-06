@@ -7,11 +7,13 @@
 
         <!-- When Open: Full Logo + Name + Collapse Button -->
         <a x-show="sidebarOpen" x-cloak href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group min-w-0">
-            <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-brand-500/30 group-hover:bg-brand-600 transition-all shrink-0">
+            <div
+                class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-brand-500/30 group-hover:bg-brand-600 transition-all shrink-0">
                 T
             </div>
             <div class="flex flex-col min-w-0 transition-opacity duration-150">
-                <span class="text-sm font-bold tracking-tight text-gray-900 group-hover:text-brand-600 transition-colors truncate">
+                <span
+                    class="text-sm font-bold tracking-tight text-gray-900 group-hover:text-brand-600 transition-colors truncate">
                     {{ config('app.name', 'Ticket Tracker') }}
                 </span>
                 <span class="text-[10px] font-medium text-gray-400 -mt-0.5">
@@ -36,20 +38,19 @@
     </div>
 
     <!-- Navigation Rail / Menu Items -->
-    <nav class="flex-1 py-4 space-y-6 overflow-y-auto px-2"
-        :class="sidebarOpen ? 'px-3' : 'px-2'">
+    <nav class="flex-1 py-4 space-y-6 overflow-y-auto px-2" :class="sidebarOpen ? 'px-3' : 'px-2'">
 
         <!-- Group 1: Workspace Overview -->
         <div>
-            <span x-show="sidebarOpen" x-cloak class="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
+            <span x-show="sidebarOpen" x-cloak
+                class="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
                 {{ __('Overview') }}
             </span>
-            <div class="space-y-1">
+            <div class="space-y-1 pt-3">
                 <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('dashboard') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('Dashboard') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Dashboard') }}">
                     <x-heroicon-o-squares-2x2
                         class="w-5 h-5 shrink-0 {{ request()->routeIs('dashboard') ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Dashboard') }}</span>
@@ -58,8 +59,7 @@
                 <!-- Projects -->
                 <a href="{{ route('projects.index') }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('projects.*') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('Projects') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Projects') }}">
                     <x-heroicon-o-folder
                         class="w-5 h-5 shrink-0 {{ request()->routeIs('projects.*') ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Projects') }}</span>
@@ -68,8 +68,7 @@
                 <!-- All Tickets -->
                 <a href="{{ route('tickets.index') }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('tickets.index') && !request()->hasAny(['assigned_to_id', 'watched', 'created_by_id']) ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('All Tickets') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('All Tickets') }}">
                     <x-heroicon-o-ticket
                         class="w-5 h-5 shrink-0 {{ request()->routeIs('tickets.index') && !request()->hasAny(['assigned_to_id', 'watched', 'created_by_id']) ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('All Tickets') }}</span>
@@ -79,15 +78,15 @@
 
         <!-- Group 2: My Work -->
         <div>
-            <span x-show="sidebarOpen" x-cloak class="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
+            <span x-show="sidebarOpen" x-cloak
+                class="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
                 {{ __('My Work') }}
             </span>
-            <div class="space-y-1">
+            <div class="space-y-1 pt-3">
                 <!-- Assigned to Me -->
                 <a href="{{ route('tickets.index', ['assigned_to_id' => auth()->id()]) }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request('assigned_to_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('Assigned to Me') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Assigned to Me') }}">
                     <x-heroicon-o-user
                         class="w-5 h-5 shrink-0 {{ request('assigned_to_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Assigned to Me') }}</span>
@@ -96,8 +95,7 @@
                 <!-- Watched Tickets -->
                 <a href="{{ route('tickets.index', ['watched' => 1]) }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->boolean('watched') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('Watched Tickets') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Watched Tickets') }}">
                     <x-heroicon-o-bell
                         class="w-5 h-5 shrink-0 {{ request()->boolean('watched') ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Watched Tickets') }}</span>
@@ -106,8 +104,7 @@
                 <!-- Created by Me -->
                 <a href="{{ route('tickets.index', ['created_by_id' => auth()->id()]) }}"
                     class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request('created_by_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
-                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
-                    title="{{ __('Created by Me') }}">
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Created by Me') }}">
                     <x-heroicon-o-pencil-square
                         class="w-5 h-5 shrink-0 {{ request('created_by_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Created by Me') }}</span>
@@ -125,7 +122,8 @@
         <div x-show="sidebarOpen" x-cloak
             class="flex items-center justify-between gap-2 p-2 rounded-xl hover:bg-white transition-colors border border-transparent hover:border-gray-200/80">
             <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center shrink-0 ring-2 ring-white">
+                <span
+                    class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center shrink-0 ring-2 ring-white">
                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                 </span>
                 <div class="min-w-0">
@@ -140,15 +138,15 @@
 
             <div class="flex items-center gap-1 shrink-0">
                 <a href="{{ route('profile.edit') }}"
-                    class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                    class="flex items-center justify-center p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                     title="{{ __('Profile') }}">
                     <x-heroicon-o-cog-6-tooth class="w-4 h-4" />
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                     @csrf
                     <button type="submit"
-                        class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        class="flex items-center justify-center p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                         title="{{ __('Log Out') }}">
                         <x-heroicon-o-arrow-left-on-rectangle class="w-4 h-4" />
                     </button>
