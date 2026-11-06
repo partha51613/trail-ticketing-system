@@ -127,14 +127,37 @@
                         </div>
 
                         <!-- Post New Comment Input Form (Always visible at top of timeline) -->
-                        <div class="p-6 border-b border-gray-100 bg-gray-50/30">
-                            <form action="{{ route('comments.store', $ticket) }}" method="POST" class="space-y-3">
+                        <div class="p-6 border-b border-gray-100 bg-gray-50/30" x-data="{ filesCount: 0 }">
+                            <form action="{{ route('comments.store', $ticket) }}" method="POST"
+                                enctype="multipart/form-data" class="space-y-3">
                                 @csrf
                                 <div class="relative">
                                     <textarea name="body" rows="3" required placeholder="{{ __('Write a comment or status update...') }}"
                                         class="w-full text-sm rounded-xl border border-gray-200 bg-white p-3.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 placeholder-gray-400 transition-all"></textarea>
                                 </div>
-                                <div class="flex justify-end">
+
+                                <!-- Attachment Action Row -->
+                                <div class="flex items-center justify-between gap-3 pt-1">
+                                    <div class="flex items-center gap-2">
+                                        <label
+                                            class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-2xs">
+                                            <x-heroicon-m-paper-clip class="w-4 h-4 text-gray-500" />
+                                            <span>{{ __('Attach Files') }}</span>
+                                            <input type="file" name="attachments[]" multiple class="hidden"
+                                                @change="filesCount = $event.target.files.length"
+                                                accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.txt,.csv,.log,.zip">
+                                        </label>
+
+                                        <!-- Dynamic count badge -->
+                                        <span x-show="filesCount > 0" x-cloak
+                                            class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                                            <span x-text="filesCount"></span> {{ __('file(s) selected') }}
+                                        </span>
+                                        <span class="text-[11px] text-gray-400 hidden sm:inline">
+                                            {{ __('Up to 5 files (max 10MB each)') }}
+                                        </span>
+                                    </div>
+
                                     <button type="submit"
                                         class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-brand-500 rounded-xl hover:bg-brand-600 shadow-sm shadow-brand-500/20 transition-all">
                                         <x-heroicon-m-chat-bubble-left-right class="w-4 h-4" />
@@ -237,6 +260,8 @@
                                                                 </button>
                                                             @endcan
 
+
+
                                                             @can('delete', $comment)
                                                                 <form action="{{ route('comments.destroy', $comment) }}"
                                                                     method="POST" enctype="multipart/form-data"
@@ -258,6 +283,38 @@
                                                         class="text-sm text-gray-700 whitespace-pre-line pl-8">
                                                         {{ $comment->body }}
                                                     </div>
+
+                                                    <!-- Comment Attachments -->
+                                                    @if ($comment->attachments && $comment->attachments->isNotEmpty())
+                                                        <div class="mt-3 pl-8 flex flex-wrap gap-2.5">
+                                                            @foreach ($comment->attachments as $attachment)
+                                                                @if ($attachment->isImage())
+                                                                    <a href="{{ route('attachments.show', $attachment) }}"
+                                                                        target="_blank"
+                                                                        class="group relative block rounded-xl overflow-hidden border border-gray-200 hover:border-brand-400 bg-gray-50 transition-all">
+                                                                        <img src="{{ route('attachments.thumb', $attachment) }}"
+                                                                            alt="{{ $attachment->file_name }}"
+                                                                            class="h-20 w-28 object-cover group-hover:scale-105 transition-transform duration-200">
+                                                                        <span
+                                                                            class="absolute bottom-0 inset-x-0 bg-gray-900/60 backdrop-blur-xs text-white text-[10px] truncate px-1.5 py-0.5 font-medium">
+                                                                            {{ $attachment->file_name }}
+                                                                        </span>
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('attachments.show', $attachment) }}"
+                                                                        target="_blank"
+                                                                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 text-xs font-medium text-gray-700 transition-all shadow-2xs">
+                                                                        <x-heroicon-m-document
+                                                                            class="w-4 h-4 text-brand-500 shrink-0" />
+                                                                        <span
+                                                                            class="truncate max-w-[160px]">{{ $attachment->file_name }}</span>
+                                                                        <span
+                                                                            class="text-[10px] text-gray-400">({{ $attachment->formatted_size }})</span>
+                                                                    </a>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
 
                                                     <div x-show="editing" x-cloak class="pl-8 pt-1">
                                                         <form action="{{ route('comments.update', $comment) }}"
