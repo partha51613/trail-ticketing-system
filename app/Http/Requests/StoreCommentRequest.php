@@ -24,7 +24,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'body' => ['required', 'string'],
-            'attachments' => ['nullable', 'array', 'max:5'],
+            'attachments' => ['nullable', 'array', 'max:10'],
             'attachments.*' => ['file', 'mimes:png,jpg,jpeg,webp,gif,pdf,doc,docx,txt,csv,log,zip', 'max:10240'],
         ];
     }
