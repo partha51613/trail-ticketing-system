@@ -112,7 +112,7 @@
             </div>
 
             <!-- Tickets Table Card -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
+            <div id="tickets-table" class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden scroll-mt-6">
                 @if ($tickets->isEmpty())
                     <div class="p-12 text-center">
                         <div

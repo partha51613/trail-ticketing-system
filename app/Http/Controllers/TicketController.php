@@ -72,7 +72,7 @@ class TicketController extends Controller
             $query->where('created_by_id', $request->created_by_id);
         }
 
-        $tickets = $query->paginate(15)->withQueryString();
+        $tickets = $query->paginate(10)->withQueryString()->fragment('tickets-table');
 
         return view('tickets.index', [
             'tickets' => $tickets,
@@ -113,14 +113,14 @@ class TicketController extends Controller
         $ticket->load(['creator', 'assignedTo', 'project', 'comments.user', 'comments.attachments', 'watchers', 'activityLogs.user', 'attachments']);
 
         // Merge comments and activity logs into a unified chronological stream
-        $commentsStream = $ticket->comments->map(fn($comment) => [
+        $commentsStream = $ticket->comments->map(fn ($comment) => [
             'type' => 'comment',
             'id' => $comment->id,
             'timestamp' => $comment->created_at,
             'data' => $comment,
         ]);
 
-        $activityStream = $ticket->activityLogs->map(fn($log) => [
+        $activityStream = $ticket->activityLogs->map(fn ($log) => [
             'type' => 'activity',
             'id' => $log->id,
             'timestamp' => $log->created_at,
@@ -186,7 +186,7 @@ class TicketController extends Controller
             if ($request->filled('comment')) {
                 $commentBody = $request->comment;
                 if ($request->status === 'blocked') {
-                    $commentBody  = 'Blocked: ' . ltrim($commentBody);
+                    $commentBody = 'Blocked: '.ltrim($commentBody);
                 }
                 $ticket->comments()->create([
                     'user_id' => $request->user()->id,
