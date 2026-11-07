@@ -62,6 +62,9 @@
                     <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" id="delete-ticket-header-form">
                         @csrf
                         @method('DELETE')
+                        @if(session()->has('ticket_index_url'))
+                            <input type="hidden" name="redirect_to" value="{{ session('ticket_index_url') }}">
+                        @endif
                         <button type="button"
                             @click="$dispatch('open-confirm-modal', {
                                 title: '{{ __('Delete Ticket?') }}',

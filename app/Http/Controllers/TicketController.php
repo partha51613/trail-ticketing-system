@@ -46,10 +46,37 @@ class TicketController extends Controller
                 $search = trim($request->search);
                 $q->where(function ($sub) use ($search) {
                     if (is_numeric($search)) {
-                        $sub->orWhere('id', (int) $search);
+                        $sub->orWhere('id', (int) $search)
+                            ->orWhere('number', (int) $search);
                     }
+
+                    // Check for formatted ticket code format (e.g. "ALP-001" or "PRJ-12")
+                    if (str_contains($search, '-')) {
+                        [$codePart, $numPart] = explode('-', $search, 2);
+                        if (is_numeric(ltrim($numPart, '0')) || $numPart === '0' || is_numeric($numPart)) {
+                            $numInt = (int) ltrim($numPart, '0');
+                            $sub->orWhere(function ($codeSub) use ($codePart, $numInt) {
+                                $codeSub->whereHas('project', function ($p) use ($codePart) {
+                                    $p->where('code', 'like', $codePart);
+                                })->where(function ($nSub) use ($numInt) {
+                                    $nSub->where('number', $numInt)->orWhere('id', $numInt);
+                                });
+                            });
+                        }
+                    }
+
                     $sub->orWhere('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('project', function ($p) use ($search) {
+                            $p->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('creator', function ($u) use ($search) {
+                            $u->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('assignedTo', function ($u) use ($search) {
+                            $u->where('name', 'like', "%{$search}%");
+                        });
                 });
             }
 
@@ -111,6 +138,9 @@ class TicketController extends Controller
         }
 
         $tickets = $query->paginate(10)->withQueryString()->fragment('tickets-table');
+
+        // Store the active index URL (e.g. /tickets/assigned-to-me, /tickets/watched, etc.) in session
+        $request->session()->put('ticket_index_url', $request->fullUrl());
 
         return view('tickets.index', [
             'tickets' => $tickets,
@@ -238,10 +268,22 @@ class TicketController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ticket $ticket): RedirectResponse
+    public function destroy(Request $request, Ticket $ticket): RedirectResponse
     {
         $this->authorize('delete', $ticket);
         $ticket->delete();
+
+        // If a redirect URL was passed, or session stored origin, redirect back to it
+        if ($request->filled('redirect_to')) {
+            return redirect($request->redirect_to)->with('success', 'Ticket deleted successfully');
+        }
+
+        if ($request->session()->has('ticket_index_url')) {
+            $returnUrl = $request->session()->get('ticket_index_url');
+            $request->session()->forget('ticket_index_url');
+
+            return redirect($returnUrl)->with('success', 'Ticket deleted successfully');
+        }
 
         return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully');
     }
