@@ -30,11 +30,6 @@ class TicketController extends Controller
         $requestedTab = $request->query('tab');
         $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
 
-        // Disallow non-admins from viewing soft-deleted tickets (Section 2.2 Permissions Matrix)
-        if ($tab === 'deleted' && auth()->user()?->role !== 'admin') {
-            abort(403, 'Only administrators can view deleted tickets.');
-        }
-
         // Base query with active projects
         $baseQuery = Ticket::whereHas('project', function ($q) {
             $q->withoutTrashed();

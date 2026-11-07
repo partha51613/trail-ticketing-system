@@ -89,17 +89,15 @@
                             </span>
                         </button>
 
-                        <!-- Deleted Tickets Tab (Admins Only) -->
-                        @if (auth()->user()?->role === 'admin')
-                            <button type="button" @click="switchTab('deleted')"
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
-                                <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
-                                <span>{{ __('Deleted') }}</span>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
-                                    {{ $deletedCount }}
-                                </span>
-                            </button>
-                        @endif
+                        <!-- Deleted Tickets Tab -->
+                        <button type="button" @click="switchTab('deleted')"
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                            <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
+                            <span>{{ __('Deleted') }}</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                {{ $deletedCount }}
+                            </span>
+                        </button>
                     </div>
 
                     <span class="text-xs text-gray-500 font-medium">

@@ -36,7 +36,7 @@ class TicketPolicy
      */
     public function update(User $user, Ticket $ticket): bool
     {
-        if ($ticket->status === 'closed') {
+        if ($ticket->trashed() || $ticket->status === 'closed') {
             return false;
         }
 
@@ -55,7 +55,7 @@ class TicketPolicy
      */
     public function reassign(User $user, Ticket $ticket): bool
     {
-        if ($ticket->status === 'closed') {
+        if ($ticket->trashed() || $ticket->status === 'closed') {
             return false;
         }
 
@@ -72,6 +72,10 @@ class TicketPolicy
 
     public function transferProject(User $user, Ticket $ticket, int $targetProjectId): bool
     {
+        if ($ticket->trashed()) {
+            return false;
+        }
+
         if ($user->role === 'admin') {
             return true;
         }
@@ -81,6 +85,10 @@ class TicketPolicy
 
     public function transition(User $user, Ticket $ticket, string $targetStatus): bool
     {
+        if ($ticket->trashed()) {
+            return false;
+        }
+
         // Disallow transitioning to the same status
         if ($ticket->status === $targetStatus) {
             return false;

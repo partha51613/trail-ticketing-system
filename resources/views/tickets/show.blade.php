@@ -10,10 +10,16 @@
                 <div class="min-w-0">
                     <div class="flex items-center gap-2.5 flex-wrap">
                         <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200/80 font-mono shadow-2xs">
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $ticket->trashed() ? 'bg-gray-100 text-gray-500 border border-gray-300' : 'bg-brand-50 text-brand-700 border border-brand-200/80' }} font-mono shadow-2xs">
                             {{ $ticket->reference_code }}
                         </span>
-                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 truncate">
+                        @if($ticket->trashed())
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                <x-heroicon-m-trash class="w-3.5 h-3.5 text-rose-600" />
+                                <span>{{ __('DELETED TICKET') }}</span>
+                            </span>
+                        @endif
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight {{ $ticket->trashed() ? 'text-gray-400 line-through' : 'text-gray-900' }} truncate">
                             {{ $ticket->title }}
                         </h1>
                     </div>
@@ -33,53 +39,74 @@
 
             <!-- Quick Action Buttons -->
             <div class="flex items-center gap-2.5 shrink-0">
-                <!-- Watch / Unwatch Button -->
-                <form action="{{ route('tickets.watch', $ticket) }}" method="POST">
-                    @csrf
-                    <button type="submit"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all shadow-xs {{ $isWatching ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' : 'bg-white text-gray-700 border-gray-200/90 hover:bg-gray-50' }}">
-                        @if ($isWatching)
-                            <x-heroicon-s-bell-alert class="w-4 h-4 text-amber-600" />
-                            <span>{{ __('Watching') }}</span>
-                        @else
-                            <x-heroicon-o-bell class="w-4 h-4 text-gray-500" />
-                            <span>{{ __('Watch') }}</span>
-                        @endif
-                    </button>
-                </form>
-
-                <!-- Edit Ticket -->
-                @can('update', $ticket)
-                    <a href="{{ route('tickets.edit', $ticket) }}"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200/90 rounded-xl hover:bg-gray-50 hover:border-gray-300 shadow-xs transition-all">
-                        <x-heroicon-m-pencil-square class="w-4 h-4 text-gray-500" />
-                        <span>{{ __('Edit') }}</span>
-                    </a>
-                @endcan
-
-                <!-- Delete Ticket (Creator, PM, Admin) -->
-                @can('delete', $ticket)
-                    <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" id="delete-ticket-header-form">
+                @if($ticket->trashed())
+                    @can('restore', $ticket)
+                        <form action="{{ route('tickets.restore', $ticket->id) }}" method="POST" id="restore-ticket-header-form">
+                            @csrf
+                            @method('PATCH')
+                            <button type="button"
+                                @click="$dispatch('open-confirm-modal', {
+                                    title: '{{ __('Restore Ticket?') }}',
+                                    message: '{{ __('Are you sure you want to restore this ticket to active status?') }}',
+                                    confirmText: '{{ __('Restore') }}',
+                                    isDanger: false,
+                                    form: 'restore-ticket-header-form'
+                                })"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-all shadow-xs">
+                                <x-heroicon-m-arrow-path class="w-4 h-4 text-emerald-600" />
+                                <span>{{ __('Restore Ticket') }}</span>
+                            </button>
+                        </form>
+                    @endcan
+                @else
+                    <!-- Watch / Unwatch Button -->
+                    <form action="{{ route('tickets.watch', $ticket) }}" method="POST">
                         @csrf
-                        @method('DELETE')
-                        @if(session()->has('ticket_index_url'))
-                            <input type="hidden" name="redirect_to" value="{{ session('ticket_index_url') }}">
-                        @endif
-                        <button type="button"
-                            @click="$dispatch('open-confirm-modal', {
-                                title: '{{ __('Delete Ticket?') }}',
-                                message: '{{ __('Are you sure you want to delete this ticket? It will be soft-deleted and preserved for audit.') }}',
-                                confirmText: '{{ __('Delete') }}',
-                                isDanger: true,
-                                form: 'delete-ticket-header-form'
-                            })"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200/80 rounded-xl hover:bg-rose-100 hover:border-rose-300 shadow-xs transition-all"
-                            title="{{ __('Delete Ticket') }}">
-                            <x-heroicon-m-trash class="w-4 h-4 text-rose-600" />
-                            <span>{{ __('Delete') }}</span>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all shadow-xs {{ $isWatching ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' : 'bg-white text-gray-700 border-gray-200/90 hover:bg-gray-50' }}">
+                            @if ($isWatching)
+                                <x-heroicon-s-bell-alert class="w-4 h-4 text-amber-600" />
+                                <span>{{ __('Watching') }}</span>
+                            @else
+                                <x-heroicon-o-bell class="w-4 h-4 text-gray-500" />
+                                <span>{{ __('Watch') }}</span>
+                            @endif
                         </button>
                     </form>
-                @endcan
+
+                    <!-- Edit Ticket -->
+                    @can('update', $ticket)
+                        <a href="{{ route('tickets.edit', $ticket) }}"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200/90 rounded-xl hover:bg-gray-50 hover:border-gray-300 shadow-xs transition-all">
+                            <x-heroicon-m-pencil-square class="w-4 h-4 text-gray-500" />
+                            <span>{{ __('Edit') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Delete Ticket (Creator, PM, Admin) -->
+                    @can('delete', $ticket)
+                        <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" id="delete-ticket-header-form">
+                            @csrf
+                            @method('DELETE')
+                            @if(session()->has('ticket_index_url'))
+                                <input type="hidden" name="redirect_to" value="{{ session('ticket_index_url') }}">
+                            @endif
+                            <button type="button"
+                                @click="$dispatch('open-confirm-modal', {
+                                    title: '{{ __('Delete Ticket?') }}',
+                                    message: '{{ __('Are you sure you want to delete this ticket? It will be soft-deleted and preserved for audit.') }}',
+                                    confirmText: '{{ __('Delete') }}',
+                                    isDanger: true,
+                                    form: 'delete-ticket-header-form'
+                                })"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200/80 rounded-xl hover:bg-rose-100 hover:border-rose-300 shadow-xs transition-all"
+                                title="{{ __('Delete Ticket') }}">
+                                <x-heroicon-m-trash class="w-4 h-4 text-rose-600" />
+                                <span>{{ __('Delete') }}</span>
+                            </button>
+                        </form>
+                    @endcan
+                @endif
             </div>
         </div>
     </x-slot>
@@ -107,8 +134,29 @@
                 <!-- Left Column (Main Ticket Body & Unified Timeline - 2/3) -->
                 <div class="lg:col-span-2 space-y-6">
 
+                    @if($ticket->trashed())
+                        <!-- Deleted Status Banner -->
+                        <div class="bg-gray-100 rounded-2xl border border-gray-300/80 p-5 flex items-start gap-3 text-gray-700">
+                            <div class="p-2 rounded-xl bg-gray-200/80 text-gray-600 shrink-0">
+                                <x-heroicon-m-archive-box-x-mark class="w-5 h-5" />
+                            </div>
+                            <div class="text-xs">
+                                <h4 class="font-bold text-gray-900 text-sm mb-0.5">{{ __('This ticket has been deleted') }}</h4>
+                                <p class="text-gray-500">
+                                    {{ __('It is archived for audit purposes. Editing, comments, priority adjustments, and status transitions are disabled.') }}
+                                    @if($ticket->deleted_at)
+                                        <span class="block mt-1 font-mono text-[11px] text-gray-400">
+                                            Deleted {{ $ticket->deleted_at->diffForHumans() }}
+                                            @if($ticket->deletedBy) by {{ $ticket->deletedBy->name }} @endif
+                                        </span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Description Card -->
-                    <div class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7 shadow-xs">
+                    <div class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7 shadow-xs {{ $ticket->trashed() ? 'opacity-80 bg-gray-50/50' : '' }}">
                         <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
                             {{ __('Description') }}
                         </h2>
@@ -166,7 +214,14 @@
 
                         </div>
 
-                        <!-- Post New Comment Input Form (Always visible at top of timeline) -->
+                        <!-- Post New Comment Input Form (Hidden on Deleted Tickets) -->
+                        @if($ticket->trashed())
+                            <div class="p-5 border-b border-gray-100 bg-gray-50 text-center">
+                                <p class="text-xs text-gray-500 font-medium italic">
+                                    {{ __('Commenting is disabled on deleted tickets.') }}
+                                </p>
+                            </div>
+                        @else
                         <div class="p-6 border-b border-gray-100 bg-gray-50/30"
                             x-data="{
                                 selectedFiles: [],
@@ -356,6 +411,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                         <!-- Unified Chronological Stream -->
                         <div class="p-6">

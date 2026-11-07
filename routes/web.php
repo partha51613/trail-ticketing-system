@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/tickets/assigned-to-me', [TicketController::class, 'assignedToMe'])->name('tickets.assigned-to-me');
     Route::get('/tickets/created-by-me', [TicketController::class, 'createdByMe'])->name('tickets.created-by-me');
     Route::get('/tickets/watched', [TicketController::class, 'watchedByMe'])->name('tickets.watched');
-    Route::resource('tickets', TicketController::class);
+    Route::resource('tickets', TicketController::class)->withTrashed(['show']);
     Route::patch('/tickets/{id}/restore', [TicketController::class, 'restore'])->name('tickets.restore');
     Route::patch('/tickets/{ticket}/transition', [TicketController::class, 'transitionStatus'])->name('tickets.transition');
     Route::patch('/tickets/{ticket}/reassign', [TicketController::class, 'reassign'])->name('tickets.reassign');

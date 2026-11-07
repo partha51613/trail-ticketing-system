@@ -13,6 +13,10 @@ class CommentController extends Controller
 {
     public function store(StoreCommentRequest $request, Ticket $ticket, AttachmentService $attachmentService): RedirectResponse
     {
+        if ($ticket->trashed()) {
+            abort(403, 'Cannot comment on a deleted ticket.');
+        }
+
         $comment = $ticket->comments()->create([
             'user_id' => $request->user()->id,
             'body'    => $request->validated('body'),
