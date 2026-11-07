@@ -6,8 +6,10 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
 use App\Models\Ticket;
+use App\Notifications\TicketCommentNotification;
 use App\Services\AttachmentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Notification;
 
 class CommentController extends Controller
 {
@@ -25,6 +27,11 @@ class CommentController extends Controller
             'user_id' => $request->user()->id,
             'body' => $request->validated('body'),
         ]);
+
+        $recipients = $ticket->getNotificationRecipients($request->user()->id);
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new TicketCommentNotification($ticket, $comment));
+        }
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {

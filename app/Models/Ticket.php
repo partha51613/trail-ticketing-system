@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Observers\TicketObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -110,5 +111,33 @@ class Ticket extends Model
     public function attachments(): MorphMany
     {
         return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function getNotificationRecipients(int $excludeUserId): Collection
+    {
+        $recipientsId = collect();
+
+        // Creator
+        if ($this->created_by_id) {
+            $recipientsId->push($this->created_by_id);
+        }
+
+        // Assignee
+        if ($this->assigned_to_id) {
+            $recipientsId->push($this->assigned_to_id);
+        }
+
+        // All Wathcers
+        $watchersId = $this->watchers()->pluck('users.id');
+        $recipientsId = $recipientsId->concat($watchersId);
+
+        // Commenters/Responders
+        $commenterIds = $this->comments()->pluck('user_id');
+        $recipientsId = $recipientsId->concat($commenterIds);
+
+        // Filter duplicates
+        $uniqueIds = $recipientsId->unique()->reject(fn ($id) => $id == $excludeUserId)->values();
+
+        return User::whereIn('id', $uniqueIds)->get();
     }
 }
