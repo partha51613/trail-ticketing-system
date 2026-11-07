@@ -50,6 +50,7 @@ class TicketObserver
             'priority',
             'due_date',
             'project_id',
+            'description',
         ];
 
         foreach ($trackedFields as $field) {

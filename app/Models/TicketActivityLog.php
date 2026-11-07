@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class TicketActivityLog extends Model
 {
@@ -35,6 +36,8 @@ class TicketActivityLog extends Model
             'assigned_to_id' => 'assignee',
             'project_id' => 'project',
             'due_date' => 'due_date',
+            'attachment_added' => 'attachment added',
+            'attachment_removed' => 'attachment removed',
             default => str_replace('_', ' ', $this->field_changed),
         };
     }
@@ -42,9 +45,14 @@ class TicketActivityLog extends Model
     // Resolve raw IDs into friendly names
     public function formatValue(?string $value): string
     {
+        if ($value === null || $value === '') {
+            return $this->field_changed === 'attachment_added' || $this->field_changed === 'attachment_removed'
+                ? 'none'
+                : 'Unassigned';
+        }
 
-        if ($value == null || $value == '') {
-            return 'Unassigned';
+        if ($this->field_changed === 'description') {
+            return Str::limit($value, 60);
         }
 
         if ($this->field_changed === 'assigned_to_id') {

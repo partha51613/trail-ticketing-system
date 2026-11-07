@@ -641,24 +641,32 @@
                                                     <p class="text-xs text-gray-800">
                                                         <strong
                                                             class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</strong>
-                                                        {{ __('changed') }} <span
-                                                            class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
+                                                        @if ($log->field_changed === 'attachment_added')
+                                                            {{ __('added attachment') }} <span class="font-semibold text-gray-900">{{ $log->new_value }}</span>
+                                                        @elseif ($log->field_changed === 'attachment_removed')
+                                                            {{ __('removed attachment') }} <span class="font-semibold text-gray-900 line-through">{{ $log->old_value }}</span>
+                                                        @else
+                                                            {{ __('changed') }} <span
+                                                                class="font-medium text-gray-700 underline decoration-gray-300">{{ str_replace('_', ' ', $log->formatted_field) }}</span>
+                                                        @endif
                                                     </p>
 
                                                     <!-- Old vs New Value Badges (Polished) -->
-                                                    <div
-                                                        class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
-                                                        <span
-                                                            class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
-                                                            {{ $log->formatValue($log->old_value) ?: __('empty') }}
-                                                        </span>
-                                                        <x-heroicon-m-arrow-right
-                                                            class="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                                        <span
-                                                            class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold text-[11px]">
-                                                            {{ $log->formatValue($log->new_value) }}
-                                                        </span>
-                                                    </div>
+                                                    @if ($log->field_changed !== 'attachment_added' && $log->field_changed !== 'attachment_removed')
+                                                        <div
+                                                            class="flex items-center gap-1.5 mt-1.5 text-xs font-medium flex-wrap">
+                                                            <span
+                                                                class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/60 line-through text-[11px]">
+                                                                {{ $log->formatValue($log->old_value) ?: __('empty') }}
+                                                            </span>
+                                                            <x-heroicon-m-arrow-right
+                                                                class="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                            <span
+                                                                class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold text-[11px]">
+                                                                {{ $log->formatValue($log->new_value) }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
 
                                                     <!-- Timestamp & Conditional Relative Time Suffix -->
                                                     <div

@@ -277,15 +277,31 @@ class TicketController extends Controller
 
         // Process removed attachments
         if ($request->filled('remove_attachments')) {
-            $ticket->attachments()
+            $attachmentsToRemove = $ticket->attachments()
                 ->whereIn('id', $request->input('remove_attachments'))
-                ->delete();
+                ->get();
+
+            foreach ($attachmentsToRemove as $attachment) {
+                $ticket->activityLogs()->create([
+                    'user_id' => $request->user()->id,
+                    'field_changed' => 'attachment_removed',
+                    'old_value' => $attachment->file_name,
+                    'new_value' => null,
+                ]);
+                $attachment->delete();
+            }
         }
 
         // Process newly uploaded attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $attachmentService->storeAttachment($file, $ticket, $request->user()->id);
+                $attachment = $attachmentService->storeAttachment($file, $ticket, $request->user()->id);
+                $ticket->activityLogs()->create([
+                    'user_id' => $request->user()->id,
+                    'field_changed' => 'attachment_added',
+                    'old_value' => null,
+                    'new_value' => $attachment->file_name,
+                ]);
             }
         }
 

@@ -2,6 +2,7 @@
 
 use App\Models\Project;
 use App\Models\Ticket;
+use App\Models\TicketActivityLog;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -65,7 +66,7 @@ test('tickets show page displays attachments associated with ticket description'
         ->assertSee('Attachments (1)');
 });
 
-test('ticket attachments can be added and removed during ticket edit', function () {
+test('ticket attachments can be added and removed during ticket edit and are logged', function () {
     Storage::fake('local');
 
     $admin = User::factory()->create(['role' => 'admin']);
@@ -89,7 +90,7 @@ test('ticket attachments can be added and removed during ticket edit', function 
     expect($ticket->attachments)->toHaveCount(1);
     $initialAttachment = $ticket->attachments->first();
 
-    // Now edit the ticket: remove initial_photo.jpg and upload new_report.pdf
+    // Now edit the ticket: update description, remove initial_photo.jpg and upload new_report.pdf
     $file2 = UploadedFile::fake()->create('new_report.pdf', 100, 'application/pdf');
 
     $response = $this->actingAs($admin)->put(route('tickets.update', $ticket), [
@@ -106,4 +107,17 @@ test('ticket attachments can be added and removed during ticket edit', function 
     $ticket->refresh();
     expect($ticket->attachments)->toHaveCount(1);
     expect($ticket->attachments->first()->file_name)->toBe('new_report.pdf');
+
+    // Verify activity logs were generated for description, added attachment, and removed attachment
+    $logs = TicketActivityLog::where('ticket_id', $ticket->id)->get();
+
+    expect($logs->where('field_changed', 'description')->count())->toBe(1);
+    expect($logs->where('field_changed', 'attachment_removed')->count())->toBe(1);
+    expect($logs->where('field_changed', 'attachment_added')->count())->toBe(1);
+
+    $removedLog = $logs->firstWhere('field_changed', 'attachment_removed');
+    expect($removedLog->old_value)->toBe('initial_photo.jpg');
+
+    $addedLog = $logs->firstWhere('field_changed', 'attachment_added');
+    expect($addedLog->new_value)->toBe('new_report.pdf');
 });
