@@ -31,13 +31,13 @@ class AttachmentService
         }
 
         return $attachable->attachments()->create([
-            'id'             => $uuid,
-            'user_id'        => $userId,
-            'file_name'      => $originalName,
-            'file_path'      => $storagePath,
+            'id' => $uuid,
+            'user_id' => $userId,
+            'file_name' => $originalName,
+            'file_path' => $storagePath,
             'thumbnail_path' => $thumbnailPath,
-            'mime_type'      => $mimeType,
-            'file_size'      => $file->getSize(),
+            'mime_type' => $mimeType,
+            'file_size' => $file->getSize(),
         ]);
     }
 
@@ -51,9 +51,9 @@ class AttachmentService
 
         $srcImage = match ($mime) {
             'image/jpeg' => @imagecreatefromjpeg($srcPath),
-            'image/png'  => @imagecreatefrompng($srcPath),
+            'image/png' => @imagecreatefrompng($srcPath),
             'image/webp' => @imagecreatefromwebp($srcPath),
-            default      => false,
+            default => false,
         };
 
         if (! $srcImage) {

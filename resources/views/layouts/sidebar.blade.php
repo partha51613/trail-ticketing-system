@@ -73,6 +73,15 @@
                         class="w-5 h-5 shrink-0 {{ request()->routeIs('tickets.index') && !request()->hasAny(['assigned_to_id', 'watched', 'created_by_id']) ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('All Tickets') }}</span>
                 </a>
+
+                <!-- Workload Statistics -->
+                <a href="{{ route('workload.index') }}"
+                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('workload.*') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+                    :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Workload Statistics') }}">
+                    <x-heroicon-o-chart-bar
+                        class="w-5 h-5 shrink-0 {{ request()->routeIs('workload.*') ? 'text-brand-600' : 'text-gray-400' }}" />
+                    <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Workload Statistics') }}</span>
+                </a>
             </div>
         </div>
 
