@@ -111,7 +111,10 @@ class TicketPolicy
             return true;
         }
 
-        return $user->managesProject($ticket->project_id);
+        $isCreator = $user->id === $ticket->created_by_id;
+        $isManager = $user->managesProject($ticket->project_id);
+
+        return $isCreator || $isManager;
     }
 
     /**

@@ -103,6 +103,9 @@
         </div>
 
     </div>
+
+    <!-- Global Application Confirmation Modal -->
+    <x-confirm-modal />
 </body>
 
 </html>

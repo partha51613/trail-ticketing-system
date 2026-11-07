@@ -37,7 +37,13 @@
 
                         @can('delete', $ticket)
                             <button type="button"
-                                onclick="if(confirm('{{ __('Are you sure you want to delete this ticket? It will be soft-deleted and preserved for audit.') }}')) { document.getElementById('delete-ticket-form').submit(); }"
+                                @click="$dispatch('open-confirm-modal', {
+                                    title: '{{ __('Delete Ticket?') }}',
+                                    message: '{{ __('Are you sure you want to delete this ticket? It will be soft-deleted and preserved for audit.') }}',
+                                    confirmText: '{{ __('Delete') }}',
+                                    isDanger: true,
+                                    form: 'delete-ticket-form'
+                                })"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors shrink-0">
                                 <x-heroicon-m-trash class="w-4 h-4" />
                                 <span>{{ __('Delete') }}</span>

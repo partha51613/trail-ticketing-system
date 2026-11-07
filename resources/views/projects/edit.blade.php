@@ -28,7 +28,13 @@
                         </div>
                         @can('delete', $project)
                             <button type="button"
-                                onclick="if(confirm('Are you sure you want to delete this project? Existing tickets will be preserved.')) { document.getElementById('delete-project-form').submit(); }"
+                                @click="$dispatch('open-confirm-modal', {
+                                    title: '{{ __('Delete Project?') }}',
+                                    message: '{{ __('Are you sure you want to delete this project? Existing tickets will be preserved.') }}',
+                                    confirmText: '{{ __('Delete') }}',
+                                    isDanger: true,
+                                    form: 'delete-project-form'
+                                })"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
                                 title="{{ __('Delete Project') }}">
                                 <x-heroicon-m-trash class="w-3.5 h-3.5" />

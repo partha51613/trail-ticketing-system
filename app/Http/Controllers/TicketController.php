@@ -25,8 +25,14 @@ class TicketController extends Controller
             $q->withoutTrashed();
         })->with(['project', 'creator', 'assignedTo'])->latest();
 
-        // Tab Filter: 'active' (default) vs 'closed'
-        $tab = $request->query('tab') === 'closed' ? 'closed' : 'active';
+        // Tab Filter: 'active' (default) vs 'closed' vs 'deleted'
+        $requestedTab = $request->query('tab');
+        $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
+
+        // Disallow non-admins from viewing soft-deleted tickets (Section 2.2 Permissions Matrix)
+        if ($tab === 'deleted' && auth()->user()?->role !== 'admin') {
+            abort(403, 'Only administrators can view deleted tickets.');
+        }
 
         // Base query with active projects
         $baseQuery = Ticket::whereHas('project', function ($q) {
@@ -82,13 +88,21 @@ class TicketController extends Controller
         $applyContextFilters($closedCountQuery);
         $closedCount = $closedCountQuery->count();
 
-        // Main listing query
-        $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
-        $applyContextFilters($query);
+        $deletedCountQuery = (clone $baseQuery)->onlyTrashed();
+        $applyContextFilters($deletedCountQuery);
+        $deletedCount = $deletedCountQuery->count();
 
-        if ($tab === 'closed') {
+        // Main listing query
+        if ($tab === 'deleted') {
+            $query = (clone $baseQuery)->onlyTrashed()->with(['project', 'creator', 'assignedTo', 'deletedBy'])->latest('deleted_at');
+            $applyContextFilters($query);
+        } elseif ($tab === 'closed') {
+            $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
+            $applyContextFilters($query);
             $query->where('status', 'closed');
         } else {
+            $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
+            $applyContextFilters($query);
             $query->where('status', '!=', 'closed');
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
@@ -102,6 +116,7 @@ class TicketController extends Controller
             'tab' => $tab,
             'activeCount' => $activeCount,
             'closedCount' => $closedCount,
+            'deletedCount' => $deletedCount,
             'projects' => Project::orderBy('name')->get(),
             'users' => User::orderBy('name')->get(),
         ]);
@@ -143,8 +158,8 @@ class TicketController extends Controller
     public function create(): View
     {
         return view('tickets.create', [
-            'projects' => Project::orderBy('name')->get(),
-            'users' => User::orderBy('name')->get(),
+            'projects' => Project::withoutTrashed()->orderBy('name')->get(),
+            'users' => User::withoutTrashed()->orderBy('name')->get(),
         ]);
     }
 
@@ -202,8 +217,8 @@ class TicketController extends Controller
 
         return view('tickets.edit', [
             'ticket' => $ticket,
-            'projects' => Project::orderBy('name')->get(),
-            'users' => User::orderBy('name')->get(),
+            'projects' => Project::withoutTrashed()->orderBy('name')->get(),
+            'users' => User::withoutTrashed()->orderBy('name')->get(),
         ]);
     }
 
@@ -228,6 +243,19 @@ class TicketController extends Controller
         $ticket->delete();
 
         return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully');
+    }
+
+    /**
+     * Restore a soft-deleted ticket (Admin only).
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $ticket = Ticket::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $ticket);
+
+        $ticket->restore();
+
+        return back()->with('success', 'Ticket restored successfully');
     }
 
     public function transitionStatus(TransitionTicketStatusRequest $request, Ticket $ticket): RedirectResponse

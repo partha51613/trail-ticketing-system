@@ -27,10 +27,18 @@ class UpdateTicketRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
-            'project_id' => ['required', 'integer', 'exists:projects,id'],
+            'project_id' => [
+                'required',
+                'integer',
+                Rule::exists('projects', 'id')->whereNull('deleted_at'),
+            ],
             'priority' => ['required', 'string', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'assigned_to_id' => ['nullable', 'integer', 'exists:users,id'],
+            'assigned_to_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('users', 'id')->whereNull('deleted_at'),
+            ],
         ];
     }
 

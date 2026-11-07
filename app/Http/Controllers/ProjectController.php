@@ -68,16 +68,21 @@ class ProjectController extends Controller
     {
         $project->load('managers');
 
-        $ticketsQuery = $project->tickets()
-            ->with(['creator', 'assignedTo']);
+        // Tab Filter: 'active' (default) vs 'closed' vs 'deleted'
+        $requestedTab = $request->query('tab');
+        $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
 
-        // Tab Filter: 'active' (default) vs 'closed'
-        $tab = $request->query('tab') === 'closed' ? 'closed' : 'active';
+        // Disallow non-admins from viewing soft-deleted tickets (Section 2.2 Permissions Matrix)
+        if ($tab === 'deleted' && auth()->user()?->role !== 'admin') {
+            abort(403, 'Only administrators can view deleted tickets.');
+        }
 
-        if ($tab === 'closed') {
-            $ticketsQuery->where('status', 'closed');
+        if ($tab === 'deleted') {
+            $ticketsQuery = $project->tickets()->onlyTrashed()->with(['creator', 'assignedTo', 'deletedBy']);
+        } elseif ($tab === 'closed') {
+            $ticketsQuery = $project->tickets()->with(['creator', 'assignedTo'])->where('status', 'closed');
         } else {
-            $ticketsQuery->where('status', '!=', 'closed');
+            $ticketsQuery = $project->tickets()->with(['creator', 'assignedTo'])->where('status', '!=', 'closed');
         }
 
         // Search within project tickets
@@ -129,6 +134,7 @@ class ProjectController extends Controller
             'unassigned' => $project->tickets()->whereNull('assigned_to_id')->count(),
             'blocked' => $project->tickets()->where('status', 'blocked')->count(),
             'closed' => $project->tickets()->where('status', 'closed')->count(),
+            'deleted' => $project->tickets()->onlyTrashed()->count(),
         ];
 
         return view('projects.show', compact('project', 'tickets', 'projectStats', 'sort', 'direction', 'tab'));

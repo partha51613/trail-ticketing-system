@@ -46,8 +46,8 @@
                 assignee: '{{ request('assigned_to_id') }}',
                 switchTab(targetTab) {
                     const params = new URLSearchParams(window.location.search);
-                    if (targetTab === 'closed') {
-                        params.set('tab', 'closed');
+                    if (targetTab === 'closed' || targetTab === 'deleted') {
+                        params.set('tab', targetTab);
                         params.delete('status');
                     } else {
                         params.delete('tab');
@@ -57,16 +57,16 @@
                 },
                 applyFilters() {
                     const params = new URLSearchParams(window.location.search);
-                    if (this.tab === 'closed') { params.set('tab', 'closed'); } else { params.delete('tab'); }
+                    if (this.tab === 'closed' || this.tab === 'deleted') { params.set('tab', this.tab); } else { params.delete('tab'); }
                     if (this.project) { params.set('project_id', this.project); } else { params.delete('project_id'); }
-                    if (this.status && this.tab !== 'closed') { params.set('status', this.status); } else { params.delete('status'); }
+                    if (this.status && this.tab === 'active') { params.set('status', this.status); } else { params.delete('status'); }
                     if (this.priority) { params.set('priority', this.priority); } else { params.delete('priority'); }
                     if (this.assignee) { params.set('assigned_to_id', this.assignee); } else { params.delete('assigned_to_id'); }
                     params.delete('page');
                     window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
                 }
             }">
-                <!-- Top Row: Segmented Tabs (Active vs Closed) -->
+                <!-- Top Row: Segmented Tabs (Active vs Closed vs Deleted) -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4">
                     <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
                         <!-- Active Tickets Tab -->
@@ -88,11 +88,29 @@
                                 {{ $closedCount }}
                             </span>
                         </button>
+
+                        <!-- Deleted Tickets Tab (Admins Only) -->
+                        @if (auth()->user()?->role === 'admin')
+                            <button type="button" @click="switchTab('deleted')"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                                <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
+                                <span>{{ __('Deleted') }}</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                    {{ $deletedCount }}
+                                </span>
+                            </button>
+                        @endif
                     </div>
 
                     <span class="text-xs text-gray-500 font-medium">
                         {{ __('Showing') }} <strong class="text-gray-800">{{ $tickets->total() }}</strong>
-                        {{ $tab === 'closed' ? __('closed tickets') : __('active tickets') }}
+                        @if ($tab === 'deleted')
+                            {{ __('deleted tickets') }}
+                        @elseif ($tab === 'closed')
+                            {{ __('closed tickets') }}
+                        @else
+                            {{ __('active tickets') }}
+                        @endif
                     </span>
                 </div>
 
@@ -296,13 +314,35 @@
                                             @endif
                                         </td>
 
-                                        <!-- Action Link -->
+                                        <!-- Action Link / Restore Action -->
                                         <td class="py-4 pl-3 pr-6 text-right whitespace-nowrap">
-                                            <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-gray-200/80 hover:border-brand-200 transition-all">
-                                                <span>{{ __('View') }}</span>
-                                                <x-heroicon-m-arrow-up-right class="w-3.5 h-3.5" />
-                                            </a>
+                                            @if ($ticket->trashed())
+                                                @can('restore', $ticket)
+                                                    <form action="{{ route('tickets.restore', $ticket->id) }}" method="POST" class="inline-block"
+                                                        id="restore-ticket-index-{{ $ticket->id }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="button"
+                                                            @click="$dispatch('open-confirm-modal', {
+                                                                title: '{{ __('Restore Ticket?') }}',
+                                                                message: '{{ __('Are you sure you want to restore this ticket to active status?') }}',
+                                                                confirmText: '{{ __('Restore') }}',
+                                                                isDanger: false,
+                                                                form: 'restore-ticket-index-{{ $ticket->id }}'
+                                                            })"
+                                                            class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-all shadow-xs">
+                                                            <x-heroicon-m-arrow-path class="w-3.5 h-3.5 text-emerald-600" />
+                                                            <span>{{ __('Restore') }}</span>
+                                                        </button>
+                                                    </form>
+                                                @endcan
+                                            @else
+                                                <a href="{{ route('tickets.show', $ticket) }}"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-gray-200/80 hover:border-brand-200 transition-all">
+                                                    <span>{{ __('View') }}</span>
+                                                    <x-heroicon-m-arrow-up-right class="w-3.5 h-3.5" />
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

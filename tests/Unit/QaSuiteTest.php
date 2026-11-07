@@ -241,3 +241,28 @@ test('ProjectPolicy: only admin can create or manage projects', function () {
     expect($policy->create($admin))->toBeTrue()
         ->and($policy->create($user))->toBeFalse();
 });
+
+test('TicketPolicy: admin, assigned PM, and creator can delete tickets, but unrelated users cannot', function () {
+    $policy = new TicketPolicy;
+
+    $admin = new User;
+    $admin->id = 99;
+    $admin->role = 'admin';
+
+    $creator = new User;
+    $creator->id = 10;
+    $creator->role = 'user';
+
+    $stranger = new User;
+    $stranger->id = 50;
+    $stranger->role = 'user';
+
+    $ticket = new Ticket([
+        'created_by_id' => 10,
+        'project_id' => 1,
+    ]);
+
+    expect($policy->delete($admin, $ticket))->toBeTrue()
+        ->and($policy->delete($creator, $ticket))->toBeTrue()
+        ->and($policy->delete($stranger, $ticket))->toBeFalse();
+});

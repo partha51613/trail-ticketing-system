@@ -56,6 +56,27 @@
                         <span>{{ __('Edit') }}</span>
                     </a>
                 @endcan
+
+                <!-- Delete Ticket (Creator, PM, Admin) -->
+                @can('delete', $ticket)
+                    <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" id="delete-ticket-header-form">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button"
+                            @click="$dispatch('open-confirm-modal', {
+                                title: '{{ __('Delete Ticket?') }}',
+                                message: '{{ __('Are you sure you want to delete this ticket? It will be soft-deleted and preserved for audit.') }}',
+                                confirmText: '{{ __('Delete') }}',
+                                isDanger: true,
+                                form: 'delete-ticket-header-form'
+                            })"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200/80 rounded-xl hover:bg-rose-100 hover:border-rose-300 shadow-xs transition-all"
+                            title="{{ __('Delete Ticket') }}">
+                            <x-heroicon-m-trash class="w-4 h-4 text-rose-600" />
+                            <span>{{ __('Delete') }}</span>
+                        </button>
+                    </form>
+                @endcan
             </div>
         </div>
     </x-slot>
@@ -430,11 +451,17 @@
 
                                                             @can('delete', $comment)
                                                                 <form action="{{ route('comments.destroy', $comment) }}"
-                                                                    method="POST" enctype="multipart/form-data"
-                                                                    onsubmit="return confirm('{{ __('Are you sure you want to delete this comment?') }}');">
+                                                                    method="POST" id="delete-comment-form-{{ $comment->id }}">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit"
+                                                                    <button type="button"
+                                                                        @click="$dispatch('open-confirm-modal', {
+                                                                            title: '{{ __('Delete Comment?') }}',
+                                                                            message: '{{ __('Are you sure you want to delete this comment? This action cannot be undone.') }}',
+                                                                            confirmText: '{{ __('Delete') }}',
+                                                                            isDanger: true,
+                                                                            form: 'delete-comment-form-{{ $comment->id }}'
+                                                                        })"
                                                                         class="p-1 rounded-md text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                                                                         title="{{ __('Delete Comment') }}">
                                                                         <x-heroicon-m-trash class="w-3.5 h-3.5" />

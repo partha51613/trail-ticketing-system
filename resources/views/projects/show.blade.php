@@ -161,9 +161,9 @@
                 direction: '{{ $direction }}',
                 switchTab(targetTab) {
                     const params = new URLSearchParams(window.location.search);
-                    if (targetTab === 'closed') {
-                        params.set('tab', 'closed');
-                        params.delete('status'); // Closed tab doesn't use active status filter
+                    if (targetTab === 'closed' || targetTab === 'deleted') {
+                        params.set('tab', targetTab);
+                        params.delete('status');
                     } else {
                         params.delete('tab');
                     }
@@ -172,9 +172,9 @@
                 },
                 applyFilters() {
                     const params = new URLSearchParams(window.location.search);
-                    if (this.tab === 'closed') { params.set('tab', 'closed'); } else { params.delete('tab'); }
+                    if (this.tab === 'closed' || this.tab === 'deleted') { params.set('tab', this.tab); } else { params.delete('tab'); }
                     if (this.search) { params.set('search', this.search); } else { params.delete('search'); }
-                    if (this.status && this.tab !== 'closed') { params.set('status', this.status); } else { params.delete('status'); }
+                    if (this.status && this.tab === 'active') { params.set('status', this.status); } else { params.delete('status'); }
                     if (this.priority) { params.set('priority', this.priority); } else { params.delete('priority'); }
                     params.set('sort', this.sort);
                     params.set('direction', this.direction);
@@ -195,7 +195,7 @@
                 <!-- Table Header Tabs & Toolbar -->
                 <div class="p-5 sm:p-6 border-b border-gray-100 space-y-4">
 
-                    <!-- Top Row: Segmented Tabs (Active vs Closed) -->
+                    <!-- Top Row: Segmented Tabs (Active vs Closed vs Deleted) -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
                             <!-- Active Tickets Tab -->
@@ -217,12 +217,30 @@
                                     {{ $projectStats['closed'] }}
                                 </span>
                             </button>
+
+                            <!-- Deleted Tickets Tab (Admins Only) -->
+                            @if (auth()->user()?->role === 'admin')
+                                <button type="button" @click="switchTab('deleted')"
+                                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                                    <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
+                                    <span>{{ __('Deleted') }}</span>
+                                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                        {{ $projectStats['deleted'] }}
+                                    </span>
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Ticket Count Indicator -->
                         <span class="text-xs text-gray-500 font-medium">
                             {{ __('Showing') }} <strong class="text-gray-800">{{ $tickets->total() }}</strong>
-                            {{ $tab === 'closed' ? __('closed tickets') : __('active tickets') }}
+                            @if ($tab === 'deleted')
+                                {{ __('deleted tickets') }}
+                            @elseif ($tab === 'closed')
+                                {{ __('closed tickets') }}
+                            @else
+                                {{ __('active tickets') }}
+                            @endif
                         </span>
                     </div>
 
@@ -463,13 +481,36 @@
                                             @endif
                                         </td>
 
-                                        <!-- Action Link (Refined Bordered Icon Button) -->
+                                        <!-- Action Link / Restore Button -->
                                         <td class="py-4 pl-3 pr-6 text-right whitespace-nowrap">
-                                            <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
-                                                title="{{ __('View Ticket') }}">
-                                                <x-heroicon-m-arrow-up-right class="w-4 h-4" />
-                                            </a>
+                                            @if ($ticket->trashed())
+                                                @can('restore', $ticket)
+                                                    <form action="{{ route('tickets.restore', $ticket->id) }}" method="POST" class="inline-block"
+                                                        id="restore-ticket-form-{{ $ticket->id }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="button"
+                                                            @click="$dispatch('open-confirm-modal', {
+                                                                title: '{{ __('Restore Ticket?') }}',
+                                                                message: '{{ __('Are you sure you want to restore this ticket to active status?') }}',
+                                                                confirmText: '{{ __('Restore') }}',
+                                                                isDanger: false,
+                                                                form: 'restore-ticket-form-{{ $ticket->id }}'
+                                                            })"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all shadow-xs"
+                                                            title="{{ __('Restore Ticket') }}">
+                                                            <x-heroicon-m-arrow-path class="w-3.5 h-3.5 text-emerald-600" />
+                                                            <span>{{ __('Restore') }}</span>
+                                                        </button>
+                                                    </form>
+                                                @endcan
+                                            @else
+                                                <a href="{{ route('tickets.show', $ticket) }}"
+                                                    class="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
+                                                    title="{{ __('View Ticket') }}">
+                                                    <x-heroicon-m-arrow-up-right class="w-4 h-4" />
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
