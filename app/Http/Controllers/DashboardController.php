@@ -13,21 +13,25 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // 1. Metric Stats Cards
-        $assignedCount = Ticket::where('assigned_to_id', $user->id)
+        // 1. Metric Stats Cards (for active projects)
+        $assignedCount = Ticket::whereHas('project', fn ($p) => $p->where('status', '!=', 'closed'))
+            ->where('assigned_to_id', $user->id)
             ->where('status', '!=', 'closed')
             ->count();
 
-        $createdCount = Ticket::where('created_by_id', $user->id)
+        $createdCount = Ticket::whereHas('project', fn ($p) => $p->where('status', '!=', 'closed'))
+            ->where('created_by_id', $user->id)
             ->where('status', '!=', 'closed')
             ->count();
 
-        $watchedCount = Ticket::whereHas('watchers', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->where('status', '!=', 'closed')->count();
+        $watchedCount = Ticket::whereHas('project', fn ($p) => $p->where('status', '!=', 'closed'))
+            ->whereHas('watchers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('status', '!=', 'closed')->count();
 
         // Urgent / High priority requiring attention
-        $urgentQuery = Ticket::where('status', '!=', 'closed')
+        $urgentQuery = Ticket::whereHas('project', fn ($p) => $p->where('status', '!=', 'closed'))
+            ->where('status', '!=', 'closed')
             ->whereIn('priority', ['urgent', 'high']);
 
         if ($user->role !== 'admin') {
@@ -42,7 +46,8 @@ class DashboardController extends Controller
         $urgentCount = $urgentQuery->count();
 
         // 2. High Priority / Needs Attention Tickets (Assigned or Managed)
-        $attentionTicketsQuery = Ticket::with(['project', 'assignedTo', 'creator'])
+        $attentionTicketsQuery = Ticket::whereHas('project', fn ($p) => $p->where('status', '!=', 'closed'))
+            ->with(['project', 'assignedTo', 'creator'])
             ->where('status', '!=', 'closed');
 
         if ($user->role === 'admin') {

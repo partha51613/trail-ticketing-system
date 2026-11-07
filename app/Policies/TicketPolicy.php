@@ -40,7 +40,7 @@ class TicketPolicy
             return false;
         }
 
-        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+        if ($ticket->project?->isClosed()) {
             return false;
         }
 
@@ -63,7 +63,7 @@ class TicketPolicy
             return false;
         }
 
-        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+        if ($ticket->project?->isClosed()) {
             return false;
         }
 
@@ -80,11 +80,7 @@ class TicketPolicy
 
     public function transferProject(User $user, Ticket $ticket, int $targetProjectId): bool
     {
-        if ($ticket->trashed()) {
-            return false;
-        }
-
-        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+        if ($ticket->trashed() || $ticket->project?->isClosed()) {
             return false;
         }
 
@@ -97,11 +93,7 @@ class TicketPolicy
 
     public function transition(User $user, Ticket $ticket, string $targetStatus): bool
     {
-        if ($ticket->trashed()) {
-            return false;
-        }
-
-        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+        if ($ticket->trashed() || $ticket->project?->isClosed()) {
             return false;
         }
 

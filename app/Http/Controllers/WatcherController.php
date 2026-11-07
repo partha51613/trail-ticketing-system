@@ -10,6 +10,10 @@ class WatcherController extends Controller
 {
     public function toggle(Request $request, Ticket $ticket): RedirectResponse
     {
+        if ($ticket->trashed() || $ticket->project?->isClosed()) {
+            abort(403, 'Cannot change watcher status on a closed or deleted ticket.');
+        }
+
         $userId = $request->user()->id;
 
         $changes = $ticket->watchers()->toggle($userId);

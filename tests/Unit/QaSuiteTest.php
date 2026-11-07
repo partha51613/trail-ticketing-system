@@ -10,10 +10,11 @@ use App\Models\User;
 use App\Policies\CommentPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TicketPolicy;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
-uses(TestCase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------

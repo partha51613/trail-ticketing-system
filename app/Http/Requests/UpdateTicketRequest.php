@@ -14,6 +14,12 @@ class UpdateTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $ticket = $this->route('ticket');
+
+        if ($ticket instanceof Ticket) {
+            return $this->user()?->can('update', $ticket) ?? false;
+        }
+
         return true;
     }
 
@@ -30,7 +36,7 @@ class UpdateTicketRequest extends FormRequest
             'project_id' => [
                 'required',
                 'integer',
-                Rule::exists('projects', 'id')->whereNull('deleted_at'),
+                Rule::exists('projects', 'id')->whereNull('deleted_at')->where(fn ($q) => $q->where('status', '!=', 'closed')),
             ],
             'priority' => ['required', 'string', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => ['nullable', 'date', 'date_format:Y-m-d'],
