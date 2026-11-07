@@ -1,58 +1,142 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Team Ticket Tracker (CET Ticket System)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38B2AC.svg)](https://tailwindcss.com)
+[![Tests Passing](https://img.shields.io/badge/Tests-56%20Passed-brightgreen.svg)](tests/)
 
-## About Laravel
+A modern, fast, and intuitive ticket and issue management application built with **Laravel 12**, **Blade**, and **Tailwind CSS**. Designed for teams needing project organization, audit-logged ticket tracking, attachment support, workload distribution, and clean email notifications without the complexity of bloated enterprise suites.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Project & Ticket Lifecycle Management:**
+  - Multi-project scoping with unique issue reference codes (e.g., `APP-001`, `DES-002`).
+  - Ticket priority, due dates with timezone support (`Asia/Kolkata`), and overdue visual indicators.
+  - State machine transitions (`new` ➔ `in_progress` ➔ `blocked` ➔ `resolved` ➔ `closed`).
+  - Atomic blocked safeguards: transitioning a ticket to `blocked` requires a mandatory reason logged immediately as a comment.
+- **Closed Project Safeguards:**
+  - Archiving/closing a project automatically blocks ticket mutations, assignments, and new comments.
+- **Attachments with Auto-Thumbnails:**
+  - Upload images and documents directly to tickets and comments.
+  - Automatic thumbnail generation for image files with secure streaming.
+- **Activity & Audit Logging:**
+  - Automatic timeline tracking for every field changed (status, priority, assignee, due date, description).
+- **Workload Analytics & Team Distribution:**
+  - Dedicated Workload Overview showing active, overdue, and completed ticket distributions per team member.
+- **Smart Notification Engine:**
+  - **Assignment alerts:** Direct notifications to newly assigned members.
+  - **Status & Comment updates:** Broadcasted to ticket creators and watchers while intelligently suppressing notification emails to the action author.
+- **Role-Based Access Control:**
+  - Roles: `Admin`, `Manager`, and `User`.
+  - Fine-grained policies controlling ticket edits, project CRUD, and comment time windows (5-minute edit window).
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Tech Stack & Requirements
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **PHP:** 8.2 or 8.3+
+- **Laravel Framework:** 12.x
+- **Database:** MariaDB, MySQL, SQLite, or PostgreSQL
+- **Frontend:** Laravel Blade, Alpine.js, Tailwind CSS v4, Vite
+- **Testing:** Pest PHP (56 Feature & Unit tests)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 🚀 Quickstart & Installation
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### 1. Clone the repository
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/your-username/cet-ticket-system.git
+cd cet-ticket-system
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Install PHP & Node dependencies
+```bash
+composer install
+npm install
+```
 
-## Contributing
+### 3. Environment configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Configure your database and mail settings in `.env`:
+```env
+DB_CONNECTION=mariadb
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ticket_system
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 
-## Code of Conduct
+QUEUE_CONNECTION=database
+MAIL_MAILER=smtp
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. Run Migrations & Seeders
+```bash
+php artisan migrate --seed
+```
+This generates default roles, permissions, sample projects, tickets, and default users.
 
-## Security Vulnerabilities
+### 5. Build assets & create storage symlink
+```bash
+php artisan storage:link
+npm run build
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 6. Run the local development server
+```bash
+php artisan serve
+```
+And in a separate terminal (for queued notifications and emails):
+```bash
+php artisan queue:work
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧪 Running Tests
+
+The application has comprehensive automated test coverage covering authorization policies, closed-project safeguards, file attachments, and notification flows:
+
+```bash
+php artisan test
+# Or with Pest directly
+vendor/bin/pest
+```
+
+---
+
+## 👥 Default Demo Credentials
+
+When seeded with `php artisan db:seed`, the system provides the following demo accounts (default password: `password`):
+
+| Role | Email | Capabilities |
+|---|---|---|
+| **System Admin** | `admin@example.com` | Full project & ticket management, user assignment, global restore |
+| **Project Manager** | `manager1@example.com` | Project oversight, reassignment, ticket transitions |
+| **Team Member** | `user1@example.com` | Create tickets, comment, attach files, watch tickets |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! If you'd like to help improve Team Ticket Tracker:
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Ensure all tests pass (`vendor/bin/pest` and `vendor/bin/pint --test`)
+5. Push to the Branch (`git push origin feature/AmazingFeature`)
+6. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
