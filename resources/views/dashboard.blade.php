@@ -177,179 +177,218 @@
                                 <p class="text-xs text-gray-500 mt-1">No urgent or assigned tickets pending right now.</p>
                             </div>
                         @else
-                            <div class="divide-y divide-gray-100">
-                                @foreach($attentionTickets as $ticket)
-                                    <div x-data="{
-                                        status: '{{ $ticket->status }}',
-                                        isUpdating: false,
-                                        isRemoved: false,
-                                        open: false,
-                                        async transition(newStatus, url) {
-                                            this.isUpdating = true;
-                                            this.open = false;
-                                            try {
-                                                const res = await fetch(url, {
-                                                    method: 'PATCH',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                        'Accept': 'application/json',
-                                                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                                                    },
-                                                    body: JSON.stringify({ status: newStatus })
-                                                });
-                                                const data = await res.json();
-                                                if (res.ok && data.success) {
-                                                    this.status = newStatus;
-                                                    if (newStatus === 'closed') {
-                                                        setTimeout(() => { this.isRemoved = true; }, 400);
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-gray-100 text-[11px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50/40">
+                                            <th scope="col" class="py-3 pl-6 pr-3 w-28">{{ __('Ticket') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ __('Title & Project') }}</th>
+                                            <th scope="col" class="py-3 px-3 w-36 whitespace-nowrap">{{ __('Assignee') }}</th>
+                                            <th scope="col" class="py-3 px-3 w-32 whitespace-nowrap">{{ __('Due Date') }}</th>
+                                            <th scope="col" class="py-3 px-3 w-24 text-center">{{ __('Priority') }}</th>
+                                            <th scope="col" class="py-3 pl-3 pr-6 w-36 text-right">{{ __('Status') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 text-sm">
+                                        @foreach($attentionTickets as $ticket)
+                                            <tr x-data="{
+                                                status: '{{ $ticket->status }}',
+                                                isUpdating: false,
+                                                isRemoved: false,
+                                                open: false,
+                                                async transition(newStatus, url) {
+                                                    this.isUpdating = true;
+                                                    this.open = false;
+                                                    try {
+                                                        const res = await fetch(url, {
+                                                            method: 'PATCH',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'Accept': 'application/json',
+                                                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                                            },
+                                                            body: JSON.stringify({ status: newStatus })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (res.ok && data.success) {
+                                                            this.status = newStatus;
+                                                            if (newStatus === 'closed') {
+                                                                setTimeout(() => { this.isRemoved = true; }, 400);
+                                                            }
+                                                        } else {
+                                                            alert(data.message || 'Error updating status');
+                                                        }
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                        alert('Failed to connect to server. Please try again.');
+                                                    } finally {
+                                                        this.isUpdating = false;
                                                     }
-                                                } else {
-                                                    alert(data.message || 'Error updating status');
+                                                },
+                                                statusClasses() {
+                                                    const map = {
+                                                        'new': 'bg-blue-50 text-blue-700 border-blue-200/60',
+                                                        'in_progress': 'bg-brand-50 text-brand-700 border-brand-200/60',
+                                                        'waiting': 'bg-purple-50 text-purple-700 border-purple-200/60',
+                                                        'blocked': 'bg-red-50 text-red-700 border-red-200/60',
+                                                        'closed': 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
+                                                    };
+                                                    return map[this.status] || 'bg-gray-50 text-gray-700 border-gray-200/60';
+                                                },
+                                                statusDot() {
+                                                    const map = {
+                                                        'new': 'bg-blue-500',
+                                                        'in_progress': 'bg-brand-500',
+                                                        'waiting': 'bg-purple-500',
+                                                        'blocked': 'bg-red-500',
+                                                        'closed': 'bg-emerald-500'
+                                                    };
+                                                    return map[this.status] || 'bg-gray-400';
+                                                },
+                                                statusLabel() {
+                                                    return this.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                                },
+                                                allowedTransitions() {
+                                                    const transitions = {
+                                                        'new': ['in_progress', 'closed'],
+                                                        'in_progress': ['waiting', 'blocked', 'closed'],
+                                                        'waiting': ['in_progress', 'closed'],
+                                                        'blocked': ['in_progress', 'closed'],
+                                                        'closed': ['new', 'in_progress']
+                                                    };
+                                                    return transitions[this.status] || ['in_progress', 'closed'];
                                                 }
-                                            } catch (e) {
-                                                console.error(e);
-                                                alert('Failed to connect to server. Please try again.');
-                                            } finally {
-                                                this.isUpdating = false;
-                                            }
-                                        },
-                                        statusClasses() {
-                                            const map = {
-                                                'new': 'bg-blue-50 text-blue-700 border-blue-200/60',
-                                                'in_progress': 'bg-brand-50 text-brand-700 border-brand-200/60',
-                                                'waiting': 'bg-purple-50 text-purple-700 border-purple-200/60',
-                                                'blocked': 'bg-red-50 text-red-700 border-red-200/60',
-                                                'closed': 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                                            };
-                                            return map[this.status] || 'bg-gray-50 text-gray-700 border-gray-200/60';
-                                        },
-                                        statusDot() {
-                                            const map = {
-                                                'new': 'bg-blue-500',
-                                                'in_progress': 'bg-brand-500',
-                                                'waiting': 'bg-purple-500',
-                                                'blocked': 'bg-red-500',
-                                                'closed': 'bg-emerald-500'
-                                            };
-                                            return map[this.status] || 'bg-gray-400';
-                                        },
-                                        statusLabel() {
-                                            return this.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                        },
-                                        allowedTransitions() {
-                                            const transitions = {
-                                                'new': ['in_progress', 'closed'],
-                                                'in_progress': ['waiting', 'blocked', 'closed'],
-                                                'waiting': ['in_progress', 'closed'],
-                                                'blocked': ['in_progress', 'closed'],
-                                                'closed': ['new', 'in_progress']
-                                            };
-                                            return transitions[this.status] || ['in_progress', 'closed'];
-                                        }
-                                    }"
-                                    x-show="!isRemoved"
-                                    x-transition:leave="transition ease-out duration-300"
-                                    x-transition:leave-start="opacity-100 scale-100"
-                                    x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-                                    class="p-5 hover:bg-gray-50/70 transition flex items-center justify-between gap-4">
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-gray-100 text-gray-700">
-                                                    {{ $ticket->reference_code }}
-                                                </span>
-                                                <span class="text-xs text-gray-400 font-medium">in {{ $ticket->project?->name ?? 'General' }}</span>
-                                                @if($ticket->is_overdue)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                                                        Overdue
+                                            }"
+                                            x-show="!isRemoved"
+                                            x-transition:leave="transition ease-out duration-300"
+                                            x-transition:leave-start="opacity-100 scale-100"
+                                            x-transition:leave-end="opacity-0 scale-95"
+                                            class="hover:bg-gray-50/70 transition-colors group">
+                                                
+                                                <!-- Ticket Code & Overdue Flag -->
+                                                <td class="py-4 pl-6 pr-3 whitespace-nowrap align-middle">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <a href="{{ route('tickets.show', $ticket) }}"
+                                                            class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-mono font-semibold bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200/80 hover:text-gray-900 transition-colors shadow-2xs">
+                                                            {{ $ticket->reference_code }}
+                                                        </a>
+                                                        @if($ticket->is_overdue)
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-700">
+                                                                !
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </td>
+
+                                                <!-- Title & Project Subtext -->
+                                                <td class="py-4 px-3 max-w-xs sm:max-w-sm align-middle">
+                                                    <a href="{{ route('tickets.show', $ticket) }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-1 block">
+                                                        {{ preg_replace('/\s*#\d+$/', '', $ticket->title) }}
+                                                    </a>
+                                                    <span class="text-xs text-gray-400 font-medium">
+                                                        in <strong class="text-gray-600 font-medium">{{ $ticket->project?->name ?? 'General' }}</strong>
                                                     </span>
-                                                @endif
-                                            </div>
-                                            <a href="{{ route('tickets.show', $ticket) }}" class="block font-semibold text-sm text-gray-900 hover:text-indigo-600 transition truncate mt-1.5">
-                                                {{ $ticket->title }}
-                                            </a>
-                                            <div class="flex items-center space-x-3 text-xs text-gray-500 mt-1.5">
-                                                <span>Assigned: <strong class="text-gray-700 font-medium">{{ $ticket->assignedTo?->name ?? 'Unassigned' }}</strong></span>
-                                                <span>&bull;</span>
-                                                <span>Due: {{ $ticket->due_date ? $ticket->due_date->format('M d, Y') : 'No due date' }}</span>
-                                            </div>
-                                        </div>
+                                                </td>
 
-                                        <!-- Priority Badge & AJAX Quick Transition Dropdown -->
-                                        <div class="flex items-center space-x-3 shrink-0">
-                                            @php
-                                                $priorityColors = [
-                                                    'urgent' => 'bg-red-50 text-red-700 border-red-200',
-                                                    'high'   => 'bg-amber-50 text-amber-700 border-amber-200',
-                                                    'medium' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                    'low'    => 'bg-gray-50 text-gray-700 border-gray-200',
-                                                ];
-                                            @endphp
-
-                                            <!-- Priority Badge -->
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize border {{ $priorityColors[$ticket->priority] ?? 'bg-gray-50 text-gray-600' }}">
-                                                {{ $ticket->priority }}
-                                            </span>
-
-                                            <!-- Interactive Quick Transition Dropdown -->
-                                            <div class="relative inline-block text-left">
-                                                <button type="button" @click="open = !open" @click.away="open = false"
-                                                    :disabled="isUpdating"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150 shadow-2xs hover:shadow-xs disabled:opacity-60"
-                                                    :class="statusClasses()"
-                                                    title="Click to transition status">
-
-                                                    <!-- Loading Spinner or Status Dot -->
-                                                    <template x-if="isUpdating">
-                                                        <svg class="animate-spin -ml-0.5 mr-1 h-3 w-3 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
-                                                    </template>
-                                                    <template x-if="!isUpdating">
-                                                        <span class="w-2 h-2 rounded-full" :class="statusDot()"></span>
-                                                    </template>
-
-                                                    <span x-text="statusLabel()"></span>
-                                                    <svg class="w-3 h-3 text-gray-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </button>
-
-                                                <!-- Dropdown Menu -->
-                                                <div x-show="open" x-cloak
-                                                    x-transition:enter="transition ease-out duration-100"
-                                                    x-transition:enter-start="transform opacity-0 scale-95"
-                                                    x-transition:enter-end="transform opacity-100 scale-100"
-                                                    x-transition:leave="transition ease-in duration-75"
-                                                    x-transition:leave-start="transform opacity-100 scale-100"
-                                                    x-transition:leave-end="transform opacity-0 scale-95"
-                                                    class="origin-top-right absolute right-0 mt-2 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black/5 divide-y divide-gray-100 focus:outline-none z-30">
-                                                    <div class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                                        Quick Transition
+                                                <!-- Assignee Column -->
+                                                <td class="py-4 px-3 whitespace-nowrap text-xs text-gray-700 align-middle">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-[10px] font-bold">
+                                                            {{ strtoupper(substr($ticket->assignedTo?->name ?? 'U', 0, 1)) }}
+                                                        </span>
+                                                        <span class="truncate max-w-[110px]">{{ $ticket->assignedTo?->name ?? 'Unassigned' }}</span>
                                                     </div>
-                                                    <div class="py-1">
-                                                        <template x-for="target in allowedTransitions()" :key="target">
-                                                            <button type="button"
-                                                                @click="transition(target, '{{ route('tickets.transition', $ticket) }}')"
-                                                                class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 transition">
-                                                                <span class="w-2 h-2 rounded-full"
-                                                                    :class="{
-                                                                        'bg-brand-500': target === 'in_progress',
-                                                                        'bg-purple-500': target === 'waiting',
-                                                                        'bg-red-500': target === 'blocked',
-                                                                        'bg-emerald-500': target === 'closed',
-                                                                        'bg-blue-500': target === 'new'
-                                                                    }"></span>
-                                                                <span x-text="'Mark as ' + target.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())"></span>
-                                                            </button>
-                                                        </template>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                </td>
 
-                                        </div>
-                                    </div>
-                                @endforeach
+                                                <!-- Due Date Column -->
+                                                <td class="py-4 px-3 whitespace-nowrap text-xs text-gray-500 align-middle">
+                                                    @if($ticket->due_date)
+                                                        <span class="{{ $ticket->is_overdue ? 'text-red-600 font-semibold' : '' }}">
+                                                            {{ $ticket->due_date->format('M d, Y') }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-gray-400 italic">None</span>
+                                                    @endif
+                                                </td>
+
+                                                <!-- Priority Column -->
+                                                <td class="py-4 px-3 whitespace-nowrap text-center align-middle">
+                                                    @php
+                                                        $priorityColors = [
+                                                            'urgent' => 'bg-red-50 text-red-700 border-red-200',
+                                                            'high'   => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                            'medium' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                            'low'    => 'bg-gray-50 text-gray-700 border-gray-200',
+                                                        ];
+                                                    @endphp
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize border {{ $priorityColors[$ticket->priority] ?? 'bg-gray-50 text-gray-600' }}">
+                                                        {{ $ticket->priority }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- Status Column with Quick Transition -->
+                                                <td class="py-4 pl-3 pr-6 whitespace-nowrap text-right align-middle">
+                                                    <div class="relative inline-block text-left">
+                                                        <button type="button" @click="open = !open" @click.away="open = false"
+                                                            :disabled="isUpdating"
+                                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all duration-150 shadow-2xs hover:shadow-xs disabled:opacity-60"
+                                                            :class="statusClasses()"
+                                                            title="Click to transition status">
+
+                                                            <!-- Loading Spinner or Status Dot -->
+                                                            <template x-if="isUpdating">
+                                                                <svg class="animate-spin -ml-0.5 mr-1 h-3 w-3 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                            </template>
+                                                            <template x-if="!isUpdating">
+                                                                <span class="w-1.5 h-1.5 rounded-full" :class="statusDot()"></span>
+                                                            </template>
+
+                                                            <span x-text="statusLabel()"></span>
+                                                            <svg class="w-3 h-3 text-gray-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </button>
+
+                                                        <!-- Dropdown Menu -->
+                                                        <div x-show="open" x-cloak
+                                                            x-transition:enter="transition ease-out duration-100"
+                                                            x-transition:enter-start="transform opacity-0 scale-95"
+                                                            x-transition:enter-end="transform opacity-100 scale-100"
+                                                            x-transition:leave="transition ease-in duration-75"
+                                                            x-transition:leave-start="transform opacity-100 scale-100"
+                                                            x-transition:leave-end="transform opacity-0 scale-95"
+                                                            class="origin-top-right absolute right-0 mt-2 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black/5 divide-y divide-gray-100 focus:outline-none z-30">
+                                                            <div class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-left">
+                                                                Quick Transition
+                                                            </div>
+                                                            <div class="py-1">
+                                                                <template x-for="target in allowedTransitions()" :key="target">
+                                                                    <button type="button"
+                                                                        @click="transition(target, '{{ route('tickets.transition', $ticket) }}')"
+                                                                        class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 transition">
+                                                                        <span class="w-2 h-2 rounded-full"
+                                                                            :class="{
+                                                                                'bg-brand-500': target === 'in_progress',
+                                                                                'bg-purple-500': target === 'waiting',
+                                                                                'bg-red-500': target === 'blocked',
+                                                                                'bg-emerald-500': target === 'closed',
+                                                                                'bg-blue-500': target === 'new'
+                                                                            }"></span>
+                                                                        <span x-text="'Mark as ' + target.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())"></span>
+                                                                    </button>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         @endif
                     </div>
