@@ -11,25 +11,44 @@ use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $projects = Project::with('managers')
+        $requestedTab = $request->query('tab');
+        $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
+
+        $baseQuery = Project::query();
+
+        // Calculate tab counts
+        $activeCount = (clone $baseQuery)->withoutTrashed()->where('status', '!=', 'closed')->count();
+        $closedCount = (clone $baseQuery)->withoutTrashed()->where('status', 'closed')->count();
+        $deletedCount = (clone $baseQuery)->onlyTrashed()->count();
+
+        if ($tab === 'deleted') {
+            $query = (clone $baseQuery)->onlyTrashed()->with(['managers', 'deletedBy']);
+        } elseif ($tab === 'closed') {
+            $query = (clone $baseQuery)->withoutTrashed()->where('status', 'closed')->with(['managers', 'closedBy']);
+        } else {
+            $query = (clone $baseQuery)->withoutTrashed()->where('status', '!=', 'closed')->with('managers');
+        }
+
+        $projects = $query
             ->withCount([
                 'tickets as total_tickets_count',
                 'tickets as assigned_tickets_count' => fn ($query) => $query->whereNotNull('assigned_to_id'),
                 'tickets as unassigned_tickets_count' => fn ($query) => $query->whereNull('assigned_to_id'),
             ])
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $stats = [
-            'total_projects' => Project::count(),
+            'total_projects' => Project::withoutTrashed()->where('status', '!=', 'closed')->count(),
             'total_tickets' => Ticket::count(),
             'assigned_tickets' => Ticket::whereNotNull('assigned_to_id')->count(),
             'unassigned_tickets' => Ticket::whereNull('assigned_to_id')->count(),
         ];
 
-        return view('projects.index', compact('projects', 'stats'));
+        return view('projects.index', compact('projects', 'stats', 'tab', 'activeCount', 'closedCount', 'deletedCount'));
     }
 
     public function create(): View
@@ -172,5 +191,37 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
+    }
+
+    public function restore(int $id): RedirectResponse
+    {
+        $project = Project::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $project);
+        $project->restore();
+
+        return back()->with('success', 'Project restored successfully');
+    }
+
+    public function toggleClose(Project $project): RedirectResponse
+    {
+        $this->authorize('toggleClose', $project);
+
+        if ($project->isClosed()) {
+            $project->update([
+                'status' => 'active',
+                'closed_by_id' => null,
+                'closed_at' => null,
+            ]);
+            $message = 'Project reopened successfully.';
+        } else {
+            $project->update([
+                'status' => 'closed',
+                'closed_by_id' => auth()->id(),
+                'closed_at' => now(),
+            ]);
+            $message = 'Project closed successfully. Workspace and its tickets are now read-only.';
+        }
+
+        return back()->with('success', $message);
     }
 }

@@ -40,6 +40,10 @@ class TicketPolicy
             return false;
         }
 
+        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+            return false;
+        }
+
         if ($user->role === 'admin') {
             return true;
         }
@@ -56,6 +60,10 @@ class TicketPolicy
     public function reassign(User $user, Ticket $ticket): bool
     {
         if ($ticket->trashed() || $ticket->status === 'closed') {
+            return false;
+        }
+
+        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
             return false;
         }
 
@@ -76,6 +84,10 @@ class TicketPolicy
             return false;
         }
 
+        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
+            return false;
+        }
+
         if ($user->role === 'admin') {
             return true;
         }
@@ -86,6 +98,10 @@ class TicketPolicy
     public function transition(User $user, Ticket $ticket, string $targetStatus): bool
     {
         if ($ticket->trashed()) {
+            return false;
+        }
+
+        if ($ticket->relationLoaded('project') && $ticket->project?->isClosed()) {
             return false;
         }
 

@@ -85,6 +85,52 @@
                 </div>
             </div>
 
+            <!-- Navigation Tabs (Active vs Closed vs Deleted Projects) -->
+            <div class="flex items-center justify-between gap-4 pb-1">
+                <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
+                    <!-- Active Projects Tab -->
+                    <a href="{{ route('projects.index') }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                        <x-heroicon-m-folder class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600' : 'text-gray-400' }}" />
+                        <span>{{ __('Active Projects') }}</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 text-brand-700' : 'bg-gray-200/70 text-gray-600' }}">
+                            {{ $activeCount }}
+                        </span>
+                    </a>
+
+                    <!-- Closed Projects Tab -->
+                    <a href="{{ route('projects.index', ['tab' => 'closed']) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                        <x-heroicon-m-lock-closed class="w-4 h-4 {{ $tab === 'closed' ? 'text-gray-700' : 'text-gray-400' }}" />
+                        <span>{{ __('Closed') }}</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-gray-200 text-gray-800' : 'bg-gray-200/70 text-gray-600' }}">
+                            {{ $closedCount }}
+                        </span>
+                    </a>
+
+                    <!-- Deleted Projects Tab -->
+                    <a href="{{ route('projects.index', ['tab' => 'deleted']) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                        <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
+                        <span>{{ __('Deleted') }}</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
+                            {{ $deletedCount }}
+                        </span>
+                    </a>
+                </div>
+
+                <span class="text-xs text-gray-500 font-medium">
+                    {{ __('Showing') }} <strong class="text-gray-800">{{ $projects->total() }}</strong>
+                    @if($tab === 'deleted')
+                        {{ __('deleted workspaces') }}
+                    @elseif($tab === 'closed')
+                        {{ __('closed workspaces') }}
+                    @else
+                        {{ __('active workspaces') }}
+                    @endif
+                </span>
+            </div>
+
             <!-- Project Listing (Spacious Rows) -->
             @if ($projects->isEmpty())
                 <div class="bg-white rounded-2xl border border-dashed border-gray-300 p-12 text-center shadow-xs">
@@ -208,19 +254,64 @@
 
                                 <!-- Far Right: Quick Actions -->
                                 <div class="flex items-center justify-end gap-2.5 shrink-0">
-                                    @can('update', $project)
-                                        <a href="{{ route('projects.edit', $project) }}"
-                                            class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all"
-                                            title="{{ __('Edit Project') }}">
-                                            <x-heroicon-m-pencil-square class="w-5 h-5" />
-                                        </a>
-                                    @endcan
+                                    @if ($project->trashed())
+                                        @can('restore', $project)
+                                            <form action="{{ route('projects.restore', $project->id) }}" method="POST" id="restore-project-{{ $project->id }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="button"
+                                                    @click="$dispatch('open-confirm-modal', {
+                                                        title: '{{ __('Restore Project?') }}',
+                                                        message: '{{ __('Are you sure you want to restore this workspace?') }}',
+                                                        confirmText: '{{ __('Restore') }}',
+                                                        isDanger: false,
+                                                        form: 'restore-project-{{ $project->id }}'
+                                                    })"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all shadow-xs"
+                                                    title="{{ __('Restore Project') }}">
+                                                    <x-heroicon-m-arrow-path class="w-4 h-4 text-emerald-600" />
+                                                    <span>{{ __('Restore') }}</span>
+                                                </button>
+                                            </form>
+                                        @endcan
+                                    @else
+                                        @can('toggleClose', $project)
+                                            <form action="{{ route('projects.toggle-close', $project) }}" method="POST" id="toggle-close-project-{{ $project->id }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="button"
+                                                    @click="$dispatch('open-confirm-modal', {
+                                                        title: '{{ $project->isClosed() ? __('Reopen Project?') : __('Close Project?') }}',
+                                                        message: '{{ $project->isClosed() ? __('Reopening will allow tickets to be created and updated again.') : __('Closing this project will make it and all its tickets read-only for all users.') }}',
+                                                        confirmText: '{{ $project->isClosed() ? __('Reopen') : __('Close Project') }}',
+                                                        isDanger: {{ $project->isClosed() ? 'false' : 'true' }},
+                                                        form: 'toggle-close-project-{{ $project->id }}'
+                                                    })"
+                                                    class="inline-flex items-center justify-center p-2.5 rounded-xl {{ $project->isClosed() ? 'text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200' : 'text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300' }} shadow-xs transition-all"
+                                                    title="{{ $project->isClosed() ? __('Reopen Project') : __('Close Project') }}">
+                                                    @if($project->isClosed())
+                                                        <x-heroicon-m-lock-open class="w-5 h-5" />
+                                                    @else
+                                                        <x-heroicon-m-lock-closed class="w-5 h-5" />
+                                                    @endif
+                                                </button>
+                                            </form>
+                                        @endcan
 
-                                    <a href="{{ route('projects.show', $project) }}"
-                                        class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-600 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
-                                        title="{{ __('View Project') }}">
-                                        <x-heroicon-m-arrow-up-right class="w-5 h-5" />
-                                    </a>
+                                        @can('update', $project)
+                                            <a href="{{ route('projects.edit', $project) }}"
+                                                class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all"
+                                                title="{{ __('Edit Project') }}">
+                                                <x-heroicon-m-pencil-square class="w-5 h-5" />
+                                            </a>
+                                        @endcan
+
+                                        <a href="{{ route('projects.show', $project) }}"
+                                            class="inline-flex items-center justify-center p-2.5 rounded-xl text-gray-600 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
+                                            title="{{ __('View Project') }}">
+                                            <x-heroicon-m-arrow-up-right class="w-5 h-5" />
+                                        </a>
+                                    @endif
                                 </div>
 
                             </div>

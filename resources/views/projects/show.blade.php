@@ -12,10 +12,17 @@
                         <h1 class="text-2xl font-bold tracking-tight text-gray-900">
                             {{ $project->name }}
                         </h1>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
-                            {{ __('Workspace') }}
-                        </span>
+                        @if($project->isClosed())
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-800 border border-gray-300">
+                                <x-heroicon-m-lock-closed class="w-3.5 h-3.5 text-gray-700" />
+                                <span>{{ __('Closed Workspace (Read-Only)') }}</span>
+                            </span>
+                        @else
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
+                                {{ __('Workspace') }}
+                            </span>
+                        @endif
                     </div>
                     <p class="text-xs text-gray-400 mt-0.5 font-medium">
                         {{ __('Created') }} {{ $project->created_at->format('M d, Y') }} &bull;
@@ -25,6 +32,30 @@
             </div>
 
             <div class="flex items-center gap-2.5">
+                @can('toggleClose', $project)
+                    <form action="{{ route('projects.toggle-close', $project) }}" method="POST" id="toggle-close-project-header">
+                        @csrf
+                        @method('PATCH')
+                        <button type="button"
+                            @click="$dispatch('open-confirm-modal', {
+                                title: '{{ $project->isClosed() ? __('Reopen Project?') : __('Close Project?') }}',
+                                message: '{{ $project->isClosed() ? __('Reopening will allow tickets to be created and updated again.') : __('Closing this project will make it and all its tickets read-only for all users.') }}',
+                                confirmText: '{{ $project->isClosed() ? __('Reopen Project') : __('Close Project') }}',
+                                isDanger: {{ $project->isClosed() ? 'false' : 'true' }},
+                                form: 'toggle-close-project-header'
+                            })"
+                            class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold {{ $project->isClosed() ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-gray-700 bg-white border-gray-200/80 hover:bg-gray-50 hover:border-gray-300' }} border rounded-xl transition-all shadow-xs">
+                            @if($project->isClosed())
+                                <x-heroicon-m-lock-open class="w-4 h-4 text-amber-600" />
+                                <span>{{ __('Reopen Project') }}</span>
+                            @else
+                                <x-heroicon-m-lock-closed class="w-4 h-4 text-gray-500" />
+                                <span>{{ __('Close Project') }}</span>
+                            @endif
+                        </button>
+                    </form>
+                @endcan
+
                 @can('update', $project)
                     <a href="{{ route('projects.edit', $project) }}"
                         class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200/80 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-xs">
@@ -33,13 +64,15 @@
                     </a>
                 @endcan
 
-                @can('create', App\Models\Ticket::class)
-                    <a href="{{ route('tickets.create', ['project_id' => $project->id]) }}"
-                        class="inline-flex items-center gap-x-1.5 px-4 py-2 text-sm font-semibold text-white bg-brand-500 rounded-xl hover:bg-brand-600 shadow-sm shadow-brand-500/20 transition-all">
-                        <x-heroicon-m-plus class="w-4 h-4" />
-                        <span>{{ __('New Ticket') }}</span>
-                    </a>
-                @endcan
+                @if(! $project->isClosed())
+                    @can('create', App\Models\Ticket::class)
+                        <a href="{{ route('tickets.create', ['project_id' => $project->id]) }}"
+                            class="inline-flex items-center gap-x-1.5 px-4 py-2 text-sm font-semibold text-white bg-brand-500 rounded-xl hover:bg-brand-600 shadow-sm shadow-brand-500/20 transition-all">
+                            <x-heroicon-m-plus class="w-4 h-4" />
+                            <span>{{ __('New Ticket') }}</span>
+                        </a>
+                    @endcan
+                @endif
             </div>
         </div>
     </x-slot>
@@ -48,6 +81,26 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Project Context & Description Banner -->
+            @if($project->isClosed())
+                <div class="bg-gray-100 rounded-2xl border border-gray-300 p-5 flex items-start gap-3 text-gray-800 shadow-xs">
+                    <div class="p-2 rounded-xl bg-gray-200 text-gray-700 shrink-0">
+                        <x-heroicon-m-lock-closed class="w-5 h-5" />
+                    </div>
+                    <div class="text-xs">
+                        <h4 class="font-bold text-gray-900 text-sm mb-0.5">{{ __('This project is Closed') }}</h4>
+                        <p class="text-gray-600">
+                            {{ __('All tickets in this project are in read-only mode. New tickets, comments, and status transitions cannot be performed.') }}
+                            @if($project->closed_at)
+                                <span class="block mt-1 font-mono text-[11px] text-gray-500">
+                                    Closed {{ $project->closed_at->diffForHumans() }}
+                                    @if($project->closedBy) by {{ $project->closedBy->name }} @endif
+                                </span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             <div class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7 shadow-xs">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                     <div class="space-y-2 flex-1">

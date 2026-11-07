@@ -19,8 +19,28 @@ class Project extends Model
         'name',
         'code',
         'description',
+        'status',
+        'closed_by_id',
+        'closed_at',
         'deleted_by_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'closed_at' => 'datetime',
+        ];
+    }
+
+    public function isClosed(): bool
+    {
+        return $this->status === 'closed';
+    }
+
+    public function closedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'closed_by_id')->withTrashed();
+    }
 
     public function managers(): BelongsToMany
     {

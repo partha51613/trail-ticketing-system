@@ -22,6 +22,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::patch('/projects/{id}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
+    Route::patch('/projects/{project}/toggle-close', [ProjectController::class, 'toggleClose'])->name('projects.toggle-close');
     Route::resource('projects', ProjectController::class);
     Route::get('/tickets/assigned-to-me', [TicketController::class, 'assignedToMe'])->name('tickets.assigned-to-me');
     Route::get('/tickets/created-by-me', [TicketController::class, 'createdByMe'])->name('tickets.created-by-me');

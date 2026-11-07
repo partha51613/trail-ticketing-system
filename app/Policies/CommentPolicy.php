@@ -26,8 +26,12 @@ class CommentPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, ?Ticket $ticket = null): bool
     {
+        if ($ticket && ($ticket->trashed() || $ticket->project?->isClosed())) {
+            return false;
+        }
+
         return true;
     }
 
@@ -36,6 +40,10 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
+        if ($comment->ticket?->trashed() || $comment->ticket?->project?->isClosed()) {
+            return false;
+        }
+
         if ($user->role === 'admin') {
             return true;
         }
@@ -57,6 +65,10 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
+        if ($comment->ticket?->trashed() || $comment->ticket?->project?->isClosed()) {
+            return false;
+        }
+
         if ($user->role === 'admin') {
             return true;
         }

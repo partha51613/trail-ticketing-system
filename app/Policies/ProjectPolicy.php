@@ -36,6 +36,22 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
+        if ($project->isClosed() || $project->trashed()) {
+            return false;
+        }
+
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Determine whether the user can close or reopen the model.
+     */
+    public function toggleClose(User $user, Project $project): bool
+    {
+        if ($project->trashed()) {
+            return false;
+        }
+
         return $user->role === 'admin';
     }
 

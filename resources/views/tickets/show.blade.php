@@ -214,11 +214,11 @@
 
                         </div>
 
-                        <!-- Post New Comment Input Form (Hidden on Deleted Tickets) -->
-                        @if($ticket->trashed())
+                        <!-- Post New Comment Input Form (Hidden on Deleted or Closed Projects) -->
+                        @if($ticket->trashed() || $ticket->project?->isClosed())
                             <div class="p-5 border-b border-gray-100 bg-gray-50 text-center">
                                 <p class="text-xs text-gray-500 font-medium italic">
-                                    {{ __('Commenting is disabled on deleted tickets.') }}
+                                    {{ $ticket->trashed() ? __('Commenting is disabled on deleted tickets.') : __('Commenting is disabled because this project workspace is closed.') }}
                                 </p>
                             </div>
                         @else

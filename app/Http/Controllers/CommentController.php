@@ -17,9 +17,13 @@ class CommentController extends Controller
             abort(403, 'Cannot comment on a deleted ticket.');
         }
 
+        if ($ticket->project?->isClosed()) {
+            abort(403, 'Cannot comment on a ticket in a closed project.');
+        }
+
         $comment = $ticket->comments()->create([
             'user_id' => $request->user()->id,
-            'body'    => $request->validated('body'),
+            'body' => $request->validated('body'),
         ]);
 
         if ($request->hasFile('attachments')) {

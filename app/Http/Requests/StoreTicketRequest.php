@@ -31,7 +31,7 @@ class StoreTicketRequest extends FormRequest
             'project_id' => [
                 'required',
                 'integer',
-                Rule::exists('projects', 'id')->whereNull('deleted_at'),
+                Rule::exists('projects', 'id')->whereNull('deleted_at')->where(fn ($q) => $q->where('status', '!=', 'closed')),
             ],
             'priority' => ['required', 'string', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'due_date' => ['nullable', 'date', 'date_format:Y-m-d'],
