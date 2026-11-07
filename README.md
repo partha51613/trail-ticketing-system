@@ -1,4 +1,4 @@
-# Team Ticket Tracker (CET Ticket System)
+# Trail Ticketing System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
@@ -6,24 +6,24 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38B2AC.svg)](https://tailwindcss.com)
 [![Tests Passing](https://img.shields.io/badge/Tests-56%20Passed-brightgreen.svg)](tests/)
 
-A modern, fast, and intuitive ticket and issue management application built with **Laravel 12**, **Blade**, and **Tailwind CSS**. Designed for teams needing project organization, audit-logged ticket tracking, attachment support, workload distribution, and clean email notifications without the complexity of bloated enterprise suites.
+**Trail** is a modern, lightweight, and audit-focused issue and ticket tracking system built with **Laravel 12**, **Blade**, and **Tailwind CSS**. Designed for teams needing clear project scoping, full activity history, file attachments, team workload distribution, and clean email notifications—without the bloat of complex enterprise suites.
 
 ---
 
 ## ✨ Features
 
 - **Project & Ticket Lifecycle Management:**
-  - Multi-project scoping with unique issue reference codes (e.g., `APP-001`, `DES-002`).
-  - Ticket priority, due dates with timezone support (`Asia/Kolkata`), and overdue visual indicators.
+  - Multi-project scoping with unique reference codes (e.g., `APP-001`, `DES-002`).
+  - Ticket priority, due dates with timezone support (`Asia/Kolkata`), and overdue indicators.
   - State machine transitions (`new` ➔ `in_progress` ➔ `blocked` ➔ `resolved` ➔ `closed`).
   - Atomic blocked safeguards: transitioning a ticket to `blocked` requires a mandatory reason logged immediately as a comment.
 - **Closed Project Safeguards:**
-  - Archiving/closing a project automatically blocks ticket mutations, assignments, and new comments.
+  - Archiving/closing a project automatically locks ticket mutations, assignments, and new comments.
 - **Attachments with Auto-Thumbnails:**
   - Upload images and documents directly to tickets and comments.
   - Automatic thumbnail generation for image files with secure streaming.
-- **Activity & Audit Logging:**
-  - Automatic timeline tracking for every field changed (status, priority, assignee, due date, description).
+- **Audit Trail & Activity Logging:**
+  - Complete history tracking every field changed (status, priority, assignee, due date, description) with actor timestamps.
 - **Workload Analytics & Team Distribution:**
   - Dedicated Workload Overview showing active, overdue, and completed ticket distributions per team member.
 - **Smart Notification Engine:**
@@ -49,8 +49,8 @@ A modern, fast, and intuitive ticket and issue management application built with
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/cet-ticket-system.git
-cd cet-ticket-system
+git clone https://github.com/your-username/trail.git
+cd trail
 ```
 
 ### 2. Install PHP & Node dependencies
@@ -67,10 +67,12 @@ php artisan key:generate
 
 Configure your database and mail settings in `.env`:
 ```env
+APP_NAME=Trail
+
 DB_CONNECTION=mariadb
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=ticket_system
+DB_DATABASE=trail
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 
@@ -115,7 +117,7 @@ vendor/bin/pest
 
 ## 👥 Default Demo Credentials
 
-When seeded with `php artisan db:seed`, the system provides the following demo accounts (default password: `password`):
+When seeded with `php artisan db:seed`, Trail provides the following demo accounts (default password: `password`):
 
 | Role | Email | Capabilities |
 |---|---|---|
@@ -127,7 +129,7 @@ When seeded with `php artisan db:seed`, the system provides the following demo a
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you'd like to help improve Team Ticket Tracker:
+Contributions are welcome! If you'd like to help improve Trail:
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
