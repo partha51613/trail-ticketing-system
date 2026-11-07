@@ -45,7 +45,23 @@
 
 ---
 
-## 🚀 Quickstart & Installation
+## 🐳 Run with Docker (Fastest Way)
+
+No PHP, Composer, or Node installation needed. Only [Docker](https://docs.docker.com/get-docker/) is required.
+
+```bash
+# 1. Clone and enter the repository
+git clone git@github.com:partha51613/trail-ticketing-system.git
+cd trail-ticketing-system
+
+# 2. Start the container
+docker compose up -d
+```
+Visit **`http://localhost:8000`** in your browser. Database migrations, application keys, and assets are handled automatically.
+
+---
+
+## 🚀 Quickstart & Installation (Manual)
 
 ### 1. Clone the repository
 ```bash
