@@ -126,7 +126,7 @@
                             @endforeach
                         </select>
 
-                        <!-- Status Filter (Hidden on Closed Tab) -->
+                        <!-- Status Filter -->
                         @if ($tab === 'active')
                             <select x-model="status" @change="applyFilters()"
                                 class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
@@ -135,6 +135,18 @@
                                 <option value="in_progress">{{ __('In Progress') }}</option>
                                 <option value="waiting">{{ __('Waiting') }}</option>
                                 <option value="blocked">{{ __('Blocked') }}</option>
+                            </select>
+                        @elseif ($tab === 'closed')
+                            <select disabled
+                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-100/70 border border-gray-200 text-gray-400 cursor-not-allowed"
+                                title="{{ __('Status is fixed to Closed on this tab') }}">
+                                <option selected>{{ __('Closed') }}</option>
+                            </select>
+                        @else
+                            <select disabled
+                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-100/70 border border-gray-200 text-gray-400 cursor-not-allowed"
+                                title="{{ __('Status is fixed to Deleted on this tab') }}">
+                                <option selected>{{ __('Deleted') }}</option>
                             </select>
                         @endif
 
@@ -161,14 +173,23 @@
                         </select>
                     </div>
 
-                    <!-- Reset Filters Button (if any filter active) -->
-                    @if (request()->hasAny(['project_id', 'status', 'priority', 'assigned_to_id', 'search', 'watched', 'created_by_id', 'tab']))
-                        <a href="{{ route('tickets.index') }}"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 hover:border-rose-300 rounded-xl shadow-2xs transition-all">
-                            <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-rose-600" />
-                            <span>{{ __('Clear Filters') }}</span>
-                        </a>
-                    @endif
+                <!-- Clear Filters Button (if any non-tab filter active) -->
+                @if (request()->hasAny(['project_id', 'status', 'priority', 'assigned_to_id', 'search', 'watched', 'created_by_id']))
+                    @php
+                        $resetUrl = request()->routeIs('tickets.assigned-to-me')
+                            ? route('tickets.assigned-to-me', array_filter(['tab' => request('tab')]))
+                            : (request()->routeIs('tickets.created-by-me')
+                                ? route('tickets.created-by-me', array_filter(['tab' => request('tab')]))
+                                : (request()->routeIs('tickets.watched')
+                                    ? route('tickets.watched', array_filter(['tab' => request('tab')]))
+                                    : route('tickets.index', array_filter(['tab' => request('tab')]))));
+                    @endphp
+                    <a href="{{ $resetUrl }}#tickets-table"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 hover:border-rose-300 rounded-xl shadow-2xs transition-all">
+                        <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-rose-600" />
+                        <span>{{ __('Clear Filters') }}</span>
+                    </a>
+                @endif
                 </div>
             </div>
 

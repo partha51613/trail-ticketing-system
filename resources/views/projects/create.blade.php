@@ -1,3 +1,8 @@
+use App\Models\Ticket;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2 text-sm text-gray-500">
