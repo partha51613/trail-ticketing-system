@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -258,7 +259,7 @@ class TicketController extends Controller
         return back()->with('success', 'Ticket restored successfully');
     }
 
-    public function transitionStatus(TransitionTicketStatusRequest $request, Ticket $ticket): RedirectResponse
+    public function transitionStatus(TransitionTicketStatusRequest $request, Ticket $ticket): RedirectResponse|JsonResponse
     {
         $this->authorize('transition', [$ticket, $request->status]);
 
@@ -279,7 +280,16 @@ class TicketController extends Controller
             }
         });
 
-        return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket status updated successfully');
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ticket status updated successfully',
+                'status' => $ticket->status,
+                'formatted_status' => ucfirst(str_replace('_', ' ', $ticket->status)),
+            ]);
+        }
+
+        return back()->with('success', 'Ticket status updated successfully');
     }
 
     public function reassign(Request $request, Ticket $ticket): RedirectResponse
