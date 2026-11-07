@@ -164,8 +164,8 @@
                     <!-- Reset Filters Button (if any filter active) -->
                     @if (request()->hasAny(['project_id', 'status', 'priority', 'assigned_to_id', 'search', 'watched', 'created_by_id', 'tab']))
                         <a href="{{ route('tickets.index') }}"
-                            class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline">
-                            <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 hover:border-rose-300 rounded-xl shadow-2xs transition-all">
+                            <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-rose-600" />
                             <span>{{ __('Clear Filters') }}</span>
                         </a>
                     @endif
