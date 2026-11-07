@@ -20,7 +20,7 @@ class Attachment extends Model
         'user_id',
         'file_name',
         'file_path',
-        'thumbnail_patch',
+        'thumbnail_path',
         'mime_type',
         'file_size',
     ];
@@ -46,7 +46,8 @@ class Attachment extends Model
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        return round($bytes, 1) . ' ' . $units[$i];
+
+        return round($bytes, 1).' '.$units[$i];
     }
 
     // Delete physical file when a comment is deleted
@@ -57,7 +58,7 @@ class Attachment extends Model
                 Storage::disk('local')->delete($attachment->file_path);
             }
             if ($attachment->thumbnail_path && Storage::disk('local')->exists($attachment->thumbnail_path)) {
-                Storage::disk('local')->delete($attachment->thumbnail_patch);
+                Storage::disk('local')->delete($attachment->thumbnail_path);
             }
         });
     }
