@@ -22,6 +22,9 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('projects', ProjectController::class);
+    Route::get('/tickets/assigned-to-me', [TicketController::class, 'assignedToMe'])->name('tickets.assigned-to-me');
+    Route::get('/tickets/created-by-me', [TicketController::class, 'createdByMe'])->name('tickets.created-by-me');
+    Route::get('/tickets/watched', [TicketController::class, 'watchedByMe'])->name('tickets.watched');
     Route::resource('tickets', TicketController::class);
     Route::patch('/tickets/{ticket}/transition', [TicketController::class, 'transitionStatus'])->name('tickets.transition');
     Route::patch('/tickets/{ticket}/reassign', [TicketController::class, 'reassign'])->name('tickets.reassign');
@@ -31,11 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-
     // Attachments (Secure streaming & thumbnailing)
     Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
     Route::get('/attachments/{attachment}/thumb', [AttachmentController::class, 'thumbnail'])->name('attachments.thumb');
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

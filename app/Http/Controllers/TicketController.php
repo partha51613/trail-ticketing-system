@@ -25,60 +25,116 @@ class TicketController extends Controller
             $q->withoutTrashed();
         })->with(['project', 'creator', 'assignedTo'])->latest();
 
-        // If user submitted a text search (searches title, description, and ticket id)
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                if (is_numeric($search)) {
-                    $q->orWhere('id', (int) $search);
-                }
-                $q->orWhere('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
+        // Tab Filter: 'active' (default) vs 'closed'
+        $tab = $request->query('tab') === 'closed' ? 'closed' : 'active';
 
-        // if user selected a status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        // Base query with active projects
+        $baseQuery = Ticket::whereHas('project', function ($q) {
+            $q->withoutTrashed();
+        });
 
-        // If user selected a priority filter
-        if ($request->filled('priority')) {
-
-            $query->where('priority', $request->priority);
-        }
-
-        // If user selected a project filter
-        if ($request->filled('project_id')) {
-            $query->where('project_id', $request->project_id);
-        }
-
-        // If user selected a 'user' filter
-        if ($request->filled('assigned_to_id')) {
-            if ($request->assigned_to_id === 'unassigned') {
-                $query->whereNull('assigned_to_id');
-            } else {
-                $query->where('assigned_to_id', $request->assigned_to_id);
+        // Common context filters (for tab counts & listing)
+        $applyContextFilters = function ($q) use ($request) {
+            if ($request->filled('search')) {
+                $search = trim($request->search);
+                $q->where(function ($sub) use ($search) {
+                    if (is_numeric($search)) {
+                        $sub->orWhere('id', (int) $search);
+                    }
+                    $sub->orWhere('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
             }
-        }
 
-        if ($request->boolean('watched')) {
-            $query->whereHas('watchers', function ($q) {
-                $q->where('users.id', Auth::id());
-            });
-        }
+            if ($request->filled('project_id')) {
+                $q->where('project_id', $request->project_id);
+            }
 
-        if ($request->filled('created_by_id')) {
-            $query->where('created_by_id', $request->created_by_id);
+            if ($request->filled('priority')) {
+                $q->where('priority', $request->priority);
+            }
+
+            if ($request->filled('assigned_to_id')) {
+                if ($request->assigned_to_id === 'unassigned') {
+                    $q->whereNull('assigned_to_id');
+                } else {
+                    $q->where('assigned_to_id', $request->assigned_to_id);
+                }
+            }
+
+            if ($request->boolean('watched')) {
+                $q->whereHas('watchers', function ($sub) {
+                    $sub->where('users.id', Auth::id());
+                });
+            }
+
+            if ($request->filled('created_by_id')) {
+                $q->where('created_by_id', $request->created_by_id);
+            }
+        };
+
+        // Calculate tab counts
+        $activeCountQuery = (clone $baseQuery)->where('status', '!=', 'closed');
+        $applyContextFilters($activeCountQuery);
+        $activeCount = $activeCountQuery->count();
+
+        $closedCountQuery = (clone $baseQuery)->where('status', 'closed');
+        $applyContextFilters($closedCountQuery);
+        $closedCount = $closedCountQuery->count();
+
+        // Main listing query
+        $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
+        $applyContextFilters($query);
+
+        if ($tab === 'closed') {
+            $query->where('status', 'closed');
+        } else {
+            $query->where('status', '!=', 'closed');
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
         }
 
         $tickets = $query->paginate(10)->withQueryString()->fragment('tickets-table');
 
         return view('tickets.index', [
             'tickets' => $tickets,
+            'tab' => $tab,
+            'activeCount' => $activeCount,
+            'closedCount' => $closedCount,
             'projects' => Project::orderBy('name')->get(),
             'users' => User::orderBy('name')->get(),
         ]);
+    }
+
+    /**
+     * Dedicated listing of tickets assigned to the authenticated user.
+     */
+    public function assignedToMe(Request $request)
+    {
+        $request->merge(['assigned_to_id' => Auth::id()]);
+
+        return $this->index($request);
+    }
+
+    /**
+     * Dedicated listing of tickets created by the authenticated user.
+     */
+    public function createdByMe(Request $request)
+    {
+        $request->merge(['created_by_id' => Auth::id()]);
+
+        return $this->index($request);
+    }
+
+    /**
+     * Dedicated listing of tickets watched by the authenticated user.
+     */
+    public function watchedByMe(Request $request)
+    {
+        $request->merge(['watched' => 1]);
+
+        return $this->index($request);
     }
 
     /**

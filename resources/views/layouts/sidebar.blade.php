@@ -84,29 +84,29 @@
             </span>
             <div class="space-y-1 pt-3">
                 <!-- Assigned to Me -->
-                <a href="{{ route('tickets.index', ['assigned_to_id' => auth()->id()]) }}"
-                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request('assigned_to_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+                <a href="{{ route('tickets.assigned-to-me') }}"
+                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('tickets.assigned-to-me') || request('assigned_to_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
                     :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Assigned to Me') }}">
                     <x-heroicon-o-user
-                        class="w-5 h-5 shrink-0 {{ request('assigned_to_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
+                        class="w-5 h-5 shrink-0 {{ request()->routeIs('tickets.assigned-to-me') || request('assigned_to_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Assigned to Me') }}</span>
                 </a>
 
                 <!-- Watched Tickets -->
-                <a href="{{ route('tickets.index', ['watched' => 1]) }}"
-                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->boolean('watched') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+                <a href="{{ route('tickets.watched') }}"
+                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('tickets.watched') || request()->boolean('watched') ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
                     :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Watched Tickets') }}">
                     <x-heroicon-o-bell
-                        class="w-5 h-5 shrink-0 {{ request()->boolean('watched') ? 'text-brand-600' : 'text-gray-400' }}" />
+                        class="w-5 h-5 shrink-0 {{ request()->routeIs('tickets.watched') || request()->boolean('watched') ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Watched Tickets') }}</span>
                 </a>
 
                 <!-- Created by Me -->
-                <a href="{{ route('tickets.index', ['created_by_id' => auth()->id()]) }}"
-                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request('created_by_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+                <a href="{{ route('tickets.created-by-me') }}"
+                    class="flex items-center gap-3 py-2 text-xs font-semibold rounded-xl transition-colors {{ request()->routeIs('tickets.created-by-me') || request('created_by_id') == auth()->id() ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
                     :class="sidebarOpen ? 'px-3' : 'justify-center px-0'" title="{{ __('Created by Me') }}">
                     <x-heroicon-o-pencil-square
-                        class="w-5 h-5 shrink-0 {{ request('created_by_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
+                        class="w-5 h-5 shrink-0 {{ request()->routeIs('tickets.created-by-me') || request('created_by_id') == auth()->id() ? 'text-brand-600' : 'text-gray-400' }}" />
                     <span x-show="sidebarOpen" x-cloak class="truncate">{{ __('Created by Me') }}</span>
                 </a>
             </div>

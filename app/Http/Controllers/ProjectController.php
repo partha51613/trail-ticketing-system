@@ -71,6 +71,15 @@ class ProjectController extends Controller
         $ticketsQuery = $project->tickets()
             ->with(['creator', 'assignedTo']);
 
+        // Tab Filter: 'active' (default) vs 'closed'
+        $tab = $request->query('tab') === 'closed' ? 'closed' : 'active';
+
+        if ($tab === 'closed') {
+            $ticketsQuery->where('status', 'closed');
+        } else {
+            $ticketsQuery->where('status', '!=', 'closed');
+        }
+
         // Search within project tickets
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -83,8 +92,8 @@ class ProjectController extends Controller
             });
         }
 
-        // Status filter
-        if ($request->filled('status')) {
+        // Status filter (only applied within the active tab)
+        if ($tab === 'active' && $request->filled('status')) {
             $ticketsQuery->where('status', $request->status);
         }
 
@@ -115,13 +124,14 @@ class ProjectController extends Controller
         // Project ticket stats
         $projectStats = [
             'total' => $project->tickets()->count(),
+            'active' => $project->tickets()->where('status', '!=', 'closed')->count(),
             'assigned' => $project->tickets()->whereNotNull('assigned_to_id')->count(),
             'unassigned' => $project->tickets()->whereNull('assigned_to_id')->count(),
             'blocked' => $project->tickets()->where('status', 'blocked')->count(),
             'closed' => $project->tickets()->where('status', 'closed')->count(),
         ];
 
-        return view('projects.show', compact('project', 'tickets', 'projectStats', 'sort', 'direction'));
+        return view('projects.show', compact('project', 'tickets', 'projectStats', 'sort', 'direction', 'tab'));
     }
 
     public function edit(Project $project): View

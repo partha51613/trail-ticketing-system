@@ -153,15 +153,28 @@
 
             <!-- Server-Side Search, Filter & Sort Table -->
             <div id="tickets-table" x-data="{
+                tab: '{{ $tab }}',
                 search: '{{ request('search') }}',
                 status: '{{ request('status') }}',
                 priority: '{{ request('priority') }}',
                 sort: '{{ $sort }}',
                 direction: '{{ $direction }}',
+                switchTab(targetTab) {
+                    const params = new URLSearchParams(window.location.search);
+                    if (targetTab === 'closed') {
+                        params.set('tab', 'closed');
+                        params.delete('status'); // Closed tab doesn't use active status filter
+                    } else {
+                        params.delete('tab');
+                    }
+                    params.delete('page');
+                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
+                },
                 applyFilters() {
                     const params = new URLSearchParams(window.location.search);
+                    if (this.tab === 'closed') { params.set('tab', 'closed'); } else { params.delete('tab'); }
                     if (this.search) { params.set('search', this.search); } else { params.delete('search'); }
-                    if (this.status) { params.set('status', this.status); } else { params.delete('status'); }
+                    if (this.status && this.tab !== 'closed') { params.set('status', this.status); } else { params.delete('status'); }
                     if (this.priority) { params.set('priority', this.priority); } else { params.delete('priority'); }
                     params.set('sort', this.sort);
                     params.set('direction', this.direction);
@@ -179,62 +192,83 @@
                 }
             }" class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
 
-                <!-- Table Header Toolbar -->
-                <div
-                    class="p-5 sm:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-lg font-bold text-gray-900 tracking-tight">
-                            {{ __('Project Tickets') }}
-                        </h2>
-                        <span
-                            class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-600">
-                            {{ $tickets->total() }}
+                <!-- Table Header Tabs & Toolbar -->
+                <div class="p-5 sm:p-6 border-b border-gray-100 space-y-4">
+
+                    <!-- Top Row: Segmented Tabs (Active vs Closed) -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
+                            <!-- Active Tickets Tab -->
+                            <button type="button" @click="switchTab('active')"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                                <x-heroicon-m-ticket class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600' : 'text-gray-400' }}" />
+                                <span>{{ __('Active Tickets') }}</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 text-brand-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                    {{ $projectStats['active'] }}
+                                </span>
+                            </button>
+
+                            <!-- Closed Tickets Tab -->
+                            <button type="button" @click="switchTab('closed')"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                                <x-heroicon-m-check-badge class="w-4 h-4 {{ $tab === 'closed' ? 'text-emerald-600' : 'text-gray-400' }}" />
+                                <span>{{ __('Closed Tickets') }}</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                    {{ $projectStats['closed'] }}
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Ticket Count Indicator -->
+                        <span class="text-xs text-gray-500 font-medium">
+                            {{ __('Showing') }} <strong class="text-gray-800">{{ $tickets->total() }}</strong>
+                            {{ $tab === 'closed' ? __('closed tickets') : __('active tickets') }}
                         </span>
                     </div>
 
-                    <!-- Filter Controls -->
-                    <div class="flex flex-wrap items-center gap-3">
+                    <!-- Bottom Row: Filter Controls -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <!-- Search Bar -->
-                        <div class="relative min-w-[220px]">
-                            <div
-                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <div class="relative flex-1 sm:flex-initial sm:min-w-[260px]">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                 <x-heroicon-m-magnifying-glass class="w-4 h-4" />
                             </div>
                             <input type="text" x-model="search" @keydown.enter="applyFilters()"
-                                placeholder="{{ __('Search tickets...') }}"
+                                placeholder="{{ $tab === 'closed' ? __('Search closed tickets...') : __('Search active tickets...') }}"
                                 class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                         </div>
 
-                        @if (request()->hasAny(['search', 'status', 'priority', 'sort']))
-                            <a href="{{ route('projects.show', $project) }}"
-                                class="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-xl bg-red-600 border border-transparent text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all font-medium">
-                                <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-white" />
-                                <span>{{ __('Reset') }}</span>
-                            </a>
-                        @endif
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            @if (request()->hasAny(['search', 'status', 'priority']))
+                                <a href="{{ route('projects.show', [$project, 'tab' => $tab]) }}#tickets-table"
+                                    class="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-xl bg-red-600 border border-transparent text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all font-medium">
+                                    <x-heroicon-m-x-mark class="w-3.5 h-3.5 text-white" />
+                                    <span>{{ __('Reset') }}</span>
+                                </a>
+                            @endif
 
-                        <!-- Status Filter -->
-                        <select x-model="status" @change="applyFilters()"
-                            class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                            <option value="">{{ __('All Statuses') }}</option>
-                            <option value="new">{{ __('New') }}</option>
-                            <option value="in_progress">{{ __('In Progress') }}</option>
-                            <option value="waiting">{{ __('Waiting') }}</option>
-                            <option value="blocked">{{ __('Blocked') }}</option>
-                            <option value="closed">{{ __('Closed') }}</option>
-                        </select>
+                            <!-- Status Filter (Only relevant for Active Tickets tab) -->
+                            @if ($tab === 'active')
+                                <select x-model="status" @change="applyFilters()"
+                                    class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    <option value="">{{ __('All Statuses') }}</option>
+                                    <option value="new">{{ __('New') }}</option>
+                                    <option value="in_progress">{{ __('In Progress') }}</option>
+                                    <option value="waiting">{{ __('Waiting') }}</option>
+                                    <option value="blocked">{{ __('Blocked') }}</option>
+                                </select>
+                            @endif
 
-                        <!-- Priority Filter -->
-                        <select x-model="priority" @change="applyFilters()"
-                            class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                            <option value="">{{ __('All Priorities') }}</option>
-                            <option value="urgent">{{ __('Urgent') }}</option>
-                            <option value="high">{{ __('High') }}</option>
-                            <option value="medium">{{ __('Medium') }}</option>
-                            <option value="low">{{ __('Low') }}</option>
-                        </select>
-
-
+                            <!-- Priority Filter -->
+                            <select x-model="priority" @change="applyFilters()"
+                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                <option value="">{{ __('All Priorities') }}</option>
+                                <option value="urgent">{{ __('Urgent') }}</option>
+                                <option value="high">{{ __('High') }}</option>
+                                <option value="medium">{{ __('Medium') }}</option>
+                                <option value="low">{{ __('Low') }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 

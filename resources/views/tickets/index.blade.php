@@ -4,11 +4,11 @@
             <div>
                 <div class="flex items-center gap-3">
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">
-                        @if (request()->boolean('watched'))
-                            {{ __('Watched Tickets') }}
-                        @elseif (request('assigned_to_id') == auth()->id())
+                        @if (request()->routeIs('tickets.assigned-to-me') || request('assigned_to_id') == auth()->id())
                             {{ __('Assigned to Me') }}
-                        @elseif (request('created_by_id') == auth()->id())
+                        @elseif (request()->routeIs('tickets.watched') || request()->boolean('watched'))
+                            {{ __('Watched Tickets') }}
+                        @elseif (request()->routeIs('tickets.created-by-me') || request('created_by_id') == auth()->id())
                             {{ __('Created by Me') }}
                         @else
                             {{ __('All Tickets') }}
@@ -38,22 +38,66 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Filter & Search Toolbar Card -->
-            <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs" x-data="{
+            <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4" x-data="{
+                tab: '{{ $tab }}',
                 project: '{{ request('project_id') }}',
                 status: '{{ request('status') }}',
                 priority: '{{ request('priority') }}',
                 assignee: '{{ request('assigned_to_id') }}',
+                switchTab(targetTab) {
+                    const params = new URLSearchParams(window.location.search);
+                    if (targetTab === 'closed') {
+                        params.set('tab', 'closed');
+                        params.delete('status');
+                    } else {
+                        params.delete('tab');
+                    }
+                    params.delete('page');
+                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
+                },
                 applyFilters() {
                     const params = new URLSearchParams(window.location.search);
+                    if (this.tab === 'closed') { params.set('tab', 'closed'); } else { params.delete('tab'); }
                     if (this.project) { params.set('project_id', this.project); } else { params.delete('project_id'); }
-                    if (this.status) { params.set('status', this.status); } else { params.delete('status'); }
+                    if (this.status && this.tab !== 'closed') { params.set('status', this.status); } else { params.delete('status'); }
                     if (this.priority) { params.set('priority', this.priority); } else { params.delete('priority'); }
                     if (this.assignee) { params.set('assigned_to_id', this.assignee); } else { params.delete('assigned_to_id'); }
                     params.delete('page');
-                    window.location.href = `${window.location.pathname}?${params.toString()}`;
+                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
                 }
             }">
-                <div class="flex flex-wrap items-center justify-between gap-3">
+                <!-- Top Row: Segmented Tabs (Active vs Closed) -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4">
+                    <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
+                        <!-- Active Tickets Tab -->
+                        <button type="button" @click="switchTab('active')"
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                            <x-heroicon-m-ticket class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600' : 'text-gray-400' }}" />
+                            <span>{{ __('Active Tickets') }}</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 text-brand-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                {{ $activeCount }}
+                            </span>
+                        </button>
+
+                        <!-- Closed Tickets Tab -->
+                        <button type="button" @click="switchTab('closed')"
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
+                            <x-heroicon-m-check-badge class="w-4 h-4 {{ $tab === 'closed' ? 'text-emerald-600' : 'text-gray-400' }}" />
+                            <span>{{ __('Closed Tickets') }}</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                {{ $closedCount }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <span class="text-xs text-gray-500 font-medium">
+                        {{ __('Showing') }} <strong class="text-gray-800">{{ $tickets->total() }}</strong>
+                        {{ $tab === 'closed' ? __('closed tickets') : __('active tickets') }}
+                    </span>
+                </div>
+
+                <!-- Bottom Row: Filter Controls -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                     <div class="flex flex-wrap items-center gap-2.5">
                         <!-- Project Filter -->
                         <select x-model="project" @change="applyFilters()"
@@ -66,16 +110,17 @@
                             @endforeach
                         </select>
 
-                        <!-- Status Filter -->
-                        <select x-model="status" @change="applyFilters()"
-                            class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                            <option value="">{{ __('All Statuses') }}</option>
-                            <option value="new">{{ __('New') }}</option>
-                            <option value="in_progress">{{ __('In Progress') }}</option>
-                            <option value="waiting">{{ __('Waiting') }}</option>
-                            <option value="blocked">{{ __('Blocked') }}</option>
-                            <option value="closed">{{ __('Closed') }}</option>
-                        </select>
+                        <!-- Status Filter (Hidden on Closed Tab) -->
+                        @if ($tab === 'active')
+                            <select x-model="status" @change="applyFilters()"
+                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                <option value="">{{ __('All Statuses') }}</option>
+                                <option value="new">{{ __('New') }}</option>
+                                <option value="in_progress">{{ __('In Progress') }}</option>
+                                <option value="waiting">{{ __('Waiting') }}</option>
+                                <option value="blocked">{{ __('Blocked') }}</option>
+                            </select>
+                        @endif
 
                         <!-- Priority Filter -->
                         <select x-model="priority" @change="applyFilters()"
@@ -101,7 +146,7 @@
                     </div>
 
                     <!-- Reset Filters Button (if any filter active) -->
-                    @if (request()->hasAny(['project_id', 'status', 'priority', 'assigned_to_id', 'search', 'watched', 'created_by_id']))
+                    @if (request()->hasAny(['project_id', 'status', 'priority', 'assigned_to_id', 'search', 'watched', 'created_by_id', 'tab']))
                         <a href="{{ route('tickets.index') }}"
                             class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline">
                             <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
