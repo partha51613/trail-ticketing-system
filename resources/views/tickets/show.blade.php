@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-start sm:items-center gap-3 min-w-0">
-                <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('projects.show', $ticket->project_id) }}"
+                <a href="{{ $backUrl ?? route('projects.show', $ticket->project_id) }}"
                     class="p-2 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all shrink-0 mt-0.5 sm:mt-0"
                     title="{{ __('Go Back') }}">
                     <x-heroicon-m-arrow-left class="w-5 h-5" />
@@ -163,6 +163,42 @@
                         <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                             {{ $ticket->description ?: __('No detailed description provided.') }}
                         </div>
+
+                        <!-- Ticket Attachments -->
+                        @if ($ticket->attachments && $ticket->attachments->isNotEmpty())
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-2.5">
+                                    {{ __('Attachments') }} ({{ $ticket->attachments->count() }})
+                                </span>
+                                <div class="flex flex-wrap gap-2.5">
+                                    @foreach ($ticket->attachments as $attachment)
+                                        @if ($attachment->isImage())
+                                            <button type="button"
+                                                @click="openLightbox('{{ route('attachments.show', $attachment) }}', '{{ addslashes($attachment->file_name) }}')"
+                                                class="group relative block rounded-xl overflow-hidden border border-gray-200 hover:border-brand-400 bg-gray-50 transition-all text-left focus:outline-none focus:ring-2 focus:ring-brand-500/30 shadow-2xs">
+                                                <img src="{{ route('attachments.thumb', $attachment) }}"
+                                                    alt="{{ $attachment->file_name }}"
+                                                    class="h-20 w-28 object-cover group-hover:scale-105 transition-transform duration-200">
+                                                <span
+                                                    class="absolute bottom-0 inset-x-0 bg-gray-900/60 backdrop-blur-xs text-white text-[10px] truncate px-1.5 py-0.5 font-medium">
+                                                    {{ $attachment->file_name }}
+                                                </span>
+                                            </button>
+                                        @else
+                                            <a href="{{ route('attachments.show', $attachment) }}"
+                                                target="_blank"
+                                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 text-xs font-medium text-gray-700 transition-all shadow-2xs">
+                                                <x-heroicon-m-document
+                                                    class="w-4 h-4 text-brand-500 shrink-0" />
+                                                <span class="truncate max-w-[150px]">{{ $attachment->file_name }}</span>
+                                                <span class="text-[10px] text-gray-400">({{ $attachment->formatted_size }})</span>
+                                                <x-heroicon-m-arrow-down-tray class="w-3.5 h-3.5 text-gray-400 ml-0.5" />
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Unified Timeline with Filter Pills -->

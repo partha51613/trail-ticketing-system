@@ -1,17 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-2 text-sm text-gray-500">
-            <a href="{{ route('tickets.index') }}" class="hover:text-gray-900 transition-colors flex items-center gap-1">
-                <x-heroicon-m-ticket class="w-4 h-4 text-gray-400" />
-                <span>{{ __('Tickets') }}</span>
-            </a>
-            <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
+        <div class="flex items-center gap-3">
             <a href="{{ route('tickets.show', $ticket) }}"
-                class="hover:text-gray-900 transition-colors truncate max-w-xs font-mono font-bold text-gray-700">
-                {{ $ticket->reference_code }}
+                class="p-2 rounded-xl text-gray-500 bg-white hover:text-gray-900 hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 shadow-xs transition-all shrink-0"
+                title="{{ __('Cancel and return to ticket') }}">
+                <x-heroicon-m-arrow-left class="w-5 h-5" />
             </a>
-            <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
-            <span class="font-medium text-gray-900">{{ __('Edit') }}</span>
+            <div class="flex items-center gap-2 text-sm text-gray-500 min-w-0">
+                <a href="{{ route('tickets.index') }}" class="hover:text-gray-900 transition-colors flex items-center gap-1">
+                    <x-heroicon-m-ticket class="w-4 h-4 text-gray-400" />
+                    <span>{{ __('Tickets') }}</span>
+                </a>
+                <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
+                <a href="{{ route('tickets.show', $ticket) }}"
+                    class="hover:text-gray-900 transition-colors truncate max-w-xs font-mono font-bold text-gray-700">
+                    {{ $ticket->reference_code }}
+                </a>
+                <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
+                <span class="font-medium text-gray-900">{{ __('Edit') }}</span>
+            </div>
         </div>
     </x-slot>
 
@@ -51,9 +58,95 @@
                         @endcan
                     </div>
 
-                    <form method="POST" action="{{ route('tickets.update', $ticket) }}" class="space-y-6">
+                    <form method="POST" action="{{ route('tickets.update', $ticket) }}" enctype="multipart/form-data" class="space-y-6"
+                        x-data="{
+                            selectedFiles: [],
+                            maxFiles: 10,
+                            maxFileSize: 10 * 1024 * 1024,
+                            sizeErrorModal: false,
+                            oversizedFileName: '',
+                            oversizedFileSize: '',
+                            errorMessage: '',
+                            removedAttachments: [],
+                            init() {
+                                // If user arrived via browser Back button after submission, redirect forward to show page
+                                window.addEventListener('pageshow', (event) => {
+                                    if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+                                        window.location.replace('{{ route('tickets.show', $ticket) }}');
+                                    }
+                                });
+                            },
+                            markRemoved(attachmentId) {
+                                if (!this.removedAttachments.includes(attachmentId)) {
+                                    this.removedAttachments.push(attachmentId);
+                                }
+                            },
+                            undoRemoval(attachmentId) {
+                                this.removedAttachments = this.removedAttachments.filter(id => id !== attachmentId);
+                            },
+                            handleFileSelect(event) {
+                                const newFiles = Array.from(event.target.files);
+                                this.errorMessage = '';
+
+                                for (let file of newFiles) {
+                                    if (file.size > this.maxFileSize) {
+                                        this.oversizedFileName = file.name;
+                                        this.oversizedFileSize = this.formatBytes(file.size);
+                                        this.sizeErrorModal = true;
+                                        continue;
+                                    }
+
+                                    if (this.selectedFiles.length >= this.maxFiles) {
+                                        this.errorMessage = 'You can attach up to ' + this.maxFiles + ' files.';
+                                        break;
+                                    }
+
+                                    const isImage = file.type.startsWith('image/');
+                                    const previewUrl = isImage ? URL.createObjectURL(file) : null;
+
+                                    this.selectedFiles.push({
+                                        file: file,
+                                        name: file.name,
+                                        size: this.formatBytes(file.size),
+                                        isImage: isImage,
+                                        previewUrl: previewUrl,
+                                    });
+                                }
+
+                                event.target.value = '';
+                                this.syncFilesToInput();
+                            },
+                            removeFile(index) {
+                                const removed = this.selectedFiles.splice(index, 1)[0];
+                                if (removed && removed.previewUrl) {
+                                    URL.revokeObjectURL(removed.previewUrl);
+                                }
+                                this.errorMessage = '';
+                                this.syncFilesToInput();
+                            },
+                            syncFilesToInput() {
+                                const dt = new DataTransfer();
+                                this.selectedFiles.forEach(item => dt.items.add(item.file));
+                                this.$refs.actualFileInput.files = dt.files;
+                            },
+                            formatBytes(bytes) {
+                                if (bytes === 0) return '0 B';
+                                const k = 1024;
+                                const sizes = ['B', 'KB', 'MB', 'GB'];
+                                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+                            }
+                        }">
                         @csrf
                         @method('PUT')
+
+                        <!-- Hidden File Input submitted with Form -->
+                        <input type="file" name="attachments[]" x-ref="actualFileInput" multiple class="hidden">
+
+                        <!-- Hidden inputs for removed existing attachments -->
+                        <template x-for="id in removedAttachments" :key="id">
+                            <input type="hidden" name="remove_attachments[]" :value="id">
+                        </template>
 
                         <!-- Project & Assignee Row -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -130,13 +223,182 @@
                             </div>
                         </div>
 
-                        <!-- Description -->
-                        <div>
-                            <x-input-label for="description" :value="__('Description')"
-                                class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
-                            <textarea id="description" name="description" rows="5" required
-                                class="mt-1.5 block w-full rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 text-sm leading-relaxed">{{ old('description', $ticket->description) }}</textarea>
-                            <x-input-error class="mt-1.5" :messages="$errors->get('description')" />
+                        <!-- Description & Attachments -->
+                        <div class="space-y-4">
+                            <div>
+                                <x-input-label for="description" :value="__('Description')"
+                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                <textarea id="description" name="description" rows="5" required
+                                    class="mt-1.5 block w-full rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 text-sm leading-relaxed">{{ old('description', $ticket->description) }}</textarea>
+                                <x-input-error class="mt-1.5" :messages="$errors->get('description')" />
+                            </div>
+
+                            <!-- Existing Attachments Management -->
+                            @if ($ticket->attachments && $ticket->attachments->isNotEmpty())
+                                <div class="pt-2">
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-2">
+                                        {{ __('Current Attachments') }} ({{ $ticket->attachments->count() }})
+                                    </span>
+                                    <div class="flex flex-wrap gap-2.5">
+                                        @foreach ($ticket->attachments as $attachment)
+                                            <div class="relative group rounded-xl border p-2 transition-all flex items-center gap-2.5"
+                                                :class="removedAttachments.includes('{{ $attachment->id }}')
+                                                    ? 'bg-rose-50/50 border-rose-200 opacity-60'
+                                                    : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs'">
+
+                                                @if ($attachment->isImage())
+                                                    <img src="{{ route('attachments.thumb', $attachment) }}"
+                                                        alt="{{ $attachment->file_name }}"
+                                                        class="w-10 h-10 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0">
+                                                @else
+                                                    <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0 text-brand-600">
+                                                        <x-heroicon-m-document class="w-5 h-5" />
+                                                        <span class="text-[8px] font-bold uppercase tracking-wider text-gray-500">
+                                                            {{ pathinfo($attachment->file_name, PATHINFO_EXTENSION) ?: 'FILE' }}
+                                                        </span>
+                                                    </div>
+                                                @endif
+
+                                                <div class="pr-6 min-w-0 max-w-[140px]">
+                                                    <p class="text-xs font-medium text-gray-800 truncate"
+                                                        :class="removedAttachments.includes('{{ $attachment->id }}') ? 'line-through text-gray-400' : ''"
+                                                        title="{{ $attachment->file_name }}">
+                                                        {{ $attachment->file_name }}
+                                                    </p>
+                                                    <p class="text-[10px] text-gray-400">
+                                                        <span x-show="!removedAttachments.includes('{{ $attachment->id }}')">{{ $attachment->formatted_size }}</span>
+                                                        <span x-show="removedAttachments.includes('{{ $attachment->id }}')" class="text-rose-600 font-semibold">{{ __('Marked for removal') }}</span>
+                                                    </p>
+                                                </div>
+
+                                                <!-- Remove / Undo Toggle -->
+                                                <button type="button"
+                                                    x-show="!removedAttachments.includes('{{ $attachment->id }}')"
+                                                    @click="markRemoved('{{ $attachment->id }}')"
+                                                    title="{{ __('Remove this attachment') }}"
+                                                    class="absolute top-1 right-1 p-1 rounded-full bg-gray-100 hover:bg-rose-100 text-gray-400 hover:text-rose-600 transition-colors">
+                                                    <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
+                                                </button>
+
+                                                <button type="button"
+                                                    x-show="removedAttachments.includes('{{ $attachment->id }}')"
+                                                    @click="undoRemoval('{{ $attachment->id }}')"
+                                                    title="{{ __('Keep this attachment') }}"
+                                                    class="absolute top-1 right-1 p-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors">
+                                                    <x-heroicon-m-arrow-uturn-left class="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Queued New Upload Previews -->
+                            <div x-show="selectedFiles.length > 0" x-cloak class="pt-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 block mb-2">
+                                    {{ __('New Attachments to Add') }}
+                                </span>
+                                <div class="flex flex-wrap gap-2.5">
+                                    <template x-for="(item, index) in selectedFiles" :key="index">
+                                        <div class="group relative rounded-xl border border-brand-200 bg-brand-50/30 p-1.5 shadow-2xs hover:border-brand-300 transition-all flex items-center gap-2">
+                                            <!-- Image Thumbnail -->
+                                            <template x-if="item.isImage">
+                                                <img :src="item.previewUrl" class="w-12 h-12 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0">
+                                            </template>
+
+                                            <!-- Document Icon for Non-Images -->
+                                            <template x-if="!item.isImage">
+                                                <div class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0 text-brand-600">
+                                                    <x-heroicon-m-document class="w-5 h-5" />
+                                                    <span class="text-[9px] font-semibold uppercase tracking-wider text-gray-500" x-text="item.name.split('.').pop() || 'FILE'"></span>
+                                                </div>
+                                            </template>
+
+                                            <!-- Name & Size -->
+                                            <div class="pr-6 min-w-0 max-w-[140px]">
+                                                <p class="text-xs font-medium text-gray-800 truncate" :title="item.name" x-text="item.name"></p>
+                                                <p class="text-[10px] text-gray-400" x-text="item.size"></p>
+                                            </div>
+
+                                            <!-- Remove 'X' Button -->
+                                            <button type="button" @click="removeFile(index)"
+                                                title="{{ __('Remove file') }}"
+                                                class="absolute top-1 right-1 p-1 rounded-full bg-gray-100 hover:bg-rose-100 text-gray-500 hover:text-rose-600 transition-colors">
+                                                <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div x-show="errorMessage" x-cloak class="text-xs font-medium text-rose-600">
+                                <span x-text="errorMessage"></span>
+                            </div>
+
+                            <!-- Upload Trigger Button -->
+                            <div class="flex items-center gap-2.5 pt-1">
+                                <label
+                                    class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-2xs">
+                                    <x-heroicon-m-paper-clip class="w-4 h-4 text-gray-500" />
+                                    <span>{{ __('Add More Files') }}</span>
+                                    <input type="file" multiple class="hidden"
+                                        @change="handleFileSelect($event)"
+                                        accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.txt,.csv,.log,.zip">
+                                </label>
+
+                                <span x-show="selectedFiles.length > 0" x-cloak
+                                    class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                                    +<span x-text="selectedFiles.length"></span> {{ __('new') }}
+                                </span>
+                                <span class="text-[11px] text-gray-400">
+                                    {{ __('Up to 10 files (max 10MB each: images, PDF, docs, logs, zip)') }}
+                                </span>
+                            </div>
+                            <x-input-error class="mt-1.5" :messages="$errors->get('attachments')" />
+                            <x-input-error class="mt-1.5" :messages="$errors->get('attachments.*')" />
+                        </div>
+
+                        <!-- Oversized File Modal Dialog -->
+                        <div x-show="sizeErrorModal"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/60 backdrop-blur-xs"
+                            @click.self="sizeErrorModal = false"
+                            @keydown.escape.window="sizeErrorModal = false"
+                            role="alertdialog"
+                            aria-modal="true">
+
+                            <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 text-center space-y-4"
+                                @click.stop>
+                                <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100">
+                                    <x-heroicon-o-exclamation-triangle class="w-6 h-6" />
+                                </div>
+
+                                <div>
+                                    <h4 class="text-base font-bold text-gray-900">{{ __('File Too Large') }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ __('The maximum allowed file size is') }} <strong class="text-gray-800">10 MB</strong>.
+                                    </p>
+                                    <div class="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80 text-left">
+                                        <p class="text-xs font-semibold text-gray-800 truncate" x-text="oversizedFileName"></p>
+                                        <p class="text-[11px] text-rose-600 font-medium mt-0.5">
+                                            {{ __('Size:') }} <span x-text="oversizedFileSize"></span> ({{ __('exceeds limit') }})
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button type="button"
+                                    @click="sizeErrorModal = false"
+                                    class="w-full py-2.5 px-4 text-xs font-semibold rounded-xl text-white bg-gray-900 hover:bg-gray-800 transition-colors shadow-xs">
+                                    {{ __('Got it') }}
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Actions -->

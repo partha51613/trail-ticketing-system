@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\AttachmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -192,11 +193,17 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTicketRequest $request)
+    public function store(StoreTicketRequest $request, AttachmentService $attachmentService)
     {
         $validated = $request->validated();
         $validated['created_by_id'] = $request->user()->id;
         $ticket = Ticket::create($validated);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $attachmentService->storeAttachment($file, $ticket, $request->user()->id);
+            }
+        }
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Tickets created successfully');
     }
@@ -204,9 +211,8 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ticket $ticket)
+    public function show(Request $request, Ticket $ticket)
     {
-
         $ticket->load(['creator', 'assignedTo', 'project', 'comments.user', 'comments.attachments', 'watchers', 'activityLogs.user', 'attachments']);
 
         // Merge comments and activity logs into a unified chronological stream
@@ -231,7 +237,17 @@ class TicketController extends Controller
         $users = User::orderBy('name')->get();
         $isWatching = $ticket->watchers->contains(auth()->id());
 
-        return view('tickets.show', compact('ticket', 'timeline', 'users', 'isWatching'));
+        // Resolve return back URL (prioritize active list session or referring page, but never loop back to edit page)
+        $previousUrl = url()->previous();
+        $backUrl = route('projects.show', $ticket->project_id);
+
+        if ($request->session()->has('ticket_index_url')) {
+            $backUrl = $request->session()->get('ticket_index_url');
+        } elseif ($previousUrl && $previousUrl !== url()->current() && ! str_contains($previousUrl, '/edit')) {
+            $backUrl = $previousUrl;
+        }
+
+        return view('tickets.show', compact('ticket', 'timeline', 'users', 'isWatching', 'backUrl'));
     }
 
     /**
@@ -240,6 +256,8 @@ class TicketController extends Controller
     public function edit(Ticket $ticket): View
     {
         $this->authorize('update', $ticket);
+
+        $ticket->load(['attachments']);
 
         return view('tickets.edit', [
             'ticket' => $ticket,
@@ -251,11 +269,25 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
+    public function update(UpdateTicketRequest $request, Ticket $ticket, AttachmentService $attachmentService): RedirectResponse
     {
         $this->authorize('update', $ticket);
 
         $ticket->update($request->validated());
+
+        // Process removed attachments
+        if ($request->filled('remove_attachments')) {
+            $ticket->attachments()
+                ->whereIn('id', $request->input('remove_attachments'))
+                ->delete();
+        }
+
+        // Process newly uploaded attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $attachmentService->storeAttachment($file, $ticket, $request->user()->id);
+            }
+        }
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket updated successfully');
     }
