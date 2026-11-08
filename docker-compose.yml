@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trail-app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_FRESH_SEED=true # Set to 'true' if you want a complete reset & seed on start
+    volumes:
+      # Persistent SQLite database & storage across container rebuilds
+      - ./database/database.sqlite:/var/www/database/database.sqlite
+      - ./storage:/var/www/storage
+    restart: unless-stopped

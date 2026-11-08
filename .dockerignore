@@ -1,0 +1,11 @@
+.git
+.github
+node_modules
+vendor
+.env
+tests
+storage/*.key
+.phpunit.result.cache
+.fleet
+.idea
+.vscode
