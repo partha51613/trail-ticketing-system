@@ -1,4 +1,4 @@
-<aside class="flex flex-col h-full bg-white select-none transition-all duration-200"
+<aside class="flex flex-col h-full bg-white select-none"
     :class="sidebarOpen ? 'w-64' : 'w-16'">
 
     <!-- Brand / Workspace Header with Expand/Collapse Action at TOP -->
@@ -30,7 +30,7 @@
         </button>
 
         <!-- When Collapsed: Prominent Expand Button right at the TOP -->
-        <button x-show="!sidebarOpen" type="button" @click="toggleSidebar()"
+        <button x-show="!sidebarOpen" x-cloak type="button" @click="toggleSidebar()"
             class="group w-10 h-10 rounded-xl text-brand-600 bg-brand-50 hover:bg-brand-50 border border-gray-200/80 hover:border-brand-200 hover:text-brand-600 flex items-center justify-center transition-all shadow-xs"
             title="{{ __('Click to Expand Sidebar') }}">
             <x-heroicon-m-chevron-double-right class="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -164,7 +164,7 @@
         </div>
 
         <!-- Collapsed Mini Avatar with Dropdown / Logout -->
-        <div x-show="!sidebarOpen" class="relative group">
+        <div x-show="!sidebarOpen" x-cloak class="relative group">
             <a href="{{ route('profile.edit') }}"
                 class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center ring-2 ring-white hover:ring-brand-300 transition-all shadow-xs"
                 title="{{ Auth::user()->name }} ({{ ucfirst(Auth::user()->role) }})">

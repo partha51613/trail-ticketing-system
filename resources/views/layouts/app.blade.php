@@ -14,6 +14,15 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+    <script>
+        // Prevent layout shift/flash on reload
+        if (localStorage.getItem('sidebarOpen') === 'false') {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
+    </script>
 </head>
 
 <body class="font-sans antialiased bg-gray-50/70 text-gray-900" x-data="{
@@ -21,19 +30,24 @@
     toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;
         localStorage.setItem('sidebarOpen', this.sidebarOpen);
+        if (this.sidebarOpen) {
+            document.documentElement.classList.remove('sidebar-collapsed');
+        } else {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
     }
 }">
 
     <div class="min-h-screen flex">
 
-        <!-- Persistent Push-Sidebar (Expands to 64 (256px) or collapses to slim 16 (64px) icon rail) -->
-        <div class="shrink-0 h-screen sticky top-0 z-40 bg-white border-r border-gray-200/80 shadow-xs flex flex-col transition-all duration-200"
-            :class="sidebarOpen ? 'w-64' : 'w-16'">
+        <!-- Persistent Push-Sidebar -->
+        <div class="shrink-0 h-screen sticky top-0 z-40 bg-white border-r border-gray-200/80 shadow-xs flex flex-col w-64 html-collapsed:w-16 transition-[width] duration-200"
+            :class="sidebarOpen ? '!w-64' : '!w-16'">
             @include('layouts.sidebar')
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex flex-col flex-1 min-w-0 transition-all duration-200">
+        <div class="flex flex-col flex-1 min-w-0">
 
             <!-- Top Header with Search & User Status -->
             <header class="h-16 bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-30">
