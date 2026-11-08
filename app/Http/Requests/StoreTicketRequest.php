@@ -41,7 +41,7 @@ class StoreTicketRequest extends FormRequest
                 Rule::exists('users', 'id')->whereNull('deleted_at'),
             ],
             'attachments' => ['nullable', 'array', 'max:10'],
-            'attachments.*' => ['file', 'mimes:png,jpg,jpeg,webp,gif,pdf,doc,docx,txt,csv,log,zip', 'max:10240'],
+            'attachments.*' => ['file', 'mimes:png,jpg,jpeg,webp,gif,pdf,doc,docx,txt,csv,log,zip', 'max:51200'],
         ];
     }
 }
