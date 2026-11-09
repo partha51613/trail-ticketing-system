@@ -137,6 +137,28 @@ php artisan queue:work
 ```
 
 ---
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/ss_1.png" alt="Trail Screenshot 1" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ss_2.png" alt="Trail Screenshot 2" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ss_3.png" alt="Trail Screenshot 3" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ss_4.png" alt="Trail Screenshot 4" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ss_5.png" alt="Trail Screenshot 5" width="100%" />
+</p>
+---
 
 ## 🧪 Running Tests
 
