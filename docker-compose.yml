@@ -4,15 +4,20 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: trail-app
-    ports:
-      - "8000:8000"
+    network_mode: host # Allows container to directly access host services (like MariaDB at 127.0.0.1)
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
-      - DB_CONNECTION=sqlite
       - DB_FRESH_SEED=true # Set to 'true' if you want a complete reset & seed on start
+      - DB_CONNECTION=sqlite
+
+      # --- MariaDB / MySQL on your Linux host ---
+    #   - DB_CONNECTION=mysql
+    #   - DB_HOST=127.0.0.1
+    #   - DB_PORT=3306
+    #   - DB_DATABASE=cet_ticket_system
+    #   - DB_USERNAME=root
+    #   - DB_PASSWORD=root
     volumes:
-      # Persistent SQLite database & storage across container rebuilds
-      - ./database/database.sqlite:/var/www/database/database.sqlite
       - ./storage:/var/www/storage
     restart: unless-stopped

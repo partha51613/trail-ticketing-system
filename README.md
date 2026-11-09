@@ -49,15 +49,34 @@
 
 No PHP, Composer, or Node installation needed. Only [Docker](https://docs.docker.com/get-docker/) is required.
 
+The Docker container comes pre-configured with drivers for both **SQLite** and **MySQL / MariaDB**:
+
+### Option A: SQLite (Default — Instant 1-Click Setup)
+Zero database setup required. Runs out-of-the-box with persistent storage.
+
 ```bash
 # 1. Clone and enter the repository
 git clone git@github.com:partha51613/trail-ticketing-system.git
 cd trail-ticketing-system
 
-# 2. Start the container
+# 2. Start the application
 docker compose up -d
 ```
-Visit **`http://localhost:8000`** in your browser. Database migrations, application keys, and assets are handled automatically.
+Visit **`http://localhost:8000`** in your browser. Database migrations, application keys, and seed data are generated automatically.
+
+### Option B: MySQL / MariaDB (Production Ready)
+To connect the container to MySQL/MariaDB (your local host machine or a remote database server), update the database settings in `docker-compose.yml`:
+
+```yaml
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=host.docker.internal # Connects to MySQL on your host machine
+      - DB_PORT=3306
+      - DB_DATABASE=trail
+      - DB_USERNAME=your_username
+      - DB_PASSWORD=your_password
+```
+Then start the container: `docker compose up -d`.
 
 ---
 
