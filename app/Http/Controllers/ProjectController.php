@@ -72,7 +72,7 @@ class ProjectController extends Controller
 
         $project = Project::create([
             'name' => $validated['name'],
-            'code' => $validated['code'],
+            'code' => strtoupper($validated['code']),
             'description' => $validated['description'] ?? null,
         ]);
 
@@ -175,7 +175,7 @@ class ProjectController extends Controller
         ]);
         $project->update([
             'name' => $validated['name'],
-            'code' => $validated['code'],
+            'code' => strtoupper($validated['code']),
             'description' => $validated['description'] ?? null,
         ]);
         // Sync selected managers (if none selected, pass empty array to detach all)

@@ -22,8 +22,8 @@
                         </p>
                     </div>
 
-                    <form method="POST" action="{{ route('tickets.store') }}" enctype="multipart/form-data" class="space-y-6"
-                        x-data="{
+                    <form method="POST" action="{{ route('tickets.store') }}" enctype="multipart/form-data"
+                        class="space-y-6" x-data="{
                             selectedFiles: [],
                             maxFiles: 10,
                             maxFileSize: 10 * 1024 * 1024,
@@ -34,7 +34,7 @@
                             handleFileSelect(event) {
                                 const newFiles = Array.from(event.target.files);
                                 this.errorMessage = '';
-
+                        
                                 for (let file of newFiles) {
                                     if (file.size > this.maxFileSize) {
                                         this.oversizedFileName = file.name;
@@ -42,15 +42,15 @@
                                         this.sizeErrorModal = true;
                                         continue;
                                     }
-
+                        
                                     if (this.selectedFiles.length >= this.maxFiles) {
                                         this.errorMessage = 'You can attach up to ' + this.maxFiles + ' files.';
                                         break;
                                     }
-
+                        
                                     const isImage = file.type.startsWith('image/');
                                     const previewUrl = isImage ? URL.createObjectURL(file) : null;
-
+                        
                                     this.selectedFiles.push({
                                         file: file,
                                         name: file.name,
@@ -59,7 +59,7 @@
                                         previewUrl: previewUrl,
                                     });
                                 }
-
+                        
                                 event.target.value = '';
                                 this.syncFilesToInput();
                             },
@@ -103,7 +103,7 @@
                                     </option>
                                     @foreach ($projects as $project)
                                         <option value="{{ $project->id }}" @selected(old('project_id', request('project_id')) == $project->id)>
-                                            {{ $project->name }} ({{ $project->code }})
+                                            {{ $project->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -182,23 +182,29 @@
                             <div x-show="selectedFiles.length > 0" x-cloak class="pt-1">
                                 <div class="flex flex-wrap gap-2.5">
                                     <template x-for="(item, index) in selectedFiles" :key="index">
-                                        <div class="group relative rounded-xl border border-gray-200 bg-white p-1.5 shadow-2xs hover:border-gray-300 transition-all flex items-center gap-2">
+                                        <div
+                                            class="group relative rounded-xl border border-gray-200 bg-white p-1.5 shadow-2xs hover:border-gray-300 transition-all flex items-center gap-2">
                                             <!-- Image Thumbnail -->
                                             <template x-if="item.isImage">
-                                                <img :src="item.previewUrl" class="w-12 h-12 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0">
+                                                <img :src="item.previewUrl"
+                                                    class="w-12 h-12 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0">
                                             </template>
 
                                             <!-- Document Icon for Non-Images -->
                                             <template x-if="!item.isImage">
-                                                <div class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0 text-brand-600">
+                                                <div
+                                                    class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0 text-brand-600">
                                                     <x-heroicon-m-document class="w-5 h-5" />
-                                                    <span class="text-[9px] font-semibold uppercase tracking-wider text-gray-500" x-text="item.name.split('.').pop() || 'FILE'"></span>
+                                                    <span
+                                                        class="text-[9px] font-semibold uppercase tracking-wider text-gray-500"
+                                                        x-text="item.name.split('.').pop() || 'FILE'"></span>
                                                 </div>
                                             </template>
 
                                             <!-- Name & Size -->
                                             <div class="pr-6 min-w-0 max-w-[140px]">
-                                                <p class="text-xs font-medium text-gray-800 truncate" :title="item.name" x-text="item.name"></p>
+                                                <p class="text-xs font-medium text-gray-800 truncate"
+                                                    :title="item.name" x-text="item.name"></p>
                                                 <p class="text-[10px] text-gray-400" x-text="item.size"></p>
                                             </div>
 
@@ -224,8 +230,7 @@
                                     class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-2xs">
                                     <x-heroicon-m-paper-clip class="w-4 h-4 text-gray-500" />
                                     <span>{{ __('Attach Files') }}</span>
-                                    <input type="file" multiple class="hidden"
-                                        @change="handleFileSelect($event)"
+                                    <input type="file" multiple class="hidden" @change="handleFileSelect($event)"
                                         accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.txt,.csv,.log,.zip">
                                 </label>
 
@@ -242,41 +247,38 @@
                         </div>
 
                         <!-- Oversized File Modal Dialog -->
-                        <div x-show="sizeErrorModal"
-                            x-cloak
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
+                        <div x-show="sizeErrorModal" x-cloak x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                             x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/60 backdrop-blur-xs"
-                            @click.self="sizeErrorModal = false"
-                            @keydown.escape.window="sizeErrorModal = false"
-                            role="alertdialog"
-                            aria-modal="true">
+                            @click.self="sizeErrorModal = false" @keydown.escape.window="sizeErrorModal = false"
+                            role="alertdialog" aria-modal="true">
 
                             <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 text-center space-y-4"
                                 @click.stop>
-                                <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100">
                                     <x-heroicon-o-exclamation-triangle class="w-6 h-6" />
                                 </div>
 
                                 <div>
                                     <h4 class="text-base font-bold text-gray-900">{{ __('File Too Large') }}</h4>
                                     <p class="text-xs text-gray-500 mt-1">
-                                        {{ __('The maximum allowed file size is') }} <strong class="text-gray-800">10 MB</strong>.
+                                        {{ __('The maximum allowed file size is') }} <strong class="text-gray-800">10
+                                            MB</strong>.
                                     </p>
                                     <div class="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80 text-left">
-                                        <p class="text-xs font-semibold text-gray-800 truncate" x-text="oversizedFileName"></p>
+                                        <p class="text-xs font-semibold text-gray-800 truncate"
+                                            x-text="oversizedFileName"></p>
                                         <p class="text-[11px] text-rose-600 font-medium mt-0.5">
-                                            {{ __('Size:') }} <span x-text="oversizedFileSize"></span> ({{ __('exceeds limit') }})
+                                            {{ __('Size:') }} <span x-text="oversizedFileSize"></span>
+                                            ({{ __('exceeds limit') }})
                                         </p>
                                     </div>
                                 </div>
 
-                                <button type="button"
-                                    @click="sizeErrorModal = false"
+                                <button type="button" @click="sizeErrorModal = false"
                                     class="w-full py-2.5 px-4 text-xs font-semibold rounded-xl text-white bg-gray-900 hover:bg-gray-800 transition-colors shadow-xs">
                                     {{ __('Got it') }}
                                 </button>
