@@ -36,15 +36,21 @@ class SampleDataSeeder extends Seeder
             ['name' => 'Diana User', 'password' => bcrypt('password'), 'role' => 'user']
         );
 
-        // 3. Create Projects
+        // 3. Create Projects with distinct project codes
         $projectA = Project::updateOrCreate(
             ['name' => 'Project Alpha'],
-            ['description' => 'First core business project.']
+            [
+                'code' => 'ALP',
+                'description' => 'First core business project.',
+            ]
         );
 
         $projectB = Project::updateOrCreate(
             ['name' => 'Project Beta'],
-            ['description' => 'Secondary client services project']
+            [
+                'code' => 'BET',
+                'description' => 'Secondary client services project',
+            ]
         );
 
         // 4. Assign Managers to Projects (Alice -> Alpha, Bob -> Beta)
@@ -58,7 +64,7 @@ class SampleDataSeeder extends Seeder
                 'project_id' => $projectA->id,
             ],
             [
-                'description' => 'Create SVG',
+                'description' => 'Initial server setup, environment configuration, and SSL provisioning.',
                 'created_by_id' => $user2->id,
                 'assigned_to_id' => $user2->id,
                 'status' => 'new',

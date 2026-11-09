@@ -67,7 +67,7 @@ class TicketDummyDataSeeder extends Seeder
         ];
 
         $currentTicketCount = Ticket::count();
-        $targetCount = 100;
+        $targetCount = 5;
         $needed = max(0, $targetCount - $currentTicketCount);
 
         if ($needed === 0) {
@@ -80,17 +80,17 @@ class TicketDummyDataSeeder extends Seeder
             $project = $projects->random();
             $creator = $users->random();
             // 70% assigned, 30% unassigned
-            $isAssigned = (fake()->boolean(70));
+            $isAssigned = (mt_rand(1, 100) <= 70);
             $assignee = $isAssigned ? $users->random() : null;
 
-            $topic = fake()->randomElement($sampleTopics).' #'.($currentTicketCount + $i);
-            $status = fake()->randomElement($statuses);
-            $priority = fake()->randomElement($priorities);
-            $dueDaysOffset = fake()->numberBetween(-10, 20);
+            $topic = $sampleTopics[array_rand($sampleTopics)].' #'.($currentTicketCount + $i);
+            $status = $statuses[array_rand($statuses)];
+            $priority = $priorities[array_rand($priorities)];
+            $dueDaysOffset = mt_rand(-10, 20);
 
             Ticket::create([
                 'title' => $topic,
-                'description' => fake()->paragraph(fake()->numberBetween(2, 4)),
+                'description' => "Detailed context and acceptance criteria for: {$topic}. Please review the attached notes, verify requirements, and update status accordingly.",
                 'project_id' => $project->id,
                 'created_by_id' => $creator->id,
                 'assigned_to_id' => $assignee?->id,
