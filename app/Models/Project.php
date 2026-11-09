@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\User;
-use App\Models\Project;
 use App\Models\Ticket;
 class Project extends Model
 {
