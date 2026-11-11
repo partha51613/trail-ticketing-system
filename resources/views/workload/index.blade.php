@@ -310,14 +310,26 @@
                         datasets: [{
                                 label: 'Tickets Created',
                                 data: created,
-                                backgroundColor: 'rgba(245, 158, 11, 0.85)', // Amber
-                                borderRadius: 6,
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                borderWidth: 2.5,
+                                tension: 0.35, // Smooth curve
+                                fill: false, // Area fill under line
+                                pointBackgroundColor: '#f59e0b',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
                             },
                             {
                                 label: 'Tickets Closed',
                                 data: closed,
-                                backgroundColor: 'rgba(16, 185, 129, 0.85)', // Emerald
-                                borderRadius: 6,
+                                borderColor: '#10b981', // Emerald Green Line
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)', // Soft translucent fill
+                                borderWidth: 2.5,
+                                tension: 0.35, // Smooth curve
+                                fill: false,
+                                pointBackgroundColor: '#10b981',
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
                             }
                         ]
                     },
