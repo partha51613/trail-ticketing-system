@@ -9,13 +9,7 @@
                     {{ __('Real-time workload distribution by team member to monitor bandwidth and prevent bottlenecks.') }}
                 </p>
             </div>
-            <div class="flex items-center gap-2">
-                <span
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60 shadow-2xs">
-                    <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-                    {{ __('Live Workload Tracking') }}
-                </span>
-            </div>
+
         </div>
     </x-slot>
 
@@ -23,6 +17,29 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            <div class="flex items-center gap-3 pb-2">
+                <!-- Project Dropdown Filter -->
+                <form method="GET" action="{{ route('workload.index') }}" class="flex items-center">
+                    <div class="relative">
+                        <select name="project_id" onchange="this.form.submit()"
+                            class="text-xs font-semibold rounded-xl border border-gray-200/90 bg-white py-2 pl-3 pr-8 text-gray-700 shadow-xs focus:border-brand-500 focus:ring-brand-500 focus:outline-none transition-all cursor-pointer">
+                            <option value="">{{ __('All Projects (Global)') }}</option>
+                            @foreach ($projects as $proj)
+                                <option value="{{ $proj->id }}"
+                                    {{ request('project_id') == $proj->id ? 'selected' : '' }}>
+                                    {{ $proj->name }} ({{ $proj->code }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+
+                <span
+                    class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60 shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                    {{ __('Live Workload Tracking') }}
+                </span>
+            </div>
 
             <div class="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs" x-data="velocityChart({{ Js::from($velocityData) }})">
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
@@ -96,19 +97,19 @@ class WorkloadController extends Controller
 
         // Generate the last 8 weeks (from oldest to newest)
         for ($i = 7; $i >= 0; $i--) {
+            // Filter via Projects
 
+            $projectId = $request->query('project_id');
             $start = (clone $now)->subWeeks($i)->startOfWeek(Carbon::SUNDAY);
             $end = (clone $now)->subWeeks($i)->endOfWeek(Carbon::SATURDAY);
 
             $label = $start->format('M d').' - '.$end->format('M d');
 
-            $createdCount = Ticket::whereBetween('created_at', [$start, $end])
-                ->whereHas('project', fn ($q) => $q->withoutTrashed())
-                ->count();
+            $createdCount = Ticket::whereBetween('created_at', [$start, $end])->when($projectId, fn ($q) => $q->where('project_id', $projectId))->whereHas('project', fn ($q) => $q->withoutTrashed())->count();
 
-            // 2. Tickets closed in this week
             $closedCount = Ticket::where('status', 'closed')
-                ->whereBetween('updated_at', [$start, $end]) // or a dedicated closed_at timestamp
+                ->whereBetween('updated_at', [$start, $end])
+                ->when($projectId, fn ($q) => $q->where('project_id', $projectId))
                 ->whereHas('project', fn ($q) => $q->withoutTrashed())
                 ->count();
 
@@ -118,7 +119,24 @@ class WorkloadController extends Controller
                 'closed' => $closedCount,
 
             ];
+
         }
+
+        // In WorkloadController:
+        $projectWorkloads = Project::withoutTrashed()
+            ->where('status', '!=', 'closed')
+            ->withCount([
+                'tickets as active_tickets_count' => fn ($q) => $q->where('status', '!=', 'closed'),
+                'tickets as urgent_count' => fn ($q) => $q->where('priority', 'urgent')->where('status', '!=', 'closed'),
+                'tickets as blocked_count' => fn ($q) => $q->where('status', 'blocked'),
+                'tickets as closed_count' => fn ($q) => $q->where('status', 'closed'),
+            ])
+            ->get();
+
+        $projects = Project::withoutTrashed()
+            ->where('status', '!=', 'closed')
+            ->orderBy('name')
+            ->get();
 
         return view('workload.index', [
             'users' => $users,
@@ -128,6 +146,7 @@ class WorkloadController extends Controller
             'totalAssignedTickets' => $totalAssignedTickets,
             'heaviestUser' => $heaviestUser,
             'velocityData' => $weeks,
+            'projects' => $projects,
         ]);
     }
 }
