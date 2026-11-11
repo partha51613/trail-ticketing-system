@@ -3,35 +3,35 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3">
                 <a href="{{ route('projects.index') }}"
-                    class="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-white border border-transparent hover:border-gray-200 transition-all"
+                    class="p-2 rounded-xl text-gray-400 dark:text-slate-400 hover:text-gray-700 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 transition-all"
                     title="{{ __('Back to Projects') }}">
                     <x-heroicon-m-arrow-left class="w-5 h-5" />
                 </a>
                 <div>
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                             {{ $project->name }}
                         </h1>
                         @if($project->isClosed())
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-800 border border-gray-300">
-                                <x-heroicon-m-lock-closed class="w-3.5 h-3.5 text-gray-700" />
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 dark:bg-slate-800 text-gray-800 dark:text-slate-200 border border-gray-300 dark:border-slate-700">
+                                <x-heroicon-m-lock-closed class="w-3.5 h-3.5 text-gray-700 dark:text-slate-300" />
                                 <span>{{ __('Closed Workspace (Read-Only)') }}</span>
                             </span>
                         @else
                             <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 border border-brand-200/60 dark:border-brand-800/50">
                                 {{ __('Workspace') }}
                             </span>
                         @endif
                     </div>
-                    <p class="text-xs text-gray-400 mt-0.5 font-medium">
+                    <p class="text-xs text-gray-400 dark:text-slate-400 mt-0.5 font-medium">
                         {{ __('Created') }} {{ $project->created_at->format('M d, Y') }} &bull;
                         {{ $project->created_at->diffForHumans() }}
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 flex-wrap">
                 @can('toggleClose', $project)
                     <form action="{{ route('projects.toggle-close', $project) }}" method="POST" id="toggle-close-project-header">
                         @csrf
@@ -44,12 +44,12 @@
                                 isDanger: {{ $project->isClosed() ? 'false' : 'true' }},
                                 form: 'toggle-close-project-header'
                             })"
-                            class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold {{ $project->isClosed() ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-gray-700 bg-white border-gray-200/80 hover:bg-gray-50 hover:border-gray-300' }} border rounded-xl transition-all shadow-xs">
+                            class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold {{ $project->isClosed() ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 dark:hover:bg-amber-900/60' : 'text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border-gray-200/80 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600' }} border rounded-xl transition-all shadow-xs">
                             @if($project->isClosed())
-                                <x-heroicon-m-lock-open class="w-4 h-4 text-amber-600" />
+                                <x-heroicon-m-lock-open class="w-4 h-4 text-amber-600 dark:text-amber-400" />
                                 <span>{{ __('Reopen Project') }}</span>
                             @else
-                                <x-heroicon-m-lock-closed class="w-4 h-4 text-gray-500" />
+                                <x-heroicon-m-lock-closed class="w-4 h-4 text-gray-500 dark:text-slate-400" />
                                 <span>{{ __('Close Project') }}</span>
                             @endif
                         </button>
@@ -58,8 +58,8 @@
 
                 @can('update', $project)
                     <a href="{{ route('projects.edit', $project) }}"
-                        class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200/80 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-xs">
-                        <x-heroicon-m-pencil-square class="w-4 h-4 text-gray-500" />
+                        class="inline-flex items-center gap-x-1.5 px-3.5 py-2 text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600 transition-all shadow-xs">
+                        <x-heroicon-m-pencil-square class="w-4 h-4 text-gray-500 dark:text-slate-400" />
                         <span>{{ __('Edit Project') }}</span>
                     </a>
                 @endcan
@@ -77,21 +77,21 @@
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gray-50/60 min-h-screen">
+    <div class="py-8 bg-gray-50/60 dark:bg-slate-950 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Project Context & Description Banner -->
             @if($project->isClosed())
-                <div class="bg-gray-100 rounded-2xl border border-gray-300 p-5 flex items-start gap-3 text-gray-800 shadow-xs">
-                    <div class="p-2 rounded-xl bg-gray-200 text-gray-700 shrink-0">
+                <div class="bg-gray-100 dark:bg-slate-800 rounded-2xl border border-gray-300 dark:border-slate-700 p-5 flex items-start gap-3 text-gray-800 dark:text-slate-200 shadow-xs">
+                    <div class="p-2 rounded-xl bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 shrink-0">
                         <x-heroicon-m-lock-closed class="w-5 h-5" />
                     </div>
                     <div class="text-xs">
-                        <h4 class="font-bold text-gray-900 text-sm mb-0.5">{{ __('This project is Closed') }}</h4>
-                        <p class="text-gray-600">
+                        <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-0.5">{{ __('This project is Closed') }}</h4>
+                        <p class="text-gray-600 dark:text-slate-300">
                             {{ __('All tickets in this project are in read-only mode. New tickets, comments, and status transitions cannot be performed.') }}
                             @if($project->closed_at)
-                                <span class="block mt-1 font-mono text-[11px] text-gray-500">
+                                <span class="block mt-1 font-mono text-[11px] text-gray-500 dark:text-slate-400">
                                     Closed {{ $project->closed_at->diffForHumans() }}
                                     @if($project->closedBy) by {{ $project->closedBy->name }} @endif
                                 </span>
@@ -101,37 +101,37 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7 shadow-xs">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 sm:p-7 shadow-xs">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                     <div class="space-y-2 flex-1">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
                             {{ __('About Workspace') }}
                         </span>
-                        <p class="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                        <p class="text-sm text-gray-600 dark:text-slate-300 leading-relaxed max-w-3xl">
                             {{ $project->description ?: __('No detailed workspace description provided for this project.') }}
                         </p>
                     </div>
 
                     <div
-                        class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
+                        class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-slate-800">
                         <div class="space-y-1">
-                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500 block">
                                 {{ __('Assigned Managers') }}
                             </span>
                             @if ($project->managers->isEmpty())
-                                <span class="text-xs text-gray-400 italic">{{ __('No managers assigned') }}</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500 italic">{{ __('No managers assigned') }}</span>
                             @else
                                 <div class="flex items-center gap-2">
                                     <div class="flex items-center -space-x-1.5 overflow-hidden">
                                         @foreach ($project->managers->take(5) as $manager)
                                             <span
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 text-brand-700 ring-2 ring-white text-xs font-bold border border-brand-100"
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 ring-2 ring-white dark:ring-slate-900 text-xs font-bold border border-brand-100 dark:border-brand-800/50"
                                                 title="{{ $manager->name }} ({{ $manager->email }})">
                                                 {{ strtoupper(substr($manager->name, 0, 1)) }}
                                             </span>
                                         @endforeach
                                     </div>
-                                    <span class="text-xs text-gray-600 font-medium">
+                                    <span class="text-xs text-gray-600 dark:text-slate-300 font-medium">
                                         {{ $project->managers->pluck('name')->join(', ') }}
                                     </span>
                                 </div>
@@ -143,62 +143,62 @@
 
             <!-- Mini KPI Stat Row for This Project (Polished with Modern Icons & Accents) -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3.5 sm:gap-4">
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 shadow-xs flex items-center justify-between">
                     <div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 block">{{ __('Total Tickets') }}</span>
-                        <div class="text-2xl font-extrabold tracking-tight text-gray-900 mt-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-400 block">{{ __('Total Tickets') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white mt-1">
                             {{ $projectStats['total'] }}
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-transparent dark:border-slate-700 flex items-center justify-center shrink-0">
                         <x-heroicon-o-ticket class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 shadow-xs flex items-center justify-between">
                     <div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-brand-600 block">{{ __('Assigned') }}</span>
-                        <div class="text-2xl font-extrabold tracking-tight text-brand-600 mt-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400 block">{{ __('Assigned') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400 mt-1">
                             {{ $projectStats['assigned'] }}
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 border border-transparent dark:border-brand-800/30 flex items-center justify-center shrink-0">
                         <x-heroicon-o-user-group class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 shadow-xs flex items-center justify-between">
                     <div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-400' }} block">{{ __('Unassigned') }}</span>
-                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600' : 'text-gray-900' }} mt-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider {{ $projectStats['unassigned'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-400' }} block">{{ __('Unassigned') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['unassigned'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white' }} mt-1">
                             {{ $projectStats['unassigned'] }}
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-xl {{ $projectStats['unassigned'] > 0 ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-400' }} flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl {{ $projectStats['unassigned'] > 0 ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-transparent dark:border-rose-800/30' : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 border border-transparent dark:border-slate-700' }} flex items-center justify-center shrink-0">
                         <x-heroicon-o-exclamation-circle class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 shadow-xs flex items-center justify-between">
                     <div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-red-500 block">{{ __('Blocked') }}</span>
-                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600' : 'text-gray-900' }} mt-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400 block">{{ __('Blocked') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight {{ $projectStats['blocked'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white' }} mt-1">
                             {{ $projectStats['blocked'] }}
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-xl {{ $projectStats['blocked'] > 0 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400' }} flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl {{ $projectStats['blocked'] > 0 ? 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-transparent dark:border-red-800/30' : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 border border-transparent dark:border-slate-700' }} flex items-center justify-center shrink-0">
                         <x-heroicon-o-no-symbol class="w-5 h-5" />
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs col-span-2 sm:col-span-1 flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 shadow-xs col-span-2 sm:col-span-1 flex items-center justify-between">
                     <div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 block">{{ __('Closed') }}</span>
-                        <div class="text-2xl font-extrabold tracking-tight text-emerald-600 mt-1">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">{{ __('Closed') }}</span>
+                        <div class="text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400 mt-1">
                             {{ $projectStats['closed'] }}
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-transparent dark:border-emerald-800/30 flex items-center justify-center shrink-0">
                         <x-heroicon-o-check-badge class="w-5 h-5" />
                     </div>
                 </div>
@@ -243,48 +243,48 @@
                     }
                     this.applyFilters();
                 }
-            }" class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
+            }" class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs overflow-hidden">
 
                 <!-- Table Header Tabs & Toolbar -->
-                <div class="p-5 sm:p-6 border-b border-gray-100 space-y-4">
+                <div class="p-5 sm:p-6 border-b border-gray-100 dark:border-slate-800 space-y-4">
 
                     <!-- Top Row: Segmented Tabs (Active vs Closed vs Deleted) -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div class="inline-flex items-center p-1 bg-gray-100 rounded-xl text-xs font-semibold">
+                        <div class="inline-flex items-center p-1 bg-gray-100 dark:bg-slate-800/80 rounded-xl text-xs font-semibold">
                             <!-- Active Tickets Tab -->
                             <button type="button" @click="switchTab('active')"
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
-                                <x-heroicon-m-ticket class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600' : 'text-gray-400' }}" />
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
+                                <x-heroicon-m-ticket class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-slate-500' }}" />
                                 <span>{{ __('Active Tickets') }}</span>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 text-brand-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
                                     {{ $projectStats['active'] }}
                                 </span>
                             </button>
 
                             <!-- Closed Tickets Tab -->
                             <button type="button" @click="switchTab('closed')"
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
-                                <x-heroicon-m-check-badge class="w-4 h-4 {{ $tab === 'closed' ? 'text-emerald-600' : 'text-gray-400' }}" />
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
+                                <x-heroicon-m-check-badge class="w-4 h-4 {{ $tab === 'closed' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500' }}" />
                                 <span>{{ __('Closed Tickets') }}</span>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
                                     {{ $projectStats['closed'] }}
                                 </span>
                             </button>
 
                             <!-- Deleted Tickets Tab -->
                             <button type="button" @click="switchTab('deleted')"
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white text-gray-900 shadow-xs font-bold' : 'text-gray-500 hover:text-gray-900' }}">
-                                <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600' : 'text-gray-400' }}" />
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
+                                <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-500' }}" />
                                 <span>{{ __('Deleted') }}</span>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 text-rose-700' : 'bg-gray-200/70 text-gray-600' }}">
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
                                     {{ $projectStats['deleted'] }}
                                 </span>
                             </button>
                         </div>
 
                         <!-- Ticket Count Indicator -->
-                        <span class="text-xs text-gray-500 font-medium">
-                            {{ __('Showing') }} <strong class="text-gray-800">{{ $tickets->total() }}</strong>
+                        <span class="text-xs text-gray-500 dark:text-slate-400 font-medium">
+                            {{ __('Showing') }} <strong class="text-gray-800 dark:text-slate-200">{{ $tickets->total() }}</strong>
                             @if ($tab === 'deleted')
                                 {{ __('deleted tickets') }}
                             @elseif ($tab === 'closed')
@@ -299,12 +299,12 @@
                     <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <!-- Search Bar -->
                         <div class="relative flex-1 sm:flex-initial sm:min-w-[260px]">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                 <x-heroicon-m-magnifying-glass class="w-4 h-4" />
                             </div>
                             <input type="text" x-model="search" @keydown.enter="applyFilters()"
                                 placeholder="{{ $tab === 'closed' ? __('Search closed tickets...') : __('Search active tickets...') }}"
-                                class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-400 focus:bg-white dark:focus:bg-slate-850 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2.5">
@@ -319,7 +319,7 @@
                             <!-- Status Filter (Only relevant for Active Tickets tab) -->
                             @if ($tab === 'active')
                                 <select x-model="status" @change="applyFilters()"
-                                    class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                    class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                                     <option value="">{{ __('All Statuses') }}</option>
                                     <option value="new">{{ __('New') }}</option>
                                     <option value="in_progress">{{ __('In Progress') }}</option>
@@ -330,7 +330,7 @@
 
                             <!-- Priority Filter -->
                             <select x-model="priority" @change="applyFilters()"
-                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+                                class="py-1.5 pl-3 pr-8 text-xs rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
                                 <option value="">{{ __('All Priorities') }}</option>
                                 <option value="urgent">{{ __('Urgent') }}</option>
                                 <option value="high">{{ __('High') }}</option>
@@ -345,11 +345,11 @@
                 @if ($tickets->isEmpty())
                     <div class="p-12 text-center">
                         <div
-                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 text-gray-400 mb-3">
+                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 mb-3 border border-transparent dark:border-slate-700">
                             <x-heroicon-o-ticket class="w-6 h-6" />
                         </div>
-                        <h4 class="text-sm font-semibold text-gray-900">{{ __('No tickets found') }}</h4>
-                        <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ __('No tickets found') }}</h4>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                             {{ __('No tickets match your filter criteria or none have been opened under this project.') }}
                         </p>
                     </div>
@@ -358,50 +358,50 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr
-                                    class="border-b border-gray-100 bg-gray-50/50 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    class="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-850/60 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
                                     <th scope="col"
-                                        class="py-3.5 pl-6 pr-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        class="py-3.5 pl-6 pr-3 cursor-pointer hover:text-gray-700 dark:hover:text-slate-200 transition-colors"
                                         @click="sortBy('id')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('ID') }}</span>
                                             <template x-if="sort === 'id'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"
                                                     x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
                                     <th scope="col"
-                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 dark:hover:text-slate-200 transition-colors"
                                         @click="sortBy('title')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Title') }}</span>
                                             <template x-if="sort === 'title'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"
                                                     x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
                                     <th scope="col"
-                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 dark:hover:text-slate-200 transition-colors"
                                         @click="sortBy('status')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Status') }}</span>
                                             <template x-if="sort === 'status'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"
                                                     x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
                                     </th>
 
                                     <th scope="col"
-                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 dark:hover:text-slate-200 transition-colors"
                                         @click="sortBy('priority')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Priority') }}</span>
                                             <template x-if="sort === 'priority'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"
                                                     x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
@@ -412,12 +412,12 @@
                                     </th>
 
                                     <th scope="col"
-                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 transition-colors"
+                                        class="py-3.5 px-3 cursor-pointer hover:text-gray-700 dark:hover:text-slate-200 transition-colors"
                                         @click="sortBy('due_date')">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ __('Due Date') }}</span>
                                             <template x-if="sort === 'due_date'">
-                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600"
+                                                <x-heroicon-m-chevron-up class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"
                                                     x-bind:class="{ 'rotate-180': direction === 'desc' }" />
                                             </template>
                                         </div>
@@ -428,13 +428,13 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm">
+                            <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
                                 @foreach ($tickets as $ticket)
-                                    <tr class="hover:bg-gray-50/70 transition-colors group">
+                                    <tr class="hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors group">
                                         <!-- Ticket Key / Reference Code (Clean Neutral Badge) -->
                                         <td class="py-4 pl-6 pr-3 whitespace-nowrap">
                                             <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-mono font-semibold bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200/80 hover:text-gray-900 transition-colors shadow-2xs">
+                                                class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-mono font-semibold bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-200/80 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors shadow-2xs">
                                                 {{ $ticket->reference_code }}
                                             </a>
                                         </td>
@@ -442,11 +442,11 @@
                                         <!-- Title & Meta -->
                                         <td class="py-4 px-3 max-w-md">
                                             <a href="{{ route('tickets.show', $ticket) }}"
-                                                class="font-semibold text-gray-900 group-hover:text-brand-600 transition-colors line-clamp-1 block">
+                                                class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-1 block">
                                                 {{ preg_replace('/\s*#\d+$/', '', $ticket->title) }}
                                             </a>
-                                            <span class="text-xs text-gray-400">
-                                                {{ __('by') }} {{ $ticket->creator?->name ?? __('Unknown') }}
+                                            <span class="text-xs text-gray-400 dark:text-slate-500">
+                                                {{ __('by') }} <span class="text-gray-600 dark:text-slate-300">{{ $ticket->creator?->name ?? __('Unknown') }}</span>
                                                 &bull; {{ $ticket->created_at->diffForHumans() }}
                                             </span>
                                         </td>
@@ -455,12 +455,12 @@
                                         <td class="py-4 px-3 whitespace-nowrap">
                                             @php
                                                 $statusClasses = match ($ticket->status) {
-                                                    'new' => 'bg-blue-50 text-blue-700 border-blue-200/60',
-                                                    'in_progress' => 'bg-brand-50 text-brand-700 border-brand-200/60',
-                                                    'waiting' => 'bg-purple-50 text-purple-700 border-purple-200/60',
-                                                    'blocked' => 'bg-red-50 text-red-700 border-red-200/60',
-                                                    'closed' => 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                                                    default => 'bg-gray-50 text-gray-700 border-gray-200/60',
+                                                    'new' => 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/50',
+                                                    'in_progress' => 'bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 border-brand-200/60 dark:border-brand-800/50',
+                                                    'waiting' => 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/50',
+                                                    'blocked' => 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200/60 dark:border-red-800/50',
+                                                    'closed' => 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/50',
+                                                    default => 'bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200/60 dark:border-slate-700',
                                                 };
                                                 $statusDot = match ($ticket->status) {
                                                     'new' => 'bg-blue-500',
@@ -482,11 +482,11 @@
                                         <td class="py-4 px-3 whitespace-nowrap">
                                             @php
                                                 $priorityClasses = match ($ticket->priority) {
-                                                    'urgent' => 'text-red-700 bg-red-50 border-red-200',
-                                                    'high' => 'text-rose-700 bg-rose-50 border-rose-200',
-                                                    'medium' => 'text-amber-700 bg-amber-50 border-amber-200',
-                                                    'low' => 'text-slate-600 bg-slate-50 border-slate-200',
-                                                    default => 'text-gray-600 bg-gray-50 border-gray-200',
+                                                    'urgent' => 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/50',
+                                                    'high' => 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50',
+                                                    'medium' => 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/50',
+                                                    'low' => 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+                                                    default => 'text-gray-600 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700',
                                                 };
                                             @endphp
                                             <span
@@ -500,15 +500,15 @@
                                             @if ($ticket->assignedTo)
                                                 <div class="flex items-center gap-2">
                                                     <span
-                                                        class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">
+                                                        class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-gray-200/60 dark:border-slate-700 flex items-center justify-center text-[10px] font-bold">
                                                         {{ strtoupper(substr($ticket->assignedTo->name, 0, 1)) }}
                                                     </span>
-                                                    <span class="text-xs text-gray-700 font-medium">
+                                                    <span class="text-xs text-gray-700 dark:text-slate-300 font-medium">
                                                         {{ $ticket->assignedTo->name }}
                                                     </span>
                                                 </div>
                                             @else
-                                                <span class="text-xs text-rose-600 font-semibold italic">
+                                                <span class="text-xs text-rose-600 dark:text-rose-400 font-semibold italic">
                                                     {{ __('Unassigned') }}
                                                 </span>
                                             @endif
@@ -518,17 +518,17 @@
                                         <td class="py-4 px-3 whitespace-nowrap text-xs">
                                             @if ($ticket->due_date)
                                                 <div class="flex items-center gap-1.5">
-                                                    <span class="font-medium {{ $ticket->is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-600' }}">
+                                                    <span class="font-medium {{ $ticket->is_overdue ? 'text-rose-600 dark:text-rose-400 font-semibold' : 'text-gray-600 dark:text-slate-400' }}">
                                                         {{ $ticket->due_date->format('M d, Y') }}
                                                     </span>
                                                     @if ($ticket->is_overdue)
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200/60 uppercase tracking-tight">
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 uppercase tracking-tight">
                                                             {{ __('OVERDUE') }}
                                                         </span>
                                                     @endif
                                                 </div>
                                             @else
-                                                <span class="text-gray-400">&mdash;</span>
+                                                <span class="text-gray-400 dark:text-slate-600">&mdash;</span>
                                             @endif
                                         </td>
 
@@ -548,16 +548,16 @@
                                                                 isDanger: false,
                                                                 form: 'restore-ticket-form-{{ $ticket->id }}'
                                                             })"
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all shadow-xs"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800/50 transition-all shadow-xs"
                                                             title="{{ __('Restore Ticket') }}">
-                                                            <x-heroicon-m-arrow-path class="w-3.5 h-3.5 text-emerald-600" />
+                                                            <x-heroicon-m-arrow-path class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                                             <span>{{ __('Restore') }}</span>
                                                         </button>
                                                     </form>
                                                 @endcan
                                             @else
                                                 <a href="{{ route('tickets.show', $ticket) }}"
-                                                    class="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 bg-white hover:text-brand-600 hover:bg-brand-50 border border-gray-200/90 hover:border-brand-300 shadow-xs transition-all"
+                                                    class="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40 border border-gray-200/90 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-800/50 shadow-xs transition-all"
                                                     title="{{ __('View Ticket') }}">
                                                     <x-heroicon-m-arrow-up-right class="w-4 h-4" />
                                                 </a>
@@ -570,7 +570,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="p-5 border-t border-gray-100">
+                    <div class="p-5 border-t border-gray-100 dark:border-slate-800">
                         {{ $tickets->links() }}
                     </div>
                 @endif

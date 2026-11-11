@@ -1,23 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-2 text-sm text-gray-500">
-            <a href="{{ route('tickets.index') }}" class="hover:text-gray-900 transition-colors flex items-center gap-1">
-                <x-heroicon-m-ticket class="w-4 h-4 text-gray-400" />
+        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
+            <a href="{{ route('tickets.index') }}" class="hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1">
+                <x-heroicon-m-ticket class="w-4 h-4 text-gray-400 dark:text-slate-500" />
                 <span>{{ __('Tickets') }}</span>
             </a>
-            <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300" />
-            <span class="font-medium text-gray-900">{{ __('Create Ticket') }}</span>
+            <x-heroicon-m-chevron-right class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" />
+            <span class="font-medium text-gray-900 dark:text-white">{{ __('Create Ticket') }}</span>
         </div>
     </x-slot>
 
     <div class="py-8">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-xs overflow-hidden">
                 <div class="p-6 sm:p-8">
                     <!-- Heading -->
                     <div class="mb-6">
-                        <h2 class="text-xl font-bold tracking-tight text-gray-900">{{ __('Create new ticket') }}</h2>
-                        <p class="text-sm text-gray-500 mt-1">
+                        <h2 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">{{ __('Create new ticket') }}</h2>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">
                             {{ __('Fill in the ticket details to track and assign the issue.') }}
                         </p>
                     </div>
@@ -94,9 +94,9 @@
                             <!-- Project Selector -->
                             <div>
                                 <x-input-label for="project_id" :value="__('Project')"
-                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                                 <select id="project_id" name="project_id" required
-                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white">
+                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 dark:border-slate-700 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-white">
                                     <option value="" disabled
                                         {{ !old('project_id', request('project_id')) ? 'selected' : '' }}>
                                         {{ __('Select a project...') }}
@@ -113,9 +113,9 @@
                             <!-- Assignee Selector (Optional) -->
                             <div>
                                 <x-input-label for="assigned_to_id" :value="__('Assignee (Optional)')"
-                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                                 <select id="assigned_to_id" name="assigned_to_id"
-                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white">
+                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 dark:border-slate-700 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-white">
                                     <option value="">{{ __('Unassigned') }}</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}" @selected(old('assigned_to_id') == $user->id)>
@@ -130,9 +130,9 @@
                         <!-- Ticket Title -->
                         <div>
                             <x-input-label for="title" :value="__('Ticket Title')"
-                                class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                             <x-text-input id="title" name="title" type="text"
-                                class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500"
+                                class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 dark:border-slate-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-white dark:placeholder-slate-500 shadow-xs focus:border-brand-500 focus:ring-brand-500"
                                 :value="old('title')" required autofocus
                                 placeholder="e.g. Fix SSL renewal failure on staging" />
                             <x-input-error class="mt-1.5" :messages="$errors->get('title')" />
@@ -143,9 +143,9 @@
                             <!-- Priority -->
                             <div>
                                 <x-input-label for="priority" :value="__('Priority')"
-                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                    class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                                 <select id="priority" name="priority" required
-                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white">
+                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 dark:border-slate-700 shadow-xs focus:border-brand-500 focus:ring-brand-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-white">
                                     <option value="low" @selected(old('priority') === 'low')>{{ __('Low') }}</option>
                                     <option value="medium" @selected(old('priority', 'medium') === 'medium')>{{ __('Medium') }}</option>
                                     <option value="high" @selected(old('priority') === 'high')>{{ __('High') }}</option>
@@ -158,12 +158,12 @@
                             <div>
                                 <div class="flex items-center justify-between">
                                     <x-input-label for="due_date" :value="__('Due Date (Optional)')"
-                                        class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                        class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                                     <span
-                                        class="text-[10px] text-gray-400 font-medium">{{ __('End of day IST') }}</span>
+                                        class="text-[10px] text-gray-400 dark:text-slate-500 font-medium">{{ __('End of day IST') }}</span>
                                 </div>
                                 <x-text-input id="due_date" name="due_date" type="date"
-                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500"
+                                    class="mt-1.5 block w-full text-sm rounded-xl border-gray-200/90 dark:border-slate-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-white dark:[color-scheme:dark] shadow-xs focus:border-brand-500 focus:ring-brand-500"
                                     :value="old('due_date')" />
                                 <x-input-error class="mt-1.5" :messages="$errors->get('due_date')" />
                             </div>
@@ -172,9 +172,9 @@
                         <!-- Description -->
                         <div class="space-y-3">
                             <x-input-label for="description" :value="__('Description')"
-                                class="text-xs font-semibold uppercase tracking-wider text-gray-600" />
+                                class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300" />
                             <textarea id="description" name="description" rows="5" required
-                                class="mt-1.5 block w-full rounded-xl border-gray-200/90 shadow-xs focus:border-brand-500 focus:ring-brand-500 text-sm leading-relaxed"
+                                class="mt-1.5 block w-full rounded-xl border-gray-200/90 dark:border-slate-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:border-brand-500 focus:ring-brand-500 text-sm leading-relaxed"
                                 placeholder="Describe the steps to reproduce, expected vs actual behavior, or task scope...">{{ old('description') }}</textarea>
                             <x-input-error class="mt-1.5" :messages="$errors->get('description')" />
 
@@ -183,35 +183,35 @@
                                 <div class="flex flex-wrap gap-2.5">
                                     <template x-for="(item, index) in selectedFiles" :key="index">
                                         <div
-                                            class="group relative rounded-xl border border-gray-200 bg-white p-1.5 shadow-2xs hover:border-gray-300 transition-all flex items-center gap-2">
+                                            class="group relative rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1.5 shadow-2xs hover:border-gray-300 dark:hover:border-slate-600 transition-all flex items-center gap-2">
                                             <!-- Image Thumbnail -->
                                             <template x-if="item.isImage">
                                                 <img :src="item.previewUrl"
-                                                    class="w-12 h-12 rounded-lg object-cover bg-gray-50 border border-gray-100 shrink-0">
+                                                    class="w-12 h-12 rounded-lg object-cover bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-700 shrink-0">
                                             </template>
 
                                             <!-- Document Icon for Non-Images -->
                                             <template x-if="!item.isImage">
                                                 <div
-                                                    class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0 text-brand-600">
+                                                    class="w-12 h-12 rounded-lg bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center shrink-0 text-brand-600 dark:text-brand-400">
                                                     <x-heroicon-m-document class="w-5 h-5" />
                                                     <span
-                                                        class="text-[9px] font-semibold uppercase tracking-wider text-gray-500"
+                                                        class="text-[9px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400"
                                                         x-text="item.name.split('.').pop() || 'FILE'"></span>
                                                 </div>
                                             </template>
 
                                             <!-- Name & Size -->
                                             <div class="pr-6 min-w-0 max-w-[140px]">
-                                                <p class="text-xs font-medium text-gray-800 truncate"
+                                                <p class="text-xs font-medium text-gray-800 dark:text-slate-200 truncate"
                                                     :title="item.name" x-text="item.name"></p>
-                                                <p class="text-[10px] text-gray-400" x-text="item.size"></p>
+                                                <p class="text-[10px] text-gray-400 dark:text-slate-500" x-text="item.size"></p>
                                             </div>
 
                                             <!-- Remove 'X' Button -->
                                             <button type="button" @click="removeFile(index)"
                                                 title="{{ __('Remove file') }}"
-                                                class="absolute top-1 right-1 p-1 rounded-full bg-gray-100 hover:bg-rose-100 text-gray-500 hover:text-rose-600 transition-colors">
+                                                class="absolute top-1 right-1 p-1 rounded-full bg-gray-100 dark:bg-slate-700 hover:bg-rose-100 dark:hover:bg-rose-950/60 text-gray-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-300 transition-colors">
                                                 <x-heroicon-m-x-mark class="w-3.5 h-3.5" />
                                             </button>
                                         </div>
@@ -220,25 +220,25 @@
                             </div>
 
                             <!-- Error Message -->
-                            <div x-show="errorMessage" x-cloak class="text-xs font-medium text-rose-600">
+                            <div x-show="errorMessage" x-cloak class="text-xs font-medium text-rose-600 dark:text-rose-400">
                                 <span x-text="errorMessage"></span>
                             </div>
 
                             <!-- Attachment Trigger Button -->
                             <div class="flex items-center gap-2.5 pt-0.5">
                                 <label
-                                    class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-2xs">
-                                    <x-heroicon-m-paper-clip class="w-4 h-4 text-gray-500" />
+                                    class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-750 hover:border-gray-300 dark:hover:border-slate-600 transition-all shadow-2xs">
+                                    <x-heroicon-m-paper-clip class="w-4 h-4 text-gray-500 dark:text-slate-400" />
                                     <span>{{ __('Attach Files') }}</span>
                                     <input type="file" multiple class="hidden" @change="handleFileSelect($event)"
                                         accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.txt,.csv,.log,.zip">
                                 </label>
 
                                 <span x-show="selectedFiles.length > 0" x-cloak
-                                    class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                                    class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800/50">
                                     <span x-text="selectedFiles.length"></span>/10 {{ __('files') }}
                                 </span>
-                                <span class="text-[11px] text-gray-400">
+                                <span class="text-[11px] text-gray-400 dark:text-slate-500">
                                     {{ __('Up to 10 files (max 10MB each: images, PDF, docs, logs, zip)') }}
                                 </span>
                             </div>
@@ -255,23 +255,23 @@
                             @click.self="sizeErrorModal = false" @keydown.escape.window="sizeErrorModal = false"
                             role="alertdialog" aria-modal="true">
 
-                            <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 text-center space-y-4"
+                            <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 dark:border-slate-800 text-center space-y-4"
                                 @click.stop>
                                 <div
-                                    class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100">
+                                    class="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-800/40">
                                     <x-heroicon-o-exclamation-triangle class="w-6 h-6" />
                                 </div>
 
                                 <div>
-                                    <h4 class="text-base font-bold text-gray-900">{{ __('File Too Large') }}</h4>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        {{ __('The maximum allowed file size is') }} <strong class="text-gray-800">10
+                                    <h4 class="text-base font-bold text-gray-900 dark:text-white">{{ __('File Too Large') }}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                                        {{ __('The maximum allowed file size is') }} <strong class="text-gray-800 dark:text-slate-200">10
                                             MB</strong>.
                                     </p>
-                                    <div class="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200/80 text-left">
-                                        <p class="text-xs font-semibold text-gray-800 truncate"
+                                    <div class="mt-3 p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 text-left">
+                                        <p class="text-xs font-semibold text-gray-800 dark:text-slate-200 truncate"
                                             x-text="oversizedFileName"></p>
-                                        <p class="text-[11px] text-rose-600 font-medium mt-0.5">
+                                        <p class="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-0.5">
                                             {{ __('Size:') }} <span x-text="oversizedFileSize"></span>
                                             ({{ __('exceeds limit') }})
                                         </p>
@@ -279,16 +279,16 @@
                                 </div>
 
                                 <button type="button" @click="sizeErrorModal = false"
-                                    class="w-full py-2.5 px-4 text-xs font-semibold rounded-xl text-white bg-gray-900 hover:bg-gray-800 transition-colors shadow-xs">
+                                    class="w-full py-2.5 px-4 text-xs font-semibold rounded-xl text-white bg-gray-900 dark:bg-brand-500 hover:bg-gray-800 dark:hover:bg-brand-600 transition-colors shadow-xs">
                                     {{ __('Got it') }}
                                 </button>
                             </div>
                         </div>
 
                         <!-- Actions -->
-                        <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                        <div class="pt-4 border-t border-gray-100 dark:border-slate-800 flex items-center justify-end gap-3">
                             <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('tickets.index') }}"
-                                class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                                class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                                 {{ __('Cancel') }}
                             </a>
                             <button type="submit"
