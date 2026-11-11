@@ -17,7 +17,6 @@ class WorkloadController extends Controller
     public function index(Request $request): View
     {
         $today = Carbon::today();
-
         // User Workload: All users sorted by active assigned tickets (heaviest to lightest)
         $allUsers = User::query()
             ->withCount([
@@ -91,6 +90,36 @@ class WorkloadController extends Controller
         $totalAssignedTickets = $totalActiveTickets - $totalUnassignedTickets;
         $heaviestUser = $allUsers->first();
 
+        // Weekly Workload Generation
+        $now = Carbon::now()->endOfWeek(Carbon::SATURDAY);
+        $weeks = [];
+
+        // Generate the last 8 weeks (from oldest to newest)
+        for ($i = 7; $i >= 0; $i--) {
+
+            $start = (clone $now)->subWeeks($i)->startOfWeek(Carbon::SUNDAY);
+            $end = (clone $now)->subWeeks($i)->endOfWeek(Carbon::SATURDAY);
+
+            $label = $start->format('M d').' - '.$end->format('M d');
+
+            $createdCount = Ticket::whereBetween('created_at', [$start, $end])
+                ->whereHas('project', fn ($q) => $q->withoutTrashed())
+                ->count();
+
+            // 2. Tickets closed in this week
+            $closedCount = Ticket::where('status', 'closed')
+                ->whereBetween('updated_at', [$start, $end]) // or a dedicated closed_at timestamp
+                ->whereHas('project', fn ($q) => $q->withoutTrashed())
+                ->count();
+
+            $weeks[] = [
+                'label' => $label,
+                'created' => $createdCount,
+                'closed' => $closedCount,
+
+            ];
+        }
+
         return view('workload.index', [
             'users' => $users,
             'allUsersCount' => $allUsers->count(),
@@ -98,6 +127,7 @@ class WorkloadController extends Controller
             'totalUnassignedTickets' => $totalUnassignedTickets,
             'totalAssignedTickets' => $totalAssignedTickets,
             'heaviestUser' => $heaviestUser,
+            'velocityData' => $weeks,
         ]);
     }
 }
