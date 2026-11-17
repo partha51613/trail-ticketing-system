@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;
@@ -65,16 +67,9 @@ class ProjectController extends Controller
         return view('projects.create', compact('managers'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreProjectRequest $request): RedirectResponse
     {
-        $this->authorize('create', Project::class);
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'min:2', 'max:6', 'alpha_num', 'unique:projects,code'],
-            'description' => ['nullable', 'string'],
-            'manager_ids' => ['nullable', 'array'],
-            'manager_ids.*' => ['nullable', 'exists:users,id'],
-        ]);
+        $validated = $request->validated();
 
         $project = Project::create([
             'name' => $validated['name'],
@@ -97,44 +92,12 @@ class ProjectController extends Controller
         $requestedTab = $request->query('tab');
         $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
 
-        if ($tab === 'deleted') {
-            $ticketsQuery = $project->tickets()->onlyTrashed()->with(['creator', 'assignedTo', 'deletedBy']);
-        } elseif ($tab === 'closed') {
-            $ticketsQuery = $project->tickets()->with(['creator', 'assignedTo'])->where('status', 'closed');
-        } else {
-            $ticketsQuery = $project->tickets()->with(['creator', 'assignedTo'])->where('status', '!=', 'closed');
-        }
-
-        // Search within project tickets
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $ticketsQuery->where(function ($q) use ($search) {
-                if (is_numeric($search)) {
-                    $q->orWhere('id', (int) $search);
-                }
-                $q->orWhere('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Status filter (only applied within the active tab)
-        if ($tab === 'active' && $request->filled('status')) {
-            $ticketsQuery->where('status', $request->status);
-        }
-
-        // Priority filter
-        if ($request->filled('priority')) {
-            $ticketsQuery->where('priority', $request->priority);
-        }
-
-        // Assignee filter
-        if ($request->filled('assigned_to_id')) {
-            if ($request->assigned_to_id === 'unassigned') {
-                $ticketsQuery->whereNull('assigned_to_id');
-            } else {
-                $ticketsQuery->where('assigned_to_id', $request->assigned_to_id);
-            }
-        }
+        // Scope tickets to this project and tab
+        $ticketsQuery = $project->tickets()
+            ->forTab($tab)
+            ->with(['creator', 'assignedTo', 'deletedBy'])
+            ->search($request->search)
+            ->filterBy($request->all());
 
         // Server-side Sorting
         $allowedSorts = ['id', 'title', 'status', 'priority', 'due_date', 'created_at'];
@@ -169,22 +132,16 @@ class ProjectController extends Controller
         return view('projects.edit', compact('project', 'managers'));
     }
 
-    public function update(Request $request, Project $project): RedirectResponse
+    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        $this->authorize('update', $project);
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'min:2', 'max:6', 'alpha_num', 'unique:projects,code,'.$project->id],
-            'description' => ['nullable', 'string'],
-            'manager_ids' => ['nullable', 'array'],
-            'manager_ids.*' => ['integer', 'exists:users,id'],
-        ]);
+        $validated = $request->validated();
+
         $project->update([
             'name' => $validated['name'],
             'code' => strtoupper($validated['code']),
             'description' => $validated['description'] ?? null,
         ]);
-        // Sync selected managers (if none selected, pass empty array to detach all)
+
         $project->managers()->sync($validated['manager_ids'] ?? []);
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully');

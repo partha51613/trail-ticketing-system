@@ -191,79 +191,12 @@
                                     </thead>
                                     <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
                                         @foreach($attentionTickets as $ticket)
-                                            <tr x-data="{
-                                                status: '{{ $ticket->status }}',
-                                                isUpdating: false,
-                                                isRemoved: false,
-                                                open: false,
-                                                async transition(newStatus, url) {
-                                                    this.isUpdating = true;
-                                                    this.open = false;
-                                                    try {
-                                                        const res = await fetch(url, {
-                                                            method: 'PATCH',
-                                                            headers: {
-                                                                'Content-Type': 'application/json',
-                                                                'Accept': 'application/json',
-                                                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                                                            },
-                                                            body: JSON.stringify({ status: newStatus })
-                                                        });
-                                                        const data = await res.json();
-                                                        if (res.ok && data.success) {
-                                                            this.status = newStatus;
-                                                            if (newStatus === 'closed') {
-                                                                setTimeout(() => { this.isRemoved = true; }, 400);
-                                                            }
-                                                        } else {
-                                                            alert(data.message || 'Error updating status');
-                                                        }
-                                                    } catch (e) {
-                                                        console.error(e);
-                                                        alert('Failed to connect to server. Please try again.');
-                                                    } finally {
-                                                        this.isUpdating = false;
-                                                    }
-                                                },
-                                                statusClasses() {
-                                                    const map = {
-                                                        'new': 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/50',
-                                                        'in_progress': 'bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 border-brand-200/60 dark:border-brand-800/50',
-                                                        'waiting': 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/50',
-                                                        'blocked': 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200/60 dark:border-red-800/50',
-                                                        'closed': 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/50'
-                                                    };
-                                                    return map[this.status] || 'bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200/60 dark:border-slate-700';
-                                                },
-                                                statusDot() {
-                                                    const map = {
-                                                        'new': 'bg-blue-500',
-                                                        'in_progress': 'bg-brand-500',
-                                                        'waiting': 'bg-purple-500',
-                                                        'blocked': 'bg-red-500',
-                                                        'closed': 'bg-emerald-500'
-                                                    };
-                                                    return map[this.status] || 'bg-gray-400';
-                                                },
-                                                statusLabel() {
-                                                    return this.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                                },
-                                                allowedTransitions() {
-                                                    const transitions = {
-                                                        'new': ['in_progress', 'closed'],
-                                                        'in_progress': ['waiting', 'blocked', 'closed'],
-                                                        'waiting': ['in_progress', 'closed'],
-                                                        'blocked': ['in_progress', 'closed'],
-                                                        'closed': ['new', 'in_progress']
-                                                    };
-                                                    return transitions[this.status] || ['in_progress', 'closed'];
-                                                }
-                                            }"
-                                            x-show="!isRemoved"
-                                            x-transition:leave="transition ease-out duration-300"
-                                            x-transition:leave-start="opacity-100 scale-100"
-                                            x-transition:leave-end="opacity-0 scale-95"
-                                            class="hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors group">
+                                            <tr x-data="attentionTicket({ status: '{{ $ticket->status }}' })"
+                                                x-show="!isRemoved"
+                                                x-transition:leave="transition ease-out duration-300"
+                                                x-transition:leave-start="opacity-100 scale-100"
+                                                x-transition:leave-end="opacity-0 scale-95"
+                                                class="hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors group">
                                                 
                                                 <!-- Ticket Code & Overdue Flag -->
                                                 <td class="py-4 pl-6 pr-3 whitespace-nowrap align-middle">
@@ -293,9 +226,7 @@
                                                 <!-- Assignee Column -->
                                                 <td class="py-4 px-3 whitespace-nowrap text-xs text-gray-700 dark:text-slate-300 align-middle">
                                                     <div class="flex items-center gap-2">
-                                                        <span class="w-5 h-5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200/60 dark:border-slate-700 flex items-center justify-center text-[10px] font-bold">
-                                                            {{ strtoupper(substr($ticket->assignedTo?->name ?? 'U', 0, 1)) }}
-                                                        </span>
+                                                        <x-ui.avatar :name="$ticket->assignedTo?->name" size="sm" />
                                                         <span class="truncate max-w-[110px]">{{ $ticket->assignedTo?->name ?? 'Unassigned' }}</span>
                                                     </div>
                                                 </td>
@@ -313,17 +244,7 @@
 
                                                 <!-- Priority Column -->
                                                 <td class="py-4 px-3 whitespace-nowrap text-center align-middle">
-                                                    @php
-                                                        $priorityColors = [
-                                                            'urgent' => 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50',
-                                                            'high'   => 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50',
-                                                            'medium' => 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50',
-                                                            'low'    => 'bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700',
-                                                        ];
-                                                    @endphp
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize border {{ $priorityColors[$ticket->priority] ?? 'bg-gray-50 text-gray-600 dark:bg-slate-800 dark:text-slate-300' }}">
-                                                        {{ $ticket->priority }}
-                                                    </span>
+                                                    <x-ticket.priority-badge :priority="$ticket->priority" size="pill" />
                                                 </td>
 
                                                 <!-- Status Column with Quick Transition -->

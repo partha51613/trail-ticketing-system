@@ -23,119 +23,34 @@ class TicketController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ticket::whereHas('project', function ($q) {
-            $q->withoutTrashed();
-        })->with(['project', 'creator', 'assignedTo'])->latest();
-
         // Tab Filter: 'active' (default) vs 'closed' vs 'deleted'
         $requestedTab = $request->query('tab');
         $tab = in_array($requestedTab, ['closed', 'deleted'], true) ? $requestedTab : 'active';
 
-        // Base query with active projects
-        $baseQuery = Ticket::whereHas('project', function ($q) {
-            $q->withoutTrashed();
-        });
-
-        // Common context filters (for tab counts & listing)
-        $applyContextFilters = function ($q) use ($request) {
-            if ($request->filled('search')) {
-                $search = trim($request->search);
-                $q->where(function ($sub) use ($search) {
-                    if (is_numeric($search)) {
-                        $sub->orWhere('id', (int) $search)
-                            ->orWhere('number', (int) $search);
-                    }
-
-                    // Check for formatted ticket code format (e.g. "ALP-001" or "PRJ-12")
-                    if (str_contains($search, '-')) {
-                        [$codePart, $numPart] = explode('-', $search, 2);
-                        if (is_numeric(ltrim($numPart, '0')) || $numPart === '0' || is_numeric($numPart)) {
-                            $numInt = (int) ltrim($numPart, '0');
-                            $sub->orWhere(function ($codeSub) use ($codePart, $numInt) {
-                                $codeSub->whereHas('project', function ($p) use ($codePart) {
-                                    $p->where('code', 'like', $codePart);
-                                })->where(function ($nSub) use ($numInt) {
-                                    $nSub->where('number', $numInt)->orWhere('id', $numInt);
-                                });
-                            });
-                        }
-                    }
-
-                    $sub->orWhere('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhereHas('project', function ($p) use ($search) {
-                            $p->where('name', 'like', "%{$search}%")
-                                ->orWhere('code', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('creator', function ($u) use ($search) {
-                            $u->where('name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('assignedTo', function ($u) use ($search) {
-                            $u->where('name', 'like', "%{$search}%");
-                        });
-                });
-            }
-
-            if ($request->filled('project_id')) {
-                $q->where('project_id', $request->project_id);
-            }
-
-            if ($request->filled('priority')) {
-                $q->where('priority', $request->priority);
-            }
-
-            if ($request->filled('assigned_to_id')) {
-                if ($request->assigned_to_id === 'unassigned') {
-                    $q->whereNull('assigned_to_id');
-                } else {
-                    $q->where('assigned_to_id', $request->assigned_to_id);
-                }
-            }
-
-            if ($request->boolean('watched')) {
-                $q->whereHas('watchers', function ($sub) {
-                    $sub->where('users.id', Auth::id());
-                });
-            }
-
-            if ($request->filled('created_by_id')) {
-                $q->where('created_by_id', $request->created_by_id);
-            }
-        };
+        // Base query with active projects, search, and contextual filters
+        $baseQuery = Ticket::whereHas('project', fn ($q) => $q->withoutTrashed())
+            ->search($request->search)
+            ->filterBy($request->all());
 
         // Calculate tab counts
-        $activeCountQuery = (clone $baseQuery)->where('status', '!=', 'closed');
-        $applyContextFilters($activeCountQuery);
-        $activeCount = $activeCountQuery->count();
-
-        $closedCountQuery = (clone $baseQuery)->where('status', 'closed');
-        $applyContextFilters($closedCountQuery);
-        $closedCount = $closedCountQuery->count();
-
-        $deletedCountQuery = (clone $baseQuery)->onlyTrashed();
-        $applyContextFilters($deletedCountQuery);
-        $deletedCount = $deletedCountQuery->count();
+        $activeCount = (clone $baseQuery)->forTab('active')->count();
+        $closedCount = (clone $baseQuery)->forTab('closed')->count();
+        $deletedCount = (clone $baseQuery)->forTab('deleted')->count();
 
         // Main listing query
+        $query = (clone $baseQuery)
+            ->forTab($tab)
+            ->with(['project', 'creator', 'assignedTo', 'deletedBy']);
+
         if ($tab === 'deleted') {
-            $query = (clone $baseQuery)->onlyTrashed()->with(['project', 'creator', 'assignedTo', 'deletedBy'])->latest('deleted_at');
-            $applyContextFilters($query);
-        } elseif ($tab === 'closed') {
-            $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
-            $applyContextFilters($query);
-            $query->where('status', 'closed');
+            $query->latest('deleted_at');
         } else {
-            $query = (clone $baseQuery)->with(['project', 'creator', 'assignedTo'])->latest();
-            $applyContextFilters($query);
-            $query->where('status', '!=', 'closed');
-            if ($request->filled('status')) {
-                $query->where('status', $request->status);
-            }
+            $query->latest();
         }
 
         $tickets = $query->paginate(10)->withQueryString()->fragment('tickets-table');
 
-        // Store the active index URL (e.g. /tickets/assigned-to-me, /tickets/watched, etc.) in session
+        // Store the active index URL in session
         $request->session()->put('ticket_index_url', $request->fullUrl());
 
         return view('tickets.index', [

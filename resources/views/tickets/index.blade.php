@@ -38,67 +38,21 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Filter & Search Toolbar Card -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 shadow-xs space-y-4" x-data="{
-                tab: '{{ $tab }}',
-                project: '{{ request('project_id') }}',
-                status: '{{ request('status') }}',
-                priority: '{{ request('priority') }}',
-                assignee: '{{ request('assigned_to_id') }}',
-                switchTab(targetTab) {
-                    const params = new URLSearchParams(window.location.search);
-                    if (targetTab === 'closed' || targetTab === 'deleted') {
-                        params.set('tab', targetTab);
-                        params.delete('status');
-                    } else {
-                        params.delete('tab');
-                    }
-                    params.delete('page');
-                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
-                },
-                applyFilters() {
-                    const params = new URLSearchParams(window.location.search);
-                    if (this.tab === 'closed' || this.tab === 'deleted') { params.set('tab', this.tab); } else { params.delete('tab'); }
-                    if (this.project) { params.set('project_id', this.project); } else { params.delete('project_id'); }
-                    if (this.status && this.tab === 'active') { params.set('status', this.status); } else { params.delete('status'); }
-                    if (this.priority) { params.set('priority', this.priority); } else { params.delete('priority'); }
-                    if (this.assignee) { params.set('assigned_to_id', this.assignee); } else { params.delete('assigned_to_id'); }
-                    params.delete('page');
-                    window.location.href = `${window.location.pathname}?${params.toString()}#tickets-table`;
-                }
-            }">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 shadow-xs space-y-4"
+                x-data="ticketFilter({
+                    tab: '{{ $tab }}',
+                    project: '{{ request('project_id') }}',
+                    status: '{{ request('status') }}',
+                    priority: '{{ request('priority') }}',
+                    assignee: '{{ request('assigned_to_id') }}'
+                })">
                 <!-- Top Row: Segmented Tabs (Active vs Closed vs Deleted) -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 dark:border-slate-800 pb-4">
-                    <div class="inline-flex items-center p-1 bg-gray-100 dark:bg-slate-800/80 rounded-xl text-xs font-semibold">
-                        <!-- Active Tickets Tab -->
-                        <button type="button" @click="switchTab('active')"
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'active' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
-                            <x-heroicon-m-ticket class="w-4 h-4 {{ $tab === 'active' ? 'text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-slate-500' }}" />
-                            <span>{{ __('Active Tickets') }}</span>
-                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'active' ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
-                                {{ $activeCount }}
-                            </span>
-                        </button>
-
-                        <!-- Closed Tickets Tab -->
-                        <button type="button" @click="switchTab('closed')"
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'closed' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
-                            <x-heroicon-m-check-badge class="w-4 h-4 {{ $tab === 'closed' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500' }}" />
-                            <span>{{ __('Closed Tickets') }}</span>
-                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'closed' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
-                                {{ $closedCount }}
-                            </span>
-                        </button>
-
-                        <!-- Deleted Tickets Tab -->
-                        <button type="button" @click="switchTab('deleted')"
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all {{ $tab === 'deleted' ? 'bg-white dark:bg-slate-700/80 text-gray-900 dark:text-white shadow-xs font-bold' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white' }}">
-                            <x-heroicon-m-trash class="w-4 h-4 {{ $tab === 'deleted' ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-500' }}" />
-                            <span>{{ __('Deleted') }}</span>
-                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab === 'deleted' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' : 'bg-gray-200/70 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }}">
-                                {{ $deletedCount }}
-                            </span>
-                        </button>
-                    </div>
+                    <x-ticket.segmented-tabs
+                        :active-tab="$tab"
+                        :active-count="$activeCount"
+                        :closed-count="$closedCount"
+                        :deleted-count="$deletedCount" />
 
                     <span class="text-xs text-gray-500 dark:text-slate-400 font-medium">
                         {{ __('Showing') }} <strong class="text-gray-800 dark:text-slate-200">{{ $tickets->total() }}</strong>
@@ -258,49 +212,19 @@
 
                                         <!-- Status Badge -->
                                         <td class="py-4 px-3 whitespace-nowrap">
-                                            @php
-                                                $statusClasses = match ($ticket->status) {
-                                                    'new' => 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/50',
-                                                    'in_progress' => 'bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 border-brand-200/60 dark:border-brand-800/50',
-                                                    'waiting' => 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/50',
-                                                    'blocked' => 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/50',
-                                                    'closed' => 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/50',
-                                                    default => 'bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200/60 dark:border-slate-700',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $statusClasses }}">
-                                                <span
-                                                    class="w-1.5 h-1.5 rounded-full {{ match ($ticket->status) {'new' => 'bg-blue-500','in_progress' => 'bg-brand-500','waiting' => 'bg-purple-500','blocked' => 'bg-rose-500','closed' => 'bg-emerald-500',default => 'bg-gray-500'} }}"></span>
-                                                <span>{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
-                                            </span>
+                                            <x-ticket.status-badge :status="$ticket->status" />
                                         </td>
 
                                         <!-- Priority Badge -->
                                         <td class="py-4 px-3 whitespace-nowrap">
-                                            @php
-                                                $priorityClasses = match ($ticket->priority) {
-                                                    'urgent' => 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/50',
-                                                    'high' => 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50',
-                                                    'medium' => 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/50',
-                                                    'low' => 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
-                                                    default => 'text-gray-600 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border {{ $priorityClasses }}">
-                                                {{ ucfirst($ticket->priority) }}
-                                            </span>
+                                            <x-ticket.priority-badge :priority="$ticket->priority" />
                                         </td>
 
                                         <!-- Assignee -->
                                         <td class="py-4 px-3 whitespace-nowrap">
                                             @if ($ticket->assignedTo)
                                                 <div class="flex items-center gap-2">
-                                                    <span
-                                                        class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-bold ring-1 ring-gray-200 dark:ring-slate-700 shrink-0">
-                                                        {{ strtoupper(substr($ticket->assignedTo->name, 0, 1)) }}
-                                                    </span>
+                                                    <x-ui.avatar :name="$ticket->assignedTo->name" size="md" />
                                                     <span
                                                         class="text-xs text-gray-700 dark:text-slate-300 font-medium truncate max-w-[120px]">
                                                         {{ $ticket->assignedTo->name }}
